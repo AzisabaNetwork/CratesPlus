@@ -266,7 +266,8 @@ public class Winning {
 						SettingsManager manager = PlayerSettings.getPlugin().getManager();
 
 						Bukkit.getOnlinePlayers().stream()
-								.filter(p -> !manager.getSettingsData(p).getBoolean("CratesPlus.MuteWinningAnnounce")
+								.filter(p -> winning.getPercentage() <= manager.getSettingsData(p)
+										.getDouble("CratesPlus.MuteWinningAnnounce")
 										|| Objects.equal(p, player))
 								.forEach(p -> {
 									p.sendMessage(message);
@@ -279,8 +280,9 @@ public class Winning {
 				}
 
 				/** Spawn firework */
-				if (crate.isFirework())
+				if (crate.isFirework()) {
 					cratesPlus.getCrateHandler().spawnFirework(player.getLocation());
+				}
 			}
 		});
 	}
