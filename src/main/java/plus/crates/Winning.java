@@ -17,6 +17,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.google.common.base.Objects;
+
 import net.azisaba.playersettings.PlayerSettings;
 import net.azisaba.playersettings.util.SettingsManager;
 
@@ -264,7 +266,8 @@ public class Winning {
 						SettingsManager manager = PlayerSettings.getPlugin().getManager();
 
 						Bukkit.getOnlinePlayers().stream()
-								.filter(p -> !manager.getSettingsData(p).getBoolean("CratesPlus.MuteWinningAnnounce"))
+								.filter(p -> !manager.getSettingsData(p).getBoolean("CratesPlus.MuteWinningAnnounce")
+										|| Objects.equal(p, player))
 								.forEach(p -> {
 									p.sendMessage(message);
 								});
