@@ -268,6 +268,8 @@ public class Winning {
 								.forEach(p -> {
 									p.sendMessage(message);
 								});
+
+						Bukkit.getLogger().info(message);
 					} else {
 						Bukkit.broadcastMessage(message);
 					}
