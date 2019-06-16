@@ -282,10 +282,11 @@ public class Winning {
 
 					SettingsManager manager = PlayerSettings.getPlugin().getManager();
 
+					String key = "CratesPlus.MuteWinningAnnounce";
+
 					Bukkit.getOnlinePlayers().stream()
-							.filter(p1 -> winning.getPercentage() <= manager.getSettingsData(p1)
-									.getDouble("CratesPlus.MuteWinningAnnounce")
-									|| Objects.equal(p1, player))
+							.filter(p1 -> Objects.equal(p1, player)
+									|| winning.getPercentage() <= manager.getSettingsData(p1).getDouble(key))
 							.forEach(p2 -> {
 								p2.sendMessage(message);
 							});
@@ -305,9 +306,9 @@ public class Winning {
 
 	private void runCommands(Player player) {
 		for (String command : getCommands()) {
-			command = command.replaceAll("%name%", player.getName());
-			command = command.replaceAll("%uuid%", player.getUniqueId().toString());
-			command = command.replaceAll("%displayname%", player.getDisplayName());
+			command = command.replace("%name%", player.getName());
+			command = command.replace("%uuid%", player.getUniqueId().toString());
+			command = command.replace("%displayname%", player.getDisplayName());
 
 			Pattern randPattern = Pattern.compile("%rand;(.*?),(.*?)%");
 			Matcher randMatches = randPattern.matcher(command);
