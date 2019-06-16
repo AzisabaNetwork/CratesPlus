@@ -1,5 +1,10 @@
 package plus.crates.Handlers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -7,208 +12,179 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
-import plus.crates.Utils.LegacyMaterial;
 import plus.crates.Winning;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import plus.crates.Utils.LegacyMaterial;
 
 public class SettingsHandler {
-    private CratesPlus cratesPlus;
-    private Inventory settings;
-    private Inventory crates;
-    private HashMap<String, String> lastCrateEditing = new HashMap<>();
+	private final CratesPlus cratesPlus;
+	private Inventory settings;
+	private Inventory crates;
+	private final HashMap<String, String> lastCrateEditing = new HashMap<>();
 
-    public SettingsHandler(CratesPlus cratesPlus) {
-        this.cratesPlus = cratesPlus;
-        setupSettingsInventory();
-        setupCratesInventory();
-    }
+	public SettingsHandler(CratesPlus cratesPlus) {
+		this.cratesPlus = cratesPlus;
+		setupSettingsInventory();
+		setupCratesInventory();
+	}
 
-    public void setupSettingsInventory() {
-        settings = Bukkit.createInventory(null, 9, "CratesPlus Settings");
+	public void setupSettingsInventory() {
+		settings = Bukkit.createInventory(null, 9, "CratesPlus Settings");
 
-        ItemStack itemStack;
-        ItemMeta itemMeta;
-        List<String> lore;
+		ItemStack itemStack;
+		ItemMeta itemMeta;
+		List<String> lore;
 
+		/** Crates */
 
-        /** Crates */
+		itemStack = new ItemStack(Material.CHEST);
+		itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(ChatColor.GREEN + "Edit Crates");
+		lore = new ArrayList<>();
+		lore.add("");
+		itemMeta.setLore(lore);
+		itemStack.setItemMeta(itemMeta);
+		settings.setItem(2, itemStack);
 
-        itemStack = new ItemStack(Material.CHEST);
-        itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.GREEN + "Edit Crates");
-        lore = new ArrayList<>();
-        lore.add("");
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-        settings.setItem(2, itemStack);
+		/** Reload Config */
 
+		Material material;
+		try {
+			material = Material.valueOf("BARRIER");
+		} catch (Exception i) {
+			material = LegacyMaterial.REDSTONE_TORCH_ON.getMaterial();
+		}
 
-        /** Reload Config */
+		itemStack = new ItemStack(material);
+		itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(ChatColor.GREEN + "Reload Config");
+		lore = new ArrayList<>();
+		lore.add("");
+		itemMeta.setLore(lore);
+		itemStack.setItemMeta(itemMeta);
+		settings.setItem(6, itemStack);
+	}
 
-        Material material;
-        try {
-            material = Material.valueOf("BARRIER");
-        } catch (Exception i) {
-            material = LegacyMaterial.REDSTONE_TORCH_ON.getMaterial();
-        }
+	public void setupCratesInventory() {
+		crates = Bukkit.createInventory(null, 54, "Crates");
 
-        itemStack = new ItemStack(material);
-        itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.GREEN + "Reload Config");
-        lore = new ArrayList<>();
-        lore.add("");
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-        settings.setItem(6, itemStack);
-    }
+		ItemStack itemStack;
+		ItemMeta itemMeta;
 
-    public void setupCratesInventory() {
-        crates = Bukkit.createInventory(null, 54, "Crates");
+		for (Map.Entry<String, Crate> entry : cratesPlus.getConfigHandler().getCrates().entrySet()) {
+			Crate crate = entry.getValue();
 
-        ItemStack itemStack;
-        ItemMeta itemMeta;
+			itemStack = new ItemStack(Material.CHEST);
+			itemMeta = itemStack.getItemMeta();
+			itemMeta.setDisplayName(crate.getName(true));
+			itemStack.setItemMeta(itemMeta);
+			crates.addItem(itemStack);
+		}
+	}
 
-        for (Map.Entry<String, Crate> entry : cratesPlus.getConfigHandler().getCrates().entrySet()) {
-            Crate crate = entry.getValue();
+	public void openSettings(final Player player) {
+		Bukkit.getScheduler().runTaskLater(cratesPlus, (Runnable) () -> player.openInventory(settings), 1L);
+	}
 
-            itemStack = new ItemStack(Material.CHEST);
-            itemMeta = itemStack.getItemMeta();
-            itemMeta.setDisplayName(crate.getName(true));
-            itemStack.setItemMeta(itemMeta);
-            crates.addItem(itemStack);
-        }
-    }
+	public void openCrates(final Player player) {
+		Bukkit.getScheduler().runTaskLater(cratesPlus, (Runnable) () -> player.openInventory(crates), 1L);
+	}
 
-    public void openSettings(final Player player) {
-        Bukkit.getScheduler().runTaskLater(cratesPlus, new Runnable() {
-            @Override
-            public void run() {
-                player.openInventory(settings);
-            }
-        }, 1L);
-    }
+	public void openCrateWinnings(final Player player, String crateName) {
+		Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
+		if (crate == null) {
+			player.sendMessage(ChatColor.RED + "Unable to find " + crateName + " crate");
+			return;
+		}
 
-    public void openCrates(final Player player) {
-        Bukkit.getScheduler().runTaskLater(cratesPlus, new Runnable() {
-            @Override
-            public void run() {
-                player.openInventory(crates);
-            }
-        }, 1L);
-    }
+		if (crate.containsCommandItem()) {
+			player.sendMessage(ChatColor.RED + "You can not currently edit a crate in the GUI which has command items");
+			player.closeInventory();
+			return;
+		}
 
-    public void openCrateWinnings(final Player player, String crateName) {
-        Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
-        if (crate == null) {
-            player.sendMessage(ChatColor.RED + "Unable to find " + crateName + " crate");
-            return;
-        }
+		final Inventory inventory = Bukkit.createInventory(null, 54,
+				"Edit " + crate.getName(false) + " Crate Winnings");
 
-        if (crate.containsCommandItem()) {
-            player.sendMessage(ChatColor.RED + "You can not currently edit a crate in the GUI which has command items");
-            player.closeInventory();
-            return;
-        }
+		for (Winning winning : crate.getWinnings()) {
+			inventory.addItem(winning.getWinningItemStack());
+		}
 
-        final Inventory inventory = Bukkit.createInventory(null, 54, "Edit " + crate.getName(false) + " Crate Winnings");
+		Bukkit.getScheduler().runTaskLater(cratesPlus, (Runnable) () -> player.openInventory(inventory), 1L);
 
-        for (Winning winning : crate.getWinnings()) {
-            inventory.addItem(winning.getWinningItemStack());
-        }
+	}
 
-        Bukkit.getScheduler().runTaskLater(cratesPlus, new Runnable() {
-            @Override
-            public void run() {
-                player.openInventory(inventory);
-            }
-        }, 1L);
+	public void openCrate(final Player player, String crateName) {
+		Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
+		if (crate == null) {
+			return; // TODO Error handling here
+		}
 
-    }
+		final Inventory inventory = Bukkit.createInventory(null, 9, "Edit " + crate.getName(false) + " Crate");
 
-    public void openCrate(final Player player, String crateName) {
-        Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
-        if (crate == null) {
-            return; // TODO Error handling here
-        }
+		ItemStack itemStack;
+		ItemMeta itemMeta;
+		List<String> lore;
 
-        final Inventory inventory = Bukkit.createInventory(null, 9, "Edit " + crate.getName(false) + " Crate");
+		/** Rename Crate */
 
-        ItemStack itemStack;
-        ItemMeta itemMeta;
-        List<String> lore;
+		itemStack = new ItemStack(Material.NAME_TAG);
+		itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(ChatColor.WHITE + "Rename Crate");
+		lore = new ArrayList<>();
+		lore.add("");
+		itemMeta.setLore(lore);
+		itemStack.setItemMeta(itemMeta);
+		inventory.setItem(1, itemStack);
 
+		/** Edit Crate Winnings */
 
-        /** Rename Crate */
+		itemStack = new ItemStack(Material.DIAMOND);
+		itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(ChatColor.WHITE + "Edit Crate Winnings");
+		lore = new ArrayList<>();
+		lore.add("");
+		itemMeta.setLore(lore);
+		itemStack.setItemMeta(itemMeta);
+		inventory.setItem(3, itemStack);
 
-        itemStack = new ItemStack(Material.NAME_TAG);
-        itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.WHITE + "Rename Crate");
-        lore = new ArrayList<>();
-        lore.add("");
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-        inventory.setItem(1, itemStack);
+		/** Edit Crate Color */
 
+		itemStack = new ItemStack(LegacyMaterial.WOOL.getMaterial(), 1, (short) 3);
+		itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(ChatColor.WHITE + "Edit Crate Color");
+		lore = new ArrayList<>();
+		lore.add("");
+		itemMeta.setLore(lore);
+		itemStack.setItemMeta(itemMeta);
+		inventory.setItem(5, itemStack);
 
-        /** Edit Crate Winnings */
+		/** Delete Crate */
 
-        itemStack = new ItemStack(Material.DIAMOND);
-        itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.WHITE + "Edit Crate Winnings");
-        lore = new ArrayList<>();
-        lore.add("");
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-        inventory.setItem(3, itemStack);
+		Material material;
 
+		try {
+			material = Material.valueOf("BARRIER");
+		} catch (Exception i) {
+			material = LegacyMaterial.REDSTONE_TORCH_ON.getMaterial();
+		}
 
-        /** Edit Crate Color */
+		itemStack = new ItemStack(material);
+		itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(ChatColor.WHITE + "Delete Crate");
+		lore = new ArrayList<>();
+		lore.add("");
+		itemMeta.setLore(lore);
+		itemStack.setItemMeta(itemMeta);
+		inventory.setItem(7, itemStack);
 
-        itemStack = new ItemStack(LegacyMaterial.WOOL.getMaterial(), 1, (short) 3);
-        itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.WHITE + "Edit Crate Color");
-        lore = new ArrayList<>();
-        lore.add("");
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-        inventory.setItem(5, itemStack);
+		Bukkit.getScheduler().runTaskLater(cratesPlus, (Runnable) () -> player.openInventory(inventory), 1L);
 
+	}
 
-        /** Delete Crate */
-
-        Material material;
-
-        try {
-            material = Material.valueOf("BARRIER");
-        } catch (Exception i) {
-            material = LegacyMaterial.REDSTONE_TORCH_ON.getMaterial();
-        }
-
-        itemStack = new ItemStack(material);
-        itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.WHITE + "Delete Crate");
-        lore = new ArrayList<>();
-        lore.add("");
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-        inventory.setItem(7, itemStack);
-
-        Bukkit.getScheduler().runTaskLater(cratesPlus, new Runnable() {
-            @Override
-            public void run() {
-                player.openInventory(inventory);
-            }
-        }, 1L);
-
-    }
-
-    public HashMap<String, String> getLastCrateEditing() {
-        return lastCrateEditing;
-    }
+	public HashMap<String, String> getLastCrateEditing() {
+		return lastCrateEditing;
+	}
 }

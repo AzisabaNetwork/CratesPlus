@@ -35,7 +35,7 @@ public class Winning {
 	private ItemStack previewItemStack;
 	private ItemStack winningItemStack;
 	private List<String> commands = new ArrayList<>();
-	private List<String> lore = new ArrayList<>();
+	private final List<String> lore = new ArrayList<>();
 	private String entityType = "";
 
 	public Winning(Crate crate, String path, CratesPlus cratesPlus, ConfigHandler configHandler) {
@@ -47,11 +47,13 @@ public class Winning {
 		}
 
 		FileConfiguration config = cratesPlus.getConfig();
-		if (!config.isSet(path))
+		if (!config.isSet(path)) {
 			return;
+		}
 
-		if (!config.isSet(path + ".Type"))
+		if (!config.isSet(path + ".Type")) {
 			return;
+		}
 		String type = config.getString(path + ".Type");
 		ItemStack itemStack;
 		if (type.equalsIgnoreCase("item") || type.equalsIgnoreCase("block")) {
@@ -70,18 +72,22 @@ public class Winning {
 			}
 
 			Integer itemData = 0;
-			if (config.isSet(path + ".Item Data"))
+			if (config.isSet(path + ".Item Data")) {
 				itemData = config.getInt(path + ".Item Data");
+			}
 
-			if (config.isSet(path + ".Entity Type"))
+			if (config.isSet(path + ".Entity Type")) {
 				entityType = config.getString(path + ".Entity Type");
+			}
 
-			if (config.isSet(path + ".Percentage"))
+			if (config.isSet(path + ".Percentage")) {
 				percentage = config.getDouble(path + ".Percentage");
+			}
 
 			Integer amount = 1;
-			if (config.isSet(path + ".Amount"))
+			if (config.isSet(path + ".Amount")) {
 				amount = config.getInt(path + ".Amount");
+			}
 
 			if (!entityType.isEmpty() && itemType == LegacyMaterial.MONSTER_EGG.getMaterial()) {
 				itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.valueOf(entityType.toUpperCase()),
@@ -103,22 +109,27 @@ public class Winning {
 			}
 
 			Material itemType = Material.PAPER;
-			if (config.isSet(path + ".Item Type"))
+			if (config.isSet(path + ".Item Type")) {
 				itemType = Material.getMaterial(config.getString(path + ".Item Type").toUpperCase());
+			}
 
-			if (itemType == null)
+			if (itemType == null) {
 				return;
+			}
 
 			Integer itemData = 0;
-			if (config.isSet(path + ".Item Data"))
+			if (config.isSet(path + ".Item Data")) {
 				itemData = config.getInt(path + ".Item Data");
+			}
 
-			if (config.isSet(path + ".Percentage"))
+			if (config.isSet(path + ".Percentage")) {
 				percentage = config.getDouble(path + ".Percentage");
+			}
 
 			Integer amount = 1;
-			if (config.isSet(path + ".Amount"))
+			if (config.isSet(path + ".Amount")) {
 				amount = config.getInt(path + ".Amount");
+			}
 
 			itemStack = new ItemStack(itemType, amount, Short.parseShort(String.valueOf(itemData)));
 		} else {
@@ -146,12 +157,15 @@ public class Winning {
 		}
 
 		String displayName = "";
-		if (config.isSet(path + ".Name") && !config.getString(path + ".Name").equals("NONE"))
+		if (config.isSet(path + ".Name") && !config.getString(path + ".Name").equals("NONE")) {
 			displayName = ChatColor.translateAlternateColorCodes('&', config.getString(path + ".Name"));
-		if (showAmountInTitle)
+		}
+		if (showAmountInTitle) {
 			displayName = displayName + " x" + originalAmount;
-		if (!displayName.equals(""))
+		}
+		if (!displayName.equals("")) {
 			previewItemStackItemMeta.setDisplayName(displayName);
+		}
 		previewItemStack.setItemMeta(previewItemStackItemMeta);
 
 		if (config.isSet(path + ".Enchantments")) {
@@ -161,8 +175,9 @@ public class Winning {
 				String[] args = enchantment.split("-");
 				try {
 					Integer level = 1;
-					if (args.length > 1)
+					if (args.length > 1) {
 						level = Integer.valueOf(args[1]);
+					}
 					previewItemStack.addUnsafeEnchantment(Enchantment.getByName(args[0].toUpperCase()), level);
 				} catch (Exception ignored) {
 				}
@@ -172,7 +187,7 @@ public class Winning {
 		if (config.isSet(path + ".Lore")) {
 			List<String> lines = config.getStringList(path + ".Lore");
 			for (String line : lines) {
-				this.lore.add(ChatColor.translateAlternateColorCodes('&', line));
+				lore.add(ChatColor.translateAlternateColorCodes('&', line));
 			}
 		}
 
@@ -187,11 +202,13 @@ public class Winning {
 		}
 
 		displayName = "";
-		if (config.isSet(path + ".Name") && !config.getString(path + ".Name").equals("NONE"))
+		if (config.isSet(path + ".Name") && !config.getString(path + ".Name").equals("NONE")) {
 			displayName = ChatColor.translateAlternateColorCodes('&', config.getString(path + ".Name"));
-		if (!displayName.equals(""))
+		}
+		if (!displayName.equals("")) {
 			winningItemStackItemMeta.setDisplayName(displayName);
-		winningItemStackItemMeta.setLore(this.lore);
+		}
+		winningItemStackItemMeta.setLore(lore);
 		winningItemStack.setItemMeta(winningItemStackItemMeta);
 
 		if (config.isSet(path + ".Enchantments")) {
@@ -200,14 +217,16 @@ public class Winning {
 				String enchantment = (String) object;
 				String[] args = enchantment.split("-");
 				Integer level = 1;
-				if (args.length > 1)
+				if (args.length > 1) {
 					level = Integer.valueOf(args[1]);
+				}
 				Enchantment enchantment1 = EnchantmentUtil.getEnchantmentFromNiceName(args[0].toUpperCase());
-				if (enchantment1 == null)
+				if (enchantment1 == null) {
 					Bukkit.getLogger().warning("Invalid enchantment \"" + args[0].toUpperCase() + "\" found for item \""
 							+ ChatColor.stripColor(displayName) + "\"");
-				else
+				} else {
 					winningItemStack.addUnsafeEnchantment(enchantment1, level);
+				}
 			}
 		}
 
@@ -242,47 +261,44 @@ public class Winning {
 
 	public void runWin(final Player player) {
 		final Winning winning = this;
-		Bukkit.getScheduler().runTask(cratesPlus, new Runnable() {
-			@Override
-			public void run() {
-				if (isCommand() && getCommands().size() > 0) {
-					runCommands(player);
-				} else if (!isCommand()) {
-					HashMap<Integer, ItemStack> left = player.getInventory().addItem(winning.getWinningItemStack());
-					for (Map.Entry<Integer, ItemStack> item : left.entrySet()) {
-						player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item.getValue());
-					}
+		Bukkit.getScheduler().runTask(cratesPlus, (Runnable) () -> {
+			if (isCommand() && getCommands().size() > 0) {
+				runCommands(player);
+			} else if (!isCommand()) {
+				HashMap<Integer, ItemStack> left = player.getInventory().addItem(winning.getWinningItemStack());
+				for (Map.Entry<Integer, ItemStack> item : left.entrySet()) {
+					player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item.getValue());
 				}
+			}
 
-				/** Do broadcast */
-				if (crate.isBroadcast()) {
+			/** Do broadcast */
+			if (crate.isBroadcast()) {
 
-					String message = cratesPlus.getPluginPrefix()
-							+ cratesPlus.getMessageHandler().getMessage("Broadcast", player, crate, winning);
+				String message = cratesPlus.getPluginPrefix()
+						+ cratesPlus.getMessageHandler().getMessage("Broadcast", player, crate, winning);
 
-					// if Player Settings Plugin is enabled. use it
-					if (isPlayerSettingsPluginEnabled()) {
+				// if Player Settings Plugin is enabled. use it
+				if (isPlayerSettingsPluginEnabled()) {
 
-						SettingsManager manager = PlayerSettings.getPlugin().getManager();
+					SettingsManager manager = PlayerSettings.getPlugin().getManager();
 
-						Bukkit.getOnlinePlayers().stream()
-								.filter(p -> winning.getPercentage() <= manager.getSettingsData(p)
-										.getDouble("CratesPlus.MuteWinningAnnounce")
-										|| Objects.equal(p, player))
-								.forEach(p -> {
-									p.sendMessage(message);
-								});
+					Bukkit.getOnlinePlayers().stream()
+							.filter(p1 -> winning.getPercentage() <= manager.getSettingsData(p1)
+									.getDouble("CratesPlus.MuteWinningAnnounce")
+									|| Objects.equal(p1, player))
+							.forEach(p2 -> {
+								p2.sendMessage(message);
+							});
 
-						Bukkit.getLogger().info(message);
-					} else {
-						Bukkit.broadcastMessage(message);
-					}
+					Bukkit.getLogger().info(message);
+				} else {
+					Bukkit.broadcastMessage(message);
 				}
+			}
 
-				/** Spawn firework */
-				if (crate.isFirework()) {
-					cratesPlus.getCrateHandler().spawnFirework(player.getLocation());
-				}
+			/** Spawn firework */
+			if (crate.isFirework()) {
+				cratesPlus.getCrateHandler().spawnFirework(player.getLocation());
 			}
 		});
 	}

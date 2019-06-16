@@ -13,15 +13,16 @@ import plus.crates.CratesPlus;
 import plus.crates.Winning;
 
 public class MessageHandler {
-	private CratesPlus cratesPlus;
+	private final CratesPlus cratesPlus;
 
 	public MessageHandler(CratesPlus cratesPlus) {
 		this.cratesPlus = cratesPlus;
 	}
 
 	public String getMessage(String messageName, Player player, Crate crate, Winning winning) {
-		if (!cratesPlus.getMessagesConfig().isSet(messageName))
+		if (!cratesPlus.getMessagesConfig().isSet(messageName)) {
 			return "Message \"" + messageName + "\" not configured";
+		}
 		String message = cratesPlus.getMessagesConfig().getString(messageName);
 		message = doPlaceholders(message, player, crate, winning);
 		message = ChatColor.translateAlternateColorCodes('&', message);
@@ -33,12 +34,14 @@ public class MessageHandler {
 
 	public String doPlaceholders(String message, Player player, Crate crate, Winning winning) {
 		message = ChatColor.translateAlternateColorCodes('&', message);
-		if (player != null)
+		if (player != null) {
 			message = message.replaceAll("%name%", player.getName())
 					.replaceAll("%displayname%", player.getDisplayName())
 					.replaceAll("%uuid%", player.getUniqueId().toString());
-		if (crate != null)
+		}
+		if (crate != null) {
 			message = message.replaceAll("%crate%", crate.getName(true) + ChatColor.RESET);
+		}
 		if (winning != null) {
 			ItemStack winItem = winning.getWinningItemStack();
 			String winningItemName = winItem.getType().toString();
