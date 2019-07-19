@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.google.common.base.Objects;
 
 import net.azisaba.playersettings.PlayerSettings;
+import net.azisaba.playersettings.util.SettingsData;
 import net.azisaba.playersettings.util.SettingsManager;
 
 import plus.crates.Handlers.ConfigHandler;
@@ -283,13 +284,23 @@ public class Winning {
 
                     SettingsManager manager = PlayerSettings.getPlugin().getManager();
 
-                    String key = "CratesPlus.MuteWinningAnnounce";
+                    String otherNotifyKey = "CratesPlus.MuteWinningAnnounce";
+                    String ownNotifyKey = "CratesPlus.MuteOwnWinningAnnounce";
+
+                    SettingsData winnerSetting = manager.getSettingsData(player);
+                    boolean muteOwn = winnerSetting.isSet(ownNotifyKey) && winnerSetting.getBoolean(ownNotifyKey);
 
                     Bukkit.getOnlinePlayers().stream()
-                            .filter(p1 -> Objects.equal(p1, player)
-                                    || winning.getPercentage() <= manager.getSettingsData(p1).getDouble(key))
-                            .forEach(p2 -> {
-                                p2.sendMessage(message);
+                            .filter(p -> {
+                                boolean isMinPercentage = winning.getPercentage() <= manager.getSettingsData(p).getDouble(otherNotifyKey);
+                                if ( !isMinPercentage )
+                                    return false;
+                                if ( Objects.equal(p, player) && muteOwn )
+                                    return false;
+                                return true;
+                            })
+                            .forEach(p -> {
+                                p.sendMessage(message);
                             });
 
                     Bukkit.getLogger().info(message);
