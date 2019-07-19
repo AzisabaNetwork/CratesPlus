@@ -292,12 +292,29 @@ public class Winning {
 
                     Bukkit.getOnlinePlayers().stream()
                             .filter(p -> {
-                                boolean isMinPercentage = winning.getPercentage() <= manager.getSettingsData(p).getDouble(otherNotifyKey);
-                                if ( !isMinPercentage )
-                                    return false;
-                                if ( Objects.equal(p, player) && muteOwn )
-                                    return false;
-                                return true;
+                                SettingsData data = manager.getSettingsData(p);
+                                double userSettingPercentage;
+                                if ( data.isSet(otherNotifyKey) ) {
+                                    userSettingPercentage = data.getDouble(otherNotifyKey);
+                                } else {
+                                    userSettingPercentage = 1d;
+                                }
+                                boolean isMinPercentage = winning.getPercentage() <= userSettingPercentage;
+                                boolean isWinner = Objects.equal(p, player);
+
+                                if ( isMinPercentage ) {
+                                    return true;
+                                } else {
+                                    if ( isWinner ) {
+                                        if ( muteOwn ) {
+                                            return false;
+                                        } else {
+                                            return true;
+                                        }
+                                    } else {
+                                        return false;
+                                    }
+                                }
                             })
                             .forEach(p -> {
                                 p.sendMessage(message);
