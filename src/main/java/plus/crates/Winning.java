@@ -399,4 +399,9 @@ public class Winning {
     public String getId() {
         return id;
     }
+
+    public void resetWinningCount() {
+        winningCount = 0;
+        winningCountUpdated = false;
+    }
 }
