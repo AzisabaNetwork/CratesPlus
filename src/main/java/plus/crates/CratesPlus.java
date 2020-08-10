@@ -285,6 +285,8 @@ public class CratesPlus extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         if (configHandler != null) {
+            saveAllWinningCounts();
+
             for (Map.Entry<String, Crate> crate : configHandler.getCrates().entrySet()) {
                 HashMap<Location, Hologram> holograms = crate.getValue().getHolograms();
                 if (!holograms.isEmpty()) {
@@ -425,6 +427,10 @@ public class CratesPlus extends JavaPlugin implements Listener {
     }
 
     public void reloadPlugin() {
+        if (configHandler != null) {
+            saveAllWinningCounts();
+        }
+
         reloadConfig();
 
         // Do Prefix
@@ -922,4 +928,21 @@ public class CratesPlus extends JavaPlugin implements Listener {
         creatingCrate.remove(uuid);
     }
 
+    public void saveAllWinningCounts() {
+        boolean needSave = false;
+        for (Crate crate : configHandler.getCrates().values()) {
+            for (Winning winning : crate.getWinnings()) {
+                if (!winning.isWinningCountUpdated()) {
+                    continue;
+                }
+
+                getConfig().set("Crates." + crate.getName() + ".WinningCount." + winning.getId(), winning.getWinningCount());
+                needSave = true;
+            }
+        }
+
+        if (needSave) {
+            saveConfig();
+        }
+    }
 }

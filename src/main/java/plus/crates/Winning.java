@@ -28,9 +28,12 @@ public class Winning {
     private final List<String> lore = new ArrayList<>();
     private CratesPlus cratesPlus;
     private Crate crate;
+    private String id;
     private boolean valid = false;
     private boolean command = false;
     private double percentage = 0;
+    private int winningCount = 0;
+    private boolean winningCountUpdated = false;
     private ItemStack previewItemStack;
     private ItemStack winningItemStack;
     private List<String> commands = new ArrayList<>();
@@ -39,6 +42,7 @@ public class Winning {
     public Winning(Crate crate, String path, CratesPlus cratesPlus, ConfigHandler configHandler) {
         this.cratesPlus = cratesPlus;
         this.crate = crate;
+        this.id = path.substring(path.lastIndexOf(".") + 1);
 
         if (configHandler.isDebugMode()) {
             cratesPlus.getLogger().info("Loading data for \"" + path + "\"");
@@ -250,7 +254,13 @@ public class Winning {
     }
 
     public ItemStack getPreviewItemStack() {
-        return previewItemStack.clone(); // Clone it so it can't be changed
+        ItemStack item = previewItemStack.clone();
+        ItemMeta meta = item.getItemMeta();
+        List<String> loreList = new ArrayList<>(meta.getLore());
+        loreList.add(ChatColor.RED + "当たった回数" + ChatColor.GREEN + ": " + ChatColor.YELLOW + winningCount + "回");
+        meta.setLore(loreList);
+        item.setItemMeta(meta);
+        return item;
     }
 
     public ItemStack getWinningItemStack() {
@@ -328,6 +338,9 @@ public class Winning {
                 cratesPlus.getCrateHandler().spawnFirework(player.getLocation());
             }
         });
+
+        winningCount++;
+        winningCountUpdated = true;
     }
 
     private void runCommands(Player player) {
@@ -367,7 +380,23 @@ public class Winning {
         return commands;
     }
 
+    public void setWinningCount(int count) {
+        winningCount = count;
+    }
+
+    public int getWinningCount() {
+        return winningCount;
+    }
+
+    public boolean isWinningCountUpdated() {
+        return winningCountUpdated;
+    }
+
     private boolean isPlayerSettingsPluginEnabled() {
         return Bukkit.getPluginManager().getPlugin("PlayerSettings") != null;
+    }
+
+    public String getId() {
+        return id;
     }
 }

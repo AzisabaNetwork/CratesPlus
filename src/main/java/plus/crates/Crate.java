@@ -106,6 +106,7 @@ public class Crate {
                 }
                 break;
             }
+            winning.setWinningCount(cratesPlus.getConfig().getInt("Crates." + name + ".WinningCount." + id, 0));
             totalPercentage = totalPercentage + winning.getPercentage();
             winnings.add(winning);
         }
