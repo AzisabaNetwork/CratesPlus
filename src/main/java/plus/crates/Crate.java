@@ -1,19 +1,21 @@
 package plus.crates;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import plus.crates.Handlers.ConfigHandler;
+import plus.crates.Utils.Hologram;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-
-import plus.crates.Handlers.ConfigHandler;
-import plus.crates.Utils.Hologram;
-
 public class Crate {
+    private final ArrayList<Winning> winnings = new ArrayList<>();
+    private final HashMap<String, Location> locations = new HashMap<>();
+    private final HashMap<Location, Hologram> holograms = new HashMap<>();
     private CratesPlus cratesPlus;
     private String name;
     private String slug;
@@ -25,12 +27,9 @@ public class Crate {
     private boolean preview = true;
     private boolean hidePercentages = false;
     private double knockback = 0.0;
-    private final ArrayList<Winning> winnings = new ArrayList<>();
     private double totalPercentage = 0;
     private Key key;
-    private final HashMap<String, Location> locations = new HashMap<>();
     private String permission = null;
-    private final HashMap<Location, Hologram> holograms = new HashMap<>();
     private String opener = null;
     private Integer cooldown = null;
 
@@ -39,44 +38,44 @@ public class Crate {
         this.name = name;
         slug = name.toLowerCase();
 
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Color") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Color")) {
             color = ChatColor.valueOf(cratesPlus.getConfig().getString("Crates." + name + ".Color").toUpperCase());
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Block") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Block")) {
             block = Material.valueOf(cratesPlus.getConfig().getString("Crates." + name + ".Block").toUpperCase());
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Block Data") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Block Data")) {
             blockData = Integer.valueOf(cratesPlus.getConfig().getString("Crates." + name + ".Block Data"));
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Firework") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Firework")) {
             firework = cratesPlus.getConfig().getBoolean("Crates." + name + ".Firework");
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Broadcast") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Broadcast")) {
             broadcast = cratesPlus.getConfig().getBoolean("Crates." + name + ".Broadcast");
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Preview") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Preview")) {
             preview = cratesPlus.getConfig().getBoolean("Crates." + name + ".Preview");
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Knockback") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Knockback")) {
             knockback = cratesPlus.getConfig().getDouble("Crates." + name + ".Knockback");
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Permission") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Permission")) {
             permission = cratesPlus.getConfig().getString("Crates." + name + ".Permission");
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Hide Percentages") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Hide Percentages")) {
             hidePercentages = cratesPlus.getConfig().getBoolean("Crates." + name + ".Hide Percentages");
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Opener") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Opener")) {
             opener = cratesPlus.getConfig().getString("Crates." + name + ".Opener");
         }
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Cooldown") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Cooldown")) {
             cooldown = cratesPlus.getConfig().getInt("Crates." + name + ".Cooldown");
         }
 
-        if ( !cratesPlus.getConfig().isSet("Crates." + name + ".Key")
+        if (!cratesPlus.getConfig().isSet("Crates." + name + ".Key")
                 || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Item")
                 || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Name")
-                || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Enchanted") ) {
+                || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Enchanted")) {
             return;
         }
 
@@ -84,25 +83,25 @@ public class Crate {
                 cratesPlus.getConfig().getString("Crates." + name + ".Key.Name").replaceAll("%type%", getName(true)),
                 cratesPlus.getConfig().getBoolean("Crates." + name + ".Key.Enchanted"), cratesPlus);
 
-        if ( cratesPlus.getConfig().isSet("Crates." + name + ".Key.Lore") ) {
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Key.Lore")) {
             List<String> lore = new ArrayList<>();
             List<String> lines = cratesPlus.getConfig().getStringList("Crates." + name + ".Key.Lore");
-            for ( String line : lines ) {
+            for (String line : lines) {
                 lore.add(ChatColor.RESET + ChatColor.translateAlternateColorCodes('&', line));
             }
             key.setLore(lore);
         }
 
-        if ( !cratesPlus.getConfig().isSet("Crates." + name + ".Winnings") ) {
+        if (!cratesPlus.getConfig().isSet("Crates." + name + ".Winnings")) {
             return;
         }
 
-        for ( String id : cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings")
-                .getKeys(false) ) {
+        for (String id : cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings")
+                .getKeys(false)) {
             String path = "Crates." + name + ".Winnings." + id;
             Winning winning = new Winning(this, path, cratesPlus, configHandler);
-            if ( totalPercentage + winning.getPercentage() > 100 || !winning.isValid() ) {
-                if ( totalPercentage + winning.getPercentage() > 100 ) {
+            if (totalPercentage + winning.getPercentage() > 100 || !winning.isValid()) {
+                if (totalPercentage + winning.getPercentage() > 100) {
                     Bukkit.getLogger().warning("Your percentages must NOT add up to more than 100%");
                 }
                 break;
@@ -117,7 +116,7 @@ public class Crate {
     }
 
     public String getName(boolean includecolor) {
-        if ( includecolor ) {
+        if (includecolor) {
             return getColor() + name;
         }
         return name;
@@ -129,6 +128,14 @@ public class Crate {
 
     public ChatColor getColor() {
         return color;
+    }
+
+    public void setColor(String color) {
+        this.color = ChatColor.valueOf(color);
+        String path = "Crates." + name + ".Color";
+        cratesPlus.getConfig().set(path, color);
+        cratesPlus.saveConfig();
+        cratesPlus.reloadPlugin();
     }
 
     public Material getBlock() {
@@ -162,12 +169,12 @@ public class Crate {
     public void reloadWinnings() {
         cratesPlus.reloadConfig();
         winnings.clear();
-        if ( cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings") != null ) {
-            for ( String id : cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings")
-                    .getKeys(false) ) {
+        if (cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings") != null) {
+            for (String id : cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings")
+                    .getKeys(false)) {
                 String path = "Crates." + name + ".Winnings." + id;
                 Winning winning = new Winning(this, path, cratesPlus, cratesPlus.getConfigHandler());
-                if ( winning.isValid() ) {
+                if (winning.isValid()) {
                     winnings.add(winning);
                 }
             }
@@ -198,14 +205,6 @@ public class Crate {
         this.key = key;
     }
 
-    public void setColor(String color) {
-        this.color = ChatColor.valueOf(color);
-        String path = "Crates." + name + ".Color";
-        cratesPlus.getConfig().set(path, color);
-        cratesPlus.saveConfig();
-        cratesPlus.reloadPlugin();
-    }
-
     public HashMap<String, Location> getLocations() {
         return locations;
     }
@@ -228,7 +227,7 @@ public class Crate {
 
     public void addToConfig(Location location) {
         List<String> locations = new ArrayList<>();
-        if ( cratesPlus.getDataConfig().isSet("Crate Locations." + this.getName(false).toLowerCase()) ) {
+        if (cratesPlus.getDataConfig().isSet("Crate Locations." + this.getName(false).toLowerCase())) {
             locations = cratesPlus.getDataConfig()
                     .getStringList("Crate Locations." + this.getName(false).toLowerCase());
         }
@@ -237,39 +236,39 @@ public class Crate {
         cratesPlus.getDataConfig().set("Crate Locations." + this.getName(false).toLowerCase(), locations);
         try {
             cratesPlus.getDataConfig().save(cratesPlus.getDataFile());
-        } catch ( IOException e ) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void removeFromConfig(Location location) {
         List<String> locations = new ArrayList<>();
-        if ( cratesPlus.getDataConfig().isSet("Crate Locations." + this.getName(false).toLowerCase()) ) {
+        if (cratesPlus.getDataConfig().isSet("Crate Locations." + this.getName(false).toLowerCase())) {
             locations = cratesPlus.getDataConfig()
                     .getStringList("Crate Locations." + this.getName(false).toLowerCase());
         }
-        if ( locations.contains(location.getWorld().getName() + "|" + location.getBlockX() + "|" + location.getBlockY()
-                + "|" + location.getBlockZ()) ) {
+        if (locations.contains(location.getWorld().getName() + "|" + location.getBlockX() + "|" + location.getBlockY()
+                + "|" + location.getBlockZ())) {
             locations.remove(location.getWorld().getName() + "|" + location.getBlockX() + "|" + location.getBlockY()
                     + "|" + location.getBlockZ());
         }
         cratesPlus.getDataConfig().set("Crate Locations." + this.getName(false).toLowerCase(), locations);
         try {
             cratesPlus.getDataConfig().save(cratesPlus.getDataFile());
-        } catch ( IOException e ) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void loadHolograms(Location location) {
         // Do holograms
-        if ( cratesPlus.getConfigHandler().getHolograms(slug) == null
-                || cratesPlus.getConfigHandler().getHolograms(slug).isEmpty() ) {
+        if (cratesPlus.getConfigHandler().getHolograms(slug) == null
+                || cratesPlus.getConfigHandler().getHolograms(slug).isEmpty()) {
             return;
         }
 
         ArrayList<String> list = new ArrayList<>();
-        for ( String string : cratesPlus.getConfigHandler().getHolograms(slug) ) {
+        for (String string : cratesPlus.getConfigHandler().getHolograms(slug)) {
             list.add(cratesPlus.getMessageHandler().doPlaceholders(string, null, this, null));
         }
         cratesPlus.getVersion_util().createHologram(location, list, this);
@@ -285,7 +284,7 @@ public class Crate {
 
     public void removeHolograms(Location location) {
         cratesPlus.getVersion_util().removeHologram(location);
-        if ( holograms.containsKey(location) ) {
+        if (holograms.containsKey(location)) {
             holograms.get(location).destroyAll();
             holograms.remove(location);
         }
@@ -295,22 +294,22 @@ public class Crate {
         return opener;
     }
 
-    public Integer getCooldown() {
-        if ( cooldown == null || cooldown < 0 ) {
-            return cratesPlus.getConfigHandler().getDefaultCooldown();
-        }
-        return cooldown;
-    }
-
     public void setOpener(String opener) {
         this.opener = opener;
         cratesPlus.getConfig().set("Crates." + getName(false) + ".Opener", opener);
         cratesPlus.saveConfig();
     }
 
+    public Integer getCooldown() {
+        if (cooldown == null || cooldown < 0) {
+            return cratesPlus.getConfigHandler().getDefaultCooldown();
+        }
+        return cooldown;
+    }
+
     public boolean containsCommandItem() {
-        for ( Winning winning : getWinnings() ) {
-            if ( winning.isCommand() ) {
+        for (Winning winning : getWinnings()) {
+            if (winning.isCommand()) {
                 return true;
             }
         }

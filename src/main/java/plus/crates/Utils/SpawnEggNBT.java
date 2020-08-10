@@ -1,10 +1,10 @@
 package plus.crates.Utils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Represents a spawn egg that can be used to spawn mobs. Only for 1.9+, from
@@ -20,12 +20,47 @@ public class SpawnEggNBT {
         this.type = type;
     }
 
+    public static SpawnEggNBT fromItemStack(ItemStack itemStack) {
+        // TODO CHECK THIS
+        if (itemStack == null || itemStack.getType() != LegacyMaterial.MONSTER_EGG.getMaterial()) {
+            return null;
+        }
+        try {
+            Class craftItemStack = ReflectionUtil.getCBClass("inventory.CraftItemStack");
+            Method asNMSCopyMethod = craftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
+            Object nmsItemStack = asNMSCopyMethod.invoke(null, itemStack);
+            Class nmsItemStackClass = ReflectionUtil.getNMSClass("ItemStack");
+            Object nbtTagCompound = nmsItemStackClass.getDeclaredMethod("getTag").invoke(nmsItemStack);
+            Class nbtTagCompoundClass = ReflectionUtil.getNMSClass("NBTTagCompound");
+            if (nbtTagCompound != null) {
+                Method getCompoundMethod = nbtTagCompoundClass.getDeclaredMethod("getCompound", String.class);
+                Object entityTagCompount = getCompoundMethod.invoke(nbtTagCompound, "EntityTag");
+                Method getStringMethod = nbtTagCompoundClass.getDeclaredMethod("getString", String.class);
+                String type = (String) getStringMethod.invoke(entityTagCompount, "id");
+                type = type.replaceFirst("minecraft:", "");
+                switch (type) {
+                    case "CAVESPIDER":
+                        type = "CAVE_SPIDER";
+                        break;
+                }
+                EntityType entityType = EntityType.fromName(type);
+                if (entityType == null || !entityType.isAlive()) {
+                    return null;
+                }
+                return new SpawnEggNBT(entityType);
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public EntityType getSpawnedType() {
         return type;
     }
 
     public void setSpawnedType(EntityType type) {
-        if ( type.isAlive() ) {
+        if (type.isAlive()) {
             this.type = type;
         }
     }
@@ -40,13 +75,13 @@ public class SpawnEggNBT {
             Class nmsItemStackClass = ReflectionUtil.getNMSClass("ItemStack");
             Object nbtTagCompound = nmsItemStackClass.getDeclaredMethod("getTag").invoke(nmsItemStack);
             Class nbtTagCompoundClass = ReflectionUtil.getNMSClass("NBTTagCompound");
-            if ( nbtTagCompound == null ) {
+            if (nbtTagCompound == null) {
                 nbtTagCompound = nbtTagCompoundClass.getConstructor().newInstance();
             }
             Object id = nbtTagCompoundClass.getConstructor().newInstance();
             Method setStringMethod = nbtTagCompoundClass.getDeclaredMethod("setString", String.class, String.class);
 
-            if ( is_1_11 ) {
+            if (is_1_11) {
                 setStringMethod.invoke(id, "id", "minecraft:" + type.getName());
             } else {
                 setStringMethod.invoke(id, "id", type.getName());
@@ -59,43 +94,8 @@ public class SpawnEggNBT {
             setTagMethod.invoke(nmsItemStack, nbtTagCompound);
             Method asBukkitCopy = craftItemStack.getDeclaredMethod("asBukkitCopy", nmsItemStackClass);
             return (ItemStack) asBukkitCopy.invoke(null, nmsItemStack);
-        } catch ( NoSuchMethodException | InvocationTargetException | IllegalAccessException
-                | InstantiationException e ) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static SpawnEggNBT fromItemStack(ItemStack itemStack) {
-        // TODO CHECK THIS
-        if ( itemStack == null || itemStack.getType() != LegacyMaterial.MONSTER_EGG.getMaterial() ) {
-            return null;
-        }
-        try {
-            Class craftItemStack = ReflectionUtil.getCBClass("inventory.CraftItemStack");
-            Method asNMSCopyMethod = craftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
-            Object nmsItemStack = asNMSCopyMethod.invoke(null, itemStack);
-            Class nmsItemStackClass = ReflectionUtil.getNMSClass("ItemStack");
-            Object nbtTagCompound = nmsItemStackClass.getDeclaredMethod("getTag").invoke(nmsItemStack);
-            Class nbtTagCompoundClass = ReflectionUtil.getNMSClass("NBTTagCompound");
-            if ( nbtTagCompound != null ) {
-                Method getCompoundMethod = nbtTagCompoundClass.getDeclaredMethod("getCompound", String.class);
-                Object entityTagCompount = getCompoundMethod.invoke(nbtTagCompound, "EntityTag");
-                Method getStringMethod = nbtTagCompoundClass.getDeclaredMethod("getString", String.class);
-                String type = (String) getStringMethod.invoke(entityTagCompount, "id");
-                type = type.replaceFirst("minecraft:", "");
-                switch (type) {
-                case "CAVESPIDER":
-                    type = "CAVE_SPIDER";
-                    break;
-                }
-                EntityType entityType = EntityType.fromName(type);
-                if ( entityType == null || !entityType.isAlive() ) {
-                    return null;
-                }
-                return new SpawnEggNBT(entityType);
-            }
-        } catch ( NoSuchMethodException | InvocationTargetException | IllegalAccessException e ) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
+                | InstantiationException e) {
             e.printStackTrace();
         }
         return null;

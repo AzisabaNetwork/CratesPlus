@@ -1,13 +1,5 @@
 package plus.crates.Listeners;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,13 +14,16 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
 import plus.crates.Events.PlayerInputEvent;
 import plus.crates.Utils.LegacyMaterial;
 import plus.crates.Utils.ReflectionUtil;
 import plus.crates.Utils.SignInputHandler;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class SettingsListener implements Listener {
     private final CratesPlus cratesPlus;
@@ -40,21 +35,21 @@ public class SettingsListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if ( !(event.getPlayer() instanceof Player) ) {
+        if (!(event.getPlayer() instanceof Player)) {
             return;
         }
         String title = event.getView().getTitle();
-        if ( title.contains("Crate Winnings") ) {
+        if (title.contains("Crate Winnings")) {
             String crateName = ChatColor.stripColor(title.replaceAll("Edit ", "").replaceAll(" Crate Winnings", ""));
             Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
-            if ( crate == null ) {
+            if (crate == null) {
                 return;
             }
 
             cratesPlus.getConfig().set("Crates." + crateName + ".Winnings", null);
             cratesPlus.saveConfig();
-            for ( ItemStack itemStack : event.getInventory().getContents() ) {
-                if ( itemStack == null ) {
+            for (ItemStack itemStack : event.getInventory().getContents()) {
+                if (itemStack == null) {
                     continue;
                 }
                 int id = getFreeID(crateName, 1);
@@ -63,13 +58,13 @@ public class SettingsListener implements Listener {
                 String itemtype = itemStack.getType().toString().toUpperCase();
                 Byte itemData = itemStack.getData().getData();
                 String name = "NONE";
-                if ( itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ) {
+                if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
                     name = itemStack.getItemMeta().getDisplayName().replaceAll("§", "&");
                 }
                 Integer amount = itemStack.getAmount();
                 List<String> enchantments = new ArrayList<>();
-                if ( itemStack.getEnchantments() != null && !itemStack.getEnchantments().isEmpty() ) {
-                    for ( Map.Entry<Enchantment, Integer> entry : itemStack.getEnchantments().entrySet() ) {
+                if (itemStack.getEnchantments() != null && !itemStack.getEnchantments().isEmpty()) {
+                    for (Map.Entry<Enchantment, Integer> entry : itemStack.getEnchantments().entrySet()) {
                         Enchantment enchantment = entry.getKey();
                         Integer level = entry.getValue();
                         enchantments.add(enchantment.getName().toUpperCase() + "-" + level);
@@ -84,7 +79,7 @@ public class SettingsListener implements Listener {
                  */
 
                 List<String> lore = new ArrayList<>();
-                if ( itemStack.hasItemMeta() && itemStack.getItemMeta().hasLore() ) {
+                if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasLore()) {
                     lore = itemStack.getItemMeta().getLore();
                 }
 
@@ -99,18 +94,18 @@ public class SettingsListener implements Listener {
                 config.set(path + ".Enchantments", enchantments);
                 config.set(path + ".Lore", lore);
 
-                if ( itemStack.hasItemMeta() ) {
+                if (itemStack.hasItemMeta()) {
                     config.set(path + ".Metadata", itemStack.getItemMeta()); // Set Item Meta
                 }
 
-                if ( entityType != null ) {
+                if (entityType != null) {
                     config.set(path + ".Entity Type", entityType.toString());
                 }
             }
 
             cratesPlus.saveConfig();
             crate.reloadWinnings();
-            if ( event.getPlayer() instanceof Player ) {
+            if (event.getPlayer() instanceof Player) {
                 Player player = (Player) event.getPlayer();
                 player.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "Crate winnings updated");
             }
@@ -118,7 +113,7 @@ public class SettingsListener implements Listener {
     }
 
     private int getFreeID(String crate, int check) {
-        if ( cratesPlus.getConfig().isSet("Crates." + crate + ".Winnings." + check) ) {
+        if (cratesPlus.getConfig().isSet("Crates." + crate + ".Winnings." + check)) {
             return getFreeID(crate, check + 1);
         }
         return check;
@@ -131,22 +126,22 @@ public class SettingsListener implements Listener {
 
         String title = event.getView().getTitle();
 
-        if ( title.contains("CratesPlus Settings") ) {
+        if (title.contains("CratesPlus Settings")) {
 
-            if ( itemStack == null || itemStack.getType() == Material.AIR || !event.getCurrentItem().hasItemMeta()
-                    || !event.getCurrentItem().getItemMeta().hasDisplayName() ) {
+            if (itemStack == null || itemStack.getType() == Material.AIR || !event.getCurrentItem().hasItemMeta()
+                    || !event.getCurrentItem().getItemMeta().hasDisplayName()) {
                 event.setCancelled(true);
                 return;
             }
 
-            if ( event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Edit Crates") ) {
+            if (event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Edit Crates")) {
                 event.setCancelled(true);
                 player.closeInventory();
                 cratesPlus.getSettingsHandler().openCrates(player);
                 return;
             }
 
-            if ( event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Reload Config") ) {
+            if (event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Reload Config")) {
                 event.setCancelled(true);
                 player.closeInventory();
                 cratesPlus.reloadPlugin();
@@ -155,37 +150,37 @@ public class SettingsListener implements Listener {
                 return;
             }
 
-            if ( event.getCurrentItem().getItemMeta().getDisplayName().contains(ChatColor.RED + "") ) {
+            if (event.getCurrentItem().getItemMeta().getDisplayName().contains(ChatColor.RED + "")) {
                 event.setCancelled(true);
                 player.closeInventory();
                 player.sendMessage(ChatColor.RED + "Coming Soon");
             }
 
-        } else if ( title.contains("Crates") ) {
+        } else if (title.contains("Crates")) {
 
-            if ( itemStack == null || itemStack.getType() == Material.AIR || !event.getCurrentItem().hasItemMeta()
-                    || !event.getCurrentItem().getItemMeta().hasDisplayName() ) {
+            if (itemStack == null || itemStack.getType() == Material.AIR || !event.getCurrentItem().hasItemMeta()
+                    || !event.getCurrentItem().getItemMeta().hasDisplayName()) {
                 event.setCancelled(true);
                 return;
             }
 
-            if ( event.getCurrentItem().getType() == Material.CHEST ) {
+            if (event.getCurrentItem().getType() == Material.CHEST) {
                 player.closeInventory();
                 cratesPlus.getSettingsHandler().openCrate(player,
                         ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName()));
             }
 
-        } else if ( title.contains("Edit Crate Color") ) {
+        } else if (title.contains("Edit Crate Color")) {
             event.setCancelled(true);
-            if ( event.getCurrentItem() != null
-                    && event.getCurrentItem().getType() == LegacyMaterial.WOOL.getMaterial() ) {
+            if (event.getCurrentItem() != null
+                    && event.getCurrentItem().getType() == LegacyMaterial.WOOL.getMaterial()) {
                 player.closeInventory();
                 ChatColor color = ChatColor.valueOf(ChatColor.stripColor(
                         event.getCurrentItem().getItemMeta().getDisplayName().toUpperCase().replaceAll(" ", "_")));
-                if ( color != null ) {
+                if (color != null) {
                     String lastCrate = cratesPlus.getSettingsHandler().getLastCrateEditing()
                             .get(player.getUniqueId().toString());
-                    if ( lastCrate == null ) {
+                    if (lastCrate == null) {
                         return;
                     }
                     Crate crate = cratesPlus.getConfigHandler().getCrates().get(lastCrate.toLowerCase());
@@ -195,18 +190,18 @@ public class SettingsListener implements Listener {
                             + "Updated color, you may need to replace the crate for colors to update in holograms");
                 }
             }
-        } else if ( title.contains("Edit ") && !title.contains("Winnings") && !title.contains("Color") ) {
-            if ( itemStack == null || itemStack.getType() == Material.AIR || !event.getCurrentItem().hasItemMeta()
-                    || !event.getCurrentItem().getItemMeta().hasDisplayName() ) {
+        } else if (title.contains("Edit ") && !title.contains("Winnings") && !title.contains("Color")) {
+            if (itemStack == null || itemStack.getType() == Material.AIR || !event.getCurrentItem().hasItemMeta()
+                    || !event.getCurrentItem().getItemMeta().hasDisplayName()) {
                 event.setCancelled(true);
                 return;
             }
 
-            if ( event.getCurrentItem().getItemMeta().getDisplayName().contains("Edit Crate Winnings") ) {
+            if (event.getCurrentItem().getItemMeta().getDisplayName().contains("Edit Crate Winnings")) {
                 event.setCancelled(true);
                 String name = ChatColor.stripColor(title.replaceAll("Edit ", "").replaceAll(" Crate", ""));
                 cratesPlus.getSettingsHandler().openCrateWinnings(player, name);
-            } else if ( event.getCurrentItem().getItemMeta().getDisplayName().contains("Delete") ) {
+            } else if (event.getCurrentItem().getItemMeta().getDisplayName().contains("Delete")) {
                 event.setCancelled(true);
                 String name = ChatColor.stripColor(title.replaceAll("Edit ", "").replaceAll(" Crate", ""));
                 cratesPlus.getConfig().set("Crates." + name, null);
@@ -215,7 +210,7 @@ public class SettingsListener implements Listener {
                 cratesPlus.getConfigHandler().getCrates().remove(name.toLowerCase());
                 cratesPlus.getSettingsHandler().setupCratesInventory();
                 player.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + name + " crate has been deleted");
-            } else if ( event.getCurrentItem().getItemMeta().getDisplayName().contains("Rename Crate") ) {
+            } else if (event.getCurrentItem().getItemMeta().getDisplayName().contains("Rename Crate")) {
                 // Let's handle renaming using sign packets ;D
                 String name = ChatColor.stripColor(title.replaceAll("Edit ", "").replaceAll(" Crate", ""));
                 renaming.put(player.getUniqueId(), name);
@@ -225,14 +220,14 @@ public class SettingsListener implements Listener {
                     Object packet = signConstructor.newInstance(ReflectionUtil.getBlockPosition(player));
                     SignInputHandler.injectNetty(player);
                     ReflectionUtil.sendPacket(player, packet);
-                } catch ( NoSuchMethodException | IllegalAccessException | InstantiationException
-                        | InvocationTargetException e ) {
+                } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
+                        | InvocationTargetException e) {
                     player.sendMessage(
                             cratesPlus.getPluginPrefix() + ChatColor.RED + "Please use /crate rename <old> <new>");
                     renaming.remove(player.getUniqueId());
                 }
                 event.setCancelled(true);
-            } else if ( event.getCurrentItem().getItemMeta().getDisplayName().contains("Edit Crate Color") ) {
+            } else if (event.getCurrentItem().getItemMeta().getDisplayName().contains("Edit Crate Color")) {
                 event.setCancelled(true);
                 Inventory inventory = Bukkit.createInventory(null, 18, "Edit Crate Color");
 
@@ -356,24 +351,24 @@ public class SettingsListener implements Listener {
 
     @EventHandler
     public void onPlayerInput(final PlayerInputEvent event) {
-        if ( renaming.containsKey(event.getPlayer().getUniqueId()) ) {
+        if (renaming.containsKey(event.getPlayer().getUniqueId())) {
             String name = renaming.get(event.getPlayer().getUniqueId());
             renaming.remove(event.getPlayer().getUniqueId());
             String newName = "";
-            for ( String line : event.getLines() ) {
+            for (String line : event.getLines()) {
                 newName += line;
             }
-            if ( !name.isEmpty() && !newName.isEmpty() ) {
+            if (!name.isEmpty() && !newName.isEmpty()) {
                 Bukkit.dispatchCommand(event.getPlayer(), "crate rename " + name + " " + newName);
             }
             cratesPlus.getSettingsHandler().openCrate(event.getPlayer(), newName);
-        } else if ( cratesPlus.isCreating(event.getPlayer().getUniqueId()) ) {
+        } else if (cratesPlus.isCreating(event.getPlayer().getUniqueId())) {
             cratesPlus.removeCreating(event.getPlayer().getUniqueId());
             String name = "";
-            for ( String line : event.getLines() ) {
+            for (String line : event.getLines()) {
                 name += line;
             }
-            if ( !name.isEmpty() ) {
+            if (!name.isEmpty()) {
                 final String finalName = name;
                 Bukkit.getScheduler().runTask(cratesPlus,
                         (Runnable) () -> Bukkit.dispatchCommand(event.getPlayer(), "crate create " + finalName));

@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
 
@@ -22,16 +21,16 @@ public class CrateOpenEvent extends Event {
         crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public void doEvent() {
         CratesPlus.getOpenHandler().getOpener(crate).startOpening(player, crate, blockLocation);
     }
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

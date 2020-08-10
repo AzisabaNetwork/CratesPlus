@@ -1,14 +1,13 @@
 package plus.crates.Opener;
 
-import java.io.IOException;
-
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
+
+import java.io.IOException;
 
 public class NoGUIOpener extends Opener {
     private boolean chestSound = true;
@@ -20,13 +19,13 @@ public class NoGUIOpener extends Opener {
     @Override
     public void doSetup() {
         FileConfiguration config = getOpenerConfig();
-        if ( config.isSet("Chest Sound") ) {
+        if (config.isSet("Chest Sound")) {
             chestSound = config.getBoolean("Chest Sound", true);
         } else {
             config.set("Chest Sound", true);
             try {
                 config.save(getOpenerConfigFile());
-            } catch ( IOException e ) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -34,14 +33,14 @@ public class NoGUIOpener extends Opener {
 
     @Override
     public void doOpen(Player player, Crate crate, Location location) {
-        if ( chestSound ) {
+        if (chestSound) {
             Sound sound;
             try {
                 sound = Sound.valueOf("CHEST_OPEN");
-            } catch ( Exception e ) {
+            } catch (Exception e) {
                 try {
                     sound = Sound.valueOf("BLOCK_CHEST_OPEN");
-                } catch ( Exception ee ) {
+                } catch (Exception ee) {
                     return; // This should never happen!
                 }
             }

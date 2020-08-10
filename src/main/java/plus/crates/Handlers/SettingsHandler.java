@@ -1,10 +1,5 @@
 package plus.crates.Handlers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,17 +7,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
-import plus.crates.Winning;
 import plus.crates.Utils.LegacyMaterial;
+import plus.crates.Winning;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SettingsHandler {
     private final CratesPlus cratesPlus;
+    private final HashMap<String, String> lastCrateEditing = new HashMap<>();
     private Inventory settings;
     private Inventory crates;
-    private final HashMap<String, String> lastCrateEditing = new HashMap<>();
 
     public SettingsHandler(CratesPlus cratesPlus) {
         this.cratesPlus = cratesPlus;
@@ -53,7 +52,7 @@ public class SettingsHandler {
         Material material;
         try {
             material = Material.valueOf("BARRIER");
-        } catch ( Exception i ) {
+        } catch (Exception i) {
             material = LegacyMaterial.REDSTONE_TORCH_ON.getMaterial();
         }
 
@@ -73,7 +72,7 @@ public class SettingsHandler {
         ItemStack itemStack;
         ItemMeta itemMeta;
 
-        for ( Map.Entry<String, Crate> entry : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+        for (Map.Entry<String, Crate> entry : cratesPlus.getConfigHandler().getCrates().entrySet()) {
             Crate crate = entry.getValue();
 
             itemStack = new ItemStack(Material.CHEST);
@@ -94,12 +93,12 @@ public class SettingsHandler {
 
     public void openCrateWinnings(final Player player, String crateName) {
         Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
-        if ( crate == null ) {
+        if (crate == null) {
             player.sendMessage(ChatColor.RED + "Unable to find " + crateName + " crate");
             return;
         }
 
-        if ( crate.containsCommandItem() ) {
+        if (crate.containsCommandItem()) {
             player.sendMessage(ChatColor.RED + "You can not currently edit a crate in the GUI which has command items");
             player.closeInventory();
             return;
@@ -108,7 +107,7 @@ public class SettingsHandler {
         final Inventory inventory = Bukkit.createInventory(null, 54,
                 "Edit " + crate.getName(false) + " Crate Winnings");
 
-        for ( Winning winning : crate.getWinnings() ) {
+        for (Winning winning : crate.getWinnings()) {
             inventory.addItem(winning.getWinningItemStack());
         }
 
@@ -118,7 +117,7 @@ public class SettingsHandler {
 
     public void openCrate(final Player player, String crateName) {
         Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
-        if ( crate == null ) {
+        if (crate == null) {
             return; // TODO Error handling here
         }
 
@@ -167,7 +166,7 @@ public class SettingsHandler {
 
         try {
             material = Material.valueOf("BARRIER");
-        } catch ( Exception i ) {
+        } catch (Exception i) {
             material = LegacyMaterial.REDSTONE_TORCH_ON.getMaterial();
         }
 

@@ -1,10 +1,5 @@
 package plus.crates.Opener;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -18,11 +13,15 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
-import plus.crates.Winning;
 import plus.crates.Utils.LegacyMaterial;
+import plus.crates.Winning;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
 
 public class BasicGUIOpener extends Opener implements Listener {
     private final CratesPlus cratesPlus;
@@ -38,11 +37,11 @@ public class BasicGUIOpener extends Opener implements Listener {
     @Override
     public void doSetup() {
         FileConfiguration config = getOpenerConfig();
-        if ( !config.isSet("Length") ) {
+        if (!config.isSet("Length")) {
             config.set("Length", cratesPlus.getConfigHandler().getCrateGUITime());
             try {
                 config.save(getOpenerConfigFile());
-            } catch ( IOException e ) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -53,7 +52,7 @@ public class BasicGUIOpener extends Opener implements Listener {
     @Override
     public void doOpen(final Player player, final Crate crate, Location blockLocation) {
         final Inventory winGUI;
-        final Integer[] timer = { 0 };
+        final Integer[] timer = {0};
         final Integer[] currentItem = new Integer[1];
 
         Random random = new Random();
@@ -65,7 +64,7 @@ public class BasicGUIOpener extends Opener implements Listener {
         player.openInventory(winGUI);
         final int maxTimeTicks = length * 10;
         tasks.put(player.getUniqueId(), Bukkit.getScheduler().runTaskTimerAsynchronously(cratesPlus, (Runnable) () -> {
-            if ( !player.isOnline() ) {
+            if (!player.isOnline()) {
                 finish(player);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                         "crate key " + player.getName() + " " + crate.getName() + " 1");
@@ -73,21 +72,21 @@ public class BasicGUIOpener extends Opener implements Listener {
                 return;
             }
             Integer i = 0;
-            while ( i < 45 ) {
-                if ( i == 22 ) {
+            while (i < 45) {
+                if (i == 22) {
                     i++;
-                    if ( crate.getWinnings().size() == currentItem[0] ) {
+                    if (crate.getWinnings().size() == currentItem[0]) {
                         currentItem[0] = 0;
                     }
                     final Winning winning;
-                    if ( timer[0] == maxTimeTicks ) {
+                    if (timer[0] == maxTimeTicks) {
                         winning = getWinning(crate);
                     } else {
                         winning = crate.getWinnings().get(currentItem[0]);
                     }
 
                     final ItemStack currentItemStack = winning.getPreviewItemStack();
-                    if ( timer[0] == maxTimeTicks ) {
+                    if (timer[0] == maxTimeTicks) {
                         winning.runWin(player);
                     }
                     winGUI.setItem(22, currentItemStack);
@@ -98,27 +97,27 @@ public class BasicGUIOpener extends Opener implements Listener {
                 ItemStack itemStack = new ItemStack(LegacyMaterial.STAINED_GLASS_PANE.getMaterial(), 1,
                         (short) cratesPlus.getCrateHandler().randInt(0, 15));
                 ItemMeta itemMeta = itemStack.getItemMeta();
-                if ( timer[0] == maxTimeTicks ) {
+                if (timer[0] == maxTimeTicks) {
                     itemMeta.setDisplayName(ChatColor.RESET + "Winner!");
                 } else {
                     Sound sound;
                     try {
                         sound = Sound.valueOf("NOTE_PIANO");
-                    } catch ( Exception e ) {
+                    } catch (Exception e) {
                         try {
                             sound = Sound.valueOf("BLOCK_NOTE_HARP");
-                        } catch ( Exception ee ) {
+                        } catch (Exception ee) {
                             try {
                                 sound = Sound.valueOf("BLOCK_NOTE_BLOCK_HARP");
-                            } catch ( Exception eee ) {
+                            } catch (Exception eee) {
                                 return; // This should never happen!
                             }
                         }
                     }
                     final Sound finalSound = sound;
                     Bukkit.getScheduler().runTask(cratesPlus, (Runnable) () -> {
-                        if ( player.getOpenInventory().getTitle() != null
-                                && player.getOpenInventory().getTitle().contains(" Win") ) {
+                        if (player.getOpenInventory().getTitle() != null
+                                && player.getOpenInventory().getTitle().contains(" Win")) {
                             player.playSound(player.getLocation(), finalSound, (float) 0.2, 2);
                         }
                     });
@@ -128,7 +127,7 @@ public class BasicGUIOpener extends Opener implements Listener {
                 winGUI.setItem(i, itemStack);
                 i++;
             }
-            if ( timer[0] == maxTimeTicks ) {
+            if (timer[0] == maxTimeTicks) {
                 finish(player);
                 Bukkit.getScheduler().cancelTask(tasks.get(player.getUniqueId()));
                 return;
@@ -145,9 +144,9 @@ public class BasicGUIOpener extends Opener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
-        if ( title.contains(" Win") && !title.contains("Edit ") ) {
-            if ( event.getInventory().getType() == InventoryType.CHEST && event.getSlot() != 22
-                    || event.getCurrentItem() != null ) {
+        if (title.contains(" Win") && !title.contains("Edit ")) {
+            if (event.getInventory().getType() == InventoryType.CHEST && event.getSlot() != 22
+                    || event.getCurrentItem() != null) {
                 event.setCancelled(true);
                 event.getWhoClicked().closeInventory();
             }

@@ -2,7 +2,6 @@ package plus.crates.Utils;
 
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import plus.crates.CratesPlus;
 
 public enum LegacyMaterial {
@@ -27,7 +26,7 @@ public enum LegacyMaterial {
     }
 
     public Material getMaterial() {
-        if ( is113 ) {
+        if (is113) {
             return Material.valueOf(newName);
         } else {
             return Material.valueOf(oldName);

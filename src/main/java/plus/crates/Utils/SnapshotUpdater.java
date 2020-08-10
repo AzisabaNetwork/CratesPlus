@@ -1,28 +1,20 @@
 package plus.crates.Utils;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import plus.crates.CratesPlus;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import plus.crates.CratesPlus;
-
 public class SnapshotUpdater {
     private final CratesPlus cratesPlus;
     private SnapshotUpdater.UpdateResult result = SnapshotUpdater.UpdateResult.DISABLED;
     private String version;
-
-    public enum UpdateResult {
-        NO_UPDATE,
-        DISABLED,
-        FAIL_HTTP,
-        SNAPSHOT_UPDATE_AVAILABLE
-    }
 
     public SnapshotUpdater(CratesPlus cratesPlus) {
         this.cratesPlus = cratesPlus;
@@ -34,24 +26,24 @@ public class SnapshotUpdater {
         String url = "http://api.connorlinfoot.com/v1/resource/snapshot/cratesplus/";
         try {
             data = doCurl(url);
-        } catch ( IOException e ) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         JSONParser jsonParser = new JSONParser();
         try {
             JSONObject obj = (JSONObject) jsonParser.parse(data);
-            if ( obj.get("version") != null ) {
+            if (obj.get("version") != null) {
                 String newestVersion = obj.get("version") + "." + obj.get("snapshot");
                 String currentVersion = cratesPlus.getDescription().getVersion().replaceAll("-SNAPSHOT-", "."); // Changes 4.0.0-SNAPSHOT-4 to 4.0.0.4
-                if ( Integer.parseInt(newestVersion.replace(".", "")) > Integer
-                        .parseInt(currentVersion.replace(".", "")) ) {
+                if (Integer.parseInt(newestVersion.replace(".", "")) > Integer
+                        .parseInt(currentVersion.replace(".", ""))) {
                     result = UpdateResult.SNAPSHOT_UPDATE_AVAILABLE;
                     version = obj.get("version") + "-SNAPSHOT-" + obj.get("snapshot");
                 } else {
                     result = UpdateResult.NO_UPDATE;
                 }
             }
-        } catch ( ParseException e ) {
+        } catch (ParseException e) {
             e.printStackTrace();
         }
     }
@@ -76,11 +68,18 @@ public class SnapshotUpdater {
         DataInputStream input = new DataInputStream(con.getInputStream());
         int c;
         StringBuilder resultBuf = new StringBuilder();
-        while ( (c = input.read()) != -1 ) {
+        while ((c = input.read()) != -1) {
             resultBuf.append((char) c);
         }
         input.close();
         return resultBuf.toString();
+    }
+
+    public enum UpdateResult {
+        NO_UPDATE,
+        DISABLED,
+        FAIL_HTTP,
+        SNAPSHOT_UPDATE_AVAILABLE
     }
 
 }

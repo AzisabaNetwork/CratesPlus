@@ -38,8 +38,8 @@ Crates:
       Name: '%type% Crate Key'
       Enchanted: true
       Lore:
-      - "This is a Vote key!"
-      - "This is just some &eTEST&r text!"
+        - "This is a Vote key!"
+        - "This is just some &eTEST&r text!"
     Winnings:
       '1':
         Type: ITEM
@@ -49,11 +49,11 @@ Crates:
         Name: '&6&lSword of Destiny'
         Amount: 1
         Enchantments:
-        - DAMAGE_ALL-3
+          - DAMAGE_ALL-3
         Lore:
-        - "Testing123"
+          - "Testing123"
         Flags:
-        - "HIDE_ENCHANTS"
+          - "HIDE_ENCHANTS"
       '2':
         Type: ITEM
         Item Type: DIAMOND_SWORD
@@ -62,24 +62,24 @@ Crates:
         Percentage: 25
         Amount: 1
         Enchantments:
-        - DAMAGE_ALL-5
-        - DURABILITY-3
-        - FIRE_ASPECT-2
+          - DAMAGE_ALL-5
+          - DURABILITY-3
+          - FIRE_ASPECT-2
       '3':
         Type: COMMAND
         Item Type: MOB_SPAWNER
         Percentage: 25
         Commands:
-        - 'spawner give %name% spider'
-        - 'say %name% opened a crate'
-        - 'say %name% got a random %rand;100;500%'
+          - 'spawner give %name% spider'
+          - 'say %name% opened a crate'
+          - 'say %name% got a random %rand;100;500%'
         Name: '&e&lSpider Spawner'
         Item Data: 0
         Amount: 1
         Enchantments:
-        - DAMAGE_ALL-5
-        - DURABILITY-3
-        - FIRE_ASPECT-2
+          - DAMAGE_ALL-5
+          - DURABILITY-3
+          - FIRE_ASPECT-2
       '4':
         Type: ITEM
         Item Type: MONSTER_EGG
@@ -101,8 +101,8 @@ Crates:
       Name: '%type% Crate Key'
       Enchanted: true
     Hologram Text:
-     - 'This crate will have'
-     - 'Its own hologram text!'
+      - 'This crate will have'
+      - 'Its own hologram text!'
 
 # Opener which is used by default
 Default Opener: BasicGUI
@@ -119,6 +119,6 @@ Disable Key Swapping: false
 # %crate% can be used to show the crate name
 # If a crate has no specific hologram text set, this will be shown
 Default Hologram Text:
-- "%crate%"
-- "Right-Click to Open!"
-- "Left-Click to Preview!"
+  - "%crate%"
+  - "Right-Click to Open!"
+  - "Left-Click to Preview!"

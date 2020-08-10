@@ -1,21 +1,19 @@
 package plus.crates.Utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import com.micrlink.individualholograms.IndividualHolograms;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.SpawnEgg;
-
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.micrlink.individualholograms.IndividualHolograms;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Version_Util {
     private final HashMap<String, com.gmail.filoghost.holographicdisplays.api.Hologram> holograms = new HashMap<>();
@@ -39,26 +37,26 @@ public class Version_Util {
     }
 
     public void createHologram(Location location, ArrayList<String> lines, Crate crate) {
-        if ( cratesPlus.useIndividualHolograms() ) {
+        if (cratesPlus.useIndividualHolograms()) {
             IndividualHolograms.get().getHologramManager().createNewHologram("" + location.getWorld().getName() + "|"
-                    + location.getBlockX() + "|" + location.getBlockY() + "|" + location.getBlockZ(),
+                            + location.getBlockX() + "|" + location.getBlockY() + "|" + location.getBlockZ(),
                     location.clone().add(0, -1, 0), lines);
-        } else if ( cratesPlus.useHolographicDisplays() ) {
+        } else if (cratesPlus.useHolographicDisplays()) {
             com.gmail.filoghost.holographicdisplays.api.Hologram hologram = HologramsAPI.createHologram(cratesPlus,
                     location.clone().add(0, 1.25, 0));
-            for ( String line : lines ) {
+            for (String line : lines) {
                 hologram.appendTextLine(line);
             }
             holograms.put("" + location.getWorld().getName() + "|" + location.getBlockX() + "|" + location.getBlockY()
                     + "|" + location.getBlockZ(), hologram);
         } else {
-            if ( cratesPlus.getBukkitVersion().equals("1.8") || cratesPlus.getBukkitVersion().startsWith("1.8.")
+            if (cratesPlus.getBukkitVersion().equals("1.8") || cratesPlus.getBukkitVersion().startsWith("1.8.")
                     || cratesPlus.getBukkitVersion().equals("1.9")
-                    || cratesPlus.getBukkitVersion().startsWith("1.9.") ) {
+                    || cratesPlus.getBukkitVersion().startsWith("1.9.")) {
                 Hologram hologram = new Hologram(location, lines);
                 crate.addHologram(location.getBlock().getLocation(), hologram);
                 hologram.displayAll();
-            } else if ( !shown_hologram_deprecated_warning ) {
+            } else if (!shown_hologram_deprecated_warning) {
                 shown_hologram_deprecated_warning = true;
                 cratesPlus.getLogger().warning(
                         "Only 1.8 - 1.9 supports the built in holograms, please use HolographicDisplays or Individual Holograms for holograms to work");
@@ -67,12 +65,12 @@ public class Version_Util {
     }
 
     public void removeHologram(Location location) {
-        if ( cratesPlus.useIndividualHolograms() ) {
+        if (cratesPlus.useIndividualHolograms()) {
             IndividualHolograms.get().getHologramManager().removeHologram("" + location.getWorld().getName() + "|"
                     + location.getBlockX() + "|" + location.getBlockY() + "|" + location.getBlockZ());
-        } else if ( cratesPlus.useHolographicDisplays() ) {
-            if ( holograms.containsKey("" + location.getWorld().getName() + "|" + location.getBlockX() + "|"
-                    + location.getBlockY() + "|" + location.getBlockZ()) ) {
+        } else if (cratesPlus.useHolographicDisplays()) {
+            if (holograms.containsKey("" + location.getWorld().getName() + "|" + location.getBlockX() + "|"
+                    + location.getBlockY() + "|" + location.getBlockZ())) {
                 holograms.get("" + location.getWorld().getName() + "|" + location.getBlockX() + "|"
                         + location.getBlockY() + "|" + location.getBlockZ()).delete();
                 holograms.remove("" + location.getWorld().getName() + "|" + location.getBlockX() + "|"
@@ -83,7 +81,7 @@ public class Version_Util {
 
     public ItemStack getSpawnEgg(EntityType entityType, Integer amount) {
         ItemStack egg = new ItemStack(LegacyMaterial.MONSTER_EGG.getMaterial(), amount);
-        if ( entityType != null ) {
+        if (entityType != null) {
             SpawnEgg spawnEgg = new SpawnEgg(entityType);
             egg.setData(spawnEgg);
         }

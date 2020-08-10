@@ -1,5 +1,10 @@
 package plus.crates.Utils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -9,23 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 public class Hologram {
-
-    private final List<Object> destroyCache;
-    private final List<Object> spawnCache;
-    private final List<UUID> players;
-    private final List<String> lines;
-    private final Location loc;
 
     private static final double ABS = 0.23D;
     private static String path;
     private static String version;
-
     /*
      * Cache for getPacket()-Method
      */
@@ -36,13 +29,11 @@ public class Hologram {
     private static Class<?> packetClass;
     private static Class<?> entityLivingClass;
     private static Constructor<?> armorStandConstructor;
-
     /*
      * Cache for getDestroyPacket()-Method
      */
     private static Class<?> destroyPacketClass;
     private static Constructor<?> destroyPacketConstructor;
-
     /*
      * Cache for sendPacket()-Method
      */
@@ -59,21 +50,27 @@ public class Hologram {
             craftWorld = Class.forName("org.bukkit.craftbukkit." + version + ".CraftWorld");
             packetClass = Class.forName("net.minecraft.server." + version + ".PacketPlayOutSpawnEntityLiving");
             entityLivingClass = Class.forName("net.minecraft.server." + version + ".EntityLiving");
-            armorStandConstructor = armorStand.getConstructor(new Class[] { worldClass });
+            armorStandConstructor = armorStand.getConstructor(new Class[]{worldClass});
 
             destroyPacketClass = Class.forName("net.minecraft.server." + version + ".PacketPlayOutEntityDestroy");
             destroyPacketConstructor = destroyPacketClass.getConstructor(int[].class);
 
             nmsPacket = Class.forName("net.minecraft.server." + version + ".Packet");
-        } catch ( SecurityException ex ) {
+        } catch (SecurityException ex) {
             System.err.println("Error - Classes not initialized!");
             ex.printStackTrace();
-        } catch ( ClassNotFoundException e ) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
-        } catch ( NoSuchMethodException e ) {
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
+
+    private final List<Object> destroyCache;
+    private final List<Object> spawnCache;
+    private final List<UUID> players;
+    private final List<String> lines;
+    private final Location loc;
 
     /**
      * Create a new hologram Note: The constructor will automatically initialize the
@@ -102,7 +99,7 @@ public class Hologram {
 
         // Init
         Location displayLoc = loc.clone().add(0, ABS * lines.size() - 1.97D, 0);
-        for ( int i = 0; i < lines.size(); i++ ) {
+        for (int i = 0; i < lines.size(); i++) {
             Object packet;
             packet = getPacket(this.loc.getWorld(), displayLoc.getX(), displayLoc.getY(), displayLoc.getZ(),
                     this.lines.get(i));
@@ -111,7 +108,7 @@ public class Hologram {
                 Field field = packetClass.getDeclaredField("a");
                 field.setAccessible(true);
                 destroyCache.add(getDestroyPacket((Integer) field.get(packet)));
-            } catch ( Exception ex ) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
             displayLoc.add(0, ABS * -1, 0);
@@ -127,7 +124,7 @@ public class Hologram {
      */
     public boolean display(Player p) {
         destroy(p); // In case it already exists
-        for ( Object aSpawnCache : spawnCache ) {
+        for (Object aSpawnCache : spawnCache) {
             sendPacket(p, aSpawnCache);
         }
 
@@ -136,7 +133,7 @@ public class Hologram {
     }
 
     public void displayAll() {
-        for ( Player player : Bukkit.getOnlinePlayers() ) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             display(player);
         }
     }
@@ -146,11 +143,11 @@ public class Hologram {
      *
      * @param p The target player
      * @return true, if the action was successful, else false (including the try to
-     *         remove a non-existing hologram)
+     * remove a non-existing hologram)
      */
     public boolean destroy(Player p) {
-        if ( players.contains(p.getUniqueId()) ) {
-            for ( Object aDestroyCache : destroyCache ) {
+        if (players.contains(p.getUniqueId())) {
+            for (Object aDestroyCache : destroyCache) {
                 sendPacket(p, aDestroyCache);
             }
             players.remove(p.getUniqueId());
@@ -160,7 +157,7 @@ public class Hologram {
     }
 
     public void destroyAll() {
-        for ( Player player : Bukkit.getOnlinePlayers() ) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             destroy(player);
         }
     }
@@ -170,28 +167,28 @@ public class Hologram {
             Object craftWorldObj = craftWorld.cast(w);
             Method getHandleMethod = craftWorldObj.getClass().getMethod("getHandle", new Class<?>[0]);
             Object entityObject = armorStandConstructor
-                    .newInstance(new Object[] { getHandleMethod.invoke(craftWorldObj, new Object[0]) });
-            Method setCustomName = entityObject.getClass().getMethod("setCustomName", new Class<?>[] { String.class });
-            setCustomName.invoke(entityObject, new Object[] { text });
-            Method setCustomNameVisible = nmsEntity.getMethod("setCustomNameVisible", new Class[] { boolean.class });
-            setCustomNameVisible.invoke(entityObject, new Object[] { true });
-            Method setGravity = entityObject.getClass().getMethod("setGravity", new Class<?>[] { boolean.class });
-            setGravity.invoke(entityObject, new Object[] { false });
+                    .newInstance(new Object[]{getHandleMethod.invoke(craftWorldObj, new Object[0])});
+            Method setCustomName = entityObject.getClass().getMethod("setCustomName", new Class<?>[]{String.class});
+            setCustomName.invoke(entityObject, new Object[]{text});
+            Method setCustomNameVisible = nmsEntity.getMethod("setCustomNameVisible", new Class[]{boolean.class});
+            setCustomNameVisible.invoke(entityObject, new Object[]{true});
+            Method setGravity = entityObject.getClass().getMethod("setGravity", new Class<?>[]{boolean.class});
+            setGravity.invoke(entityObject, new Object[]{false});
             Method setLocation = entityObject.getClass().getMethod("setLocation",
-                    new Class<?>[] { double.class, double.class, double.class, float.class, float.class });
-            setLocation.invoke(entityObject, new Object[] { x, y, z, 0.0F, 0.0F });
-            Method setInvisible = entityObject.getClass().getMethod("setInvisible", new Class<?>[] { boolean.class });
-            setInvisible.invoke(entityObject, new Object[] { true });
-            Constructor<?> cw = packetClass.getConstructor(new Class<?>[] { entityLivingClass });
-            Object packetObject = cw.newInstance(new Object[] { entityObject });
+                    new Class<?>[]{double.class, double.class, double.class, float.class, float.class});
+            setLocation.invoke(entityObject, new Object[]{x, y, z, 0.0F, 0.0F});
+            Method setInvisible = entityObject.getClass().getMethod("setInvisible", new Class<?>[]{boolean.class});
+            setInvisible.invoke(entityObject, new Object[]{true});
+            Constructor<?> cw = packetClass.getConstructor(new Class<?>[]{entityLivingClass});
+            Object packetObject = cw.newInstance(new Object[]{entityObject});
             return packetObject;
-        } catch ( InvocationTargetException e ) {
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
-        } catch ( NoSuchMethodException e ) {
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
-        } catch ( InstantiationException e ) {
+        } catch (InstantiationException e) {
             e.printStackTrace();
-        } catch ( IllegalAccessException e ) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;
@@ -200,11 +197,11 @@ public class Hologram {
     private Object getDestroyPacket(int... id) {
         try {
             return destroyPacketConstructor.newInstance(id);
-        } catch ( InvocationTargetException e ) {
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
-        } catch ( InstantiationException e ) {
+        } catch (InstantiationException e) {
             e.printStackTrace();
-        } catch ( IllegalAccessException e ) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;
@@ -215,9 +212,9 @@ public class Hologram {
             Method getHandle = p.getClass().getMethod("getHandle");
             Object entityPlayer = getHandle.invoke(p);
             Object pConnection = entityPlayer.getClass().getField("playerConnection").get(entityPlayer);
-            Method sendMethod = pConnection.getClass().getMethod("sendPacket", new Class[] { nmsPacket });
-            sendMethod.invoke(pConnection, new Object[] { packet });
-        } catch ( Exception e ) {
+            Method sendMethod = pConnection.getClass().getMethod("sendPacket", new Class[]{nmsPacket});
+            sendMethod.invoke(pConnection, new Object[]{packet});
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

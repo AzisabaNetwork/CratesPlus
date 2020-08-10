@@ -1,59 +1,58 @@
 package plus.crates.Handlers;
 
-import java.util.HashMap;
-import java.util.List;
-
 import org.bukkit.configuration.file.FileConfiguration;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class ConfigHandler {
+    private final List<String> defaultHologramText;
+    private final HashMap<String, List<String>> holograms = new HashMap<>();
     private Integer defaultCooldown = 5;
     private Integer crateGUITime = 10;
     private String defaultOpener = "NoGUI";
-    private final List<String> defaultHologramText;
-    private final HashMap<String, List<String>> holograms = new HashMap<>();
     private HashMap<String, Crate> crates = new HashMap<>();
     private boolean disableKeySwapping = false;
     private boolean debugMode = false;
 
     public ConfigHandler(FileConfiguration config, CratesPlus cratesPlus) {
         // Load configuration
-        if ( config.isSet("Cooldown") ) {
+        if (config.isSet("Cooldown")) {
             config.set("Default Cooldown", config.getInt("Cooldown"));
             config.set("Cooldown", null);
             cratesPlus.saveConfig();
         }
 
-        if ( config.isSet("Debug Mode") ) {
+        if (config.isSet("Debug Mode")) {
             debugMode = config.getBoolean("Debug Mode", false);
         }
 
-        if ( config.isSet("Disable Key Dropping") ) {
+        if (config.isSet("Disable Key Dropping")) {
             config.set("Disable Key Swapping", config.getBoolean("Disable Key Dropping"));
             config.set("Disable Key Dropping", null);
             cratesPlus.saveConfig();
         }
 
-        if ( config.isSet("Disable Key Swapping") ) {
+        if (config.isSet("Disable Key Swapping")) {
             disableKeySwapping = config.getBoolean("Disable Key Swapping");
         }
 
-        if ( config.isSet("Default Cooldown") ) {
+        if (config.isSet("Default Cooldown")) {
             setDefaultCooldown(config.getInt("Default Cooldown"));
         }
 
         // Register Crates
-        if ( config.isSet("Crates") ) {
-            for ( String crate : config.getConfigurationSection("Crates").getKeys(false) ) {
+        if (config.isSet("Crates")) {
+            for (String crate : config.getConfigurationSection("Crates").getKeys(false)) {
                 addCrate(crate.toLowerCase(), new Crate(crate, cratesPlus, this));
             }
         }
 
         // Crate GUI
-        if ( config.isSet("Use GUI") ) {
-            if ( config.getBoolean("Use GUI") ) {
+        if (config.isSet("Use GUI")) {
+            if (config.getBoolean("Use GUI")) {
                 config.set("Default Opener", "BasicGUI");
             } else {
                 config.set("Default Opener", "NoGUI");
@@ -63,12 +62,12 @@ public class ConfigHandler {
         }
 
         // Default Opener
-        if ( config.isSet("Default Opener") ) {
+        if (config.isSet("Default Opener")) {
             defaultOpener = config.getString("Default Opener");
         }
 
         // Crate GUI Time, this is now moved into the BasicGUI opener
-        if ( config.isSet("GUI Time") ) {
+        if (config.isSet("GUI Time")) {
             crateGUITime = config.getInt("GUI Time");
             config.set("GUI Time", null);
             cratesPlus.saveConfig();
@@ -77,7 +76,7 @@ public class ConfigHandler {
         // Crate Holograms
         defaultHologramText = config.getStringList("Default Hologram Text");
 
-        for ( String crateLowerName : crates.keySet() ) {
+        for (String crateLowerName : crates.keySet()) {
             Crate crate = crates.get(crateLowerName);
             List<String> crateSpecificHologram = config.getStringList("Crates." + crate.getName() + ".Hologram Text");
             holograms.put(crate.getName().toLowerCase(),
@@ -94,16 +93,12 @@ public class ConfigHandler {
         this.defaultCooldown = defaultCooldown;
     }
 
-    public void setCrates(HashMap<String, Crate> crates) {
-        this.crates = crates;
-    }
-
     public void addCrate(String name, Crate crate) {
         crates.put(name, crate);
     }
 
     public Crate getCrate(String name) {
-        if ( crates.containsKey(name) ) {
+        if (crates.containsKey(name)) {
             return crates.get(name);
         }
         return null;
@@ -111,6 +106,10 @@ public class ConfigHandler {
 
     public HashMap<String, Crate> getCrates() {
         return crates;
+    }
+
+    public void setCrates(HashMap<String, Crate> crates) {
+        this.crates = crates;
     }
 
     public List<String> getHolograms(String crateType) {

@@ -1,8 +1,5 @@
 package plus.crates.Listeners;
 
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,11 +10,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
 import plus.crates.Events.CrateOpenEvent;
 import plus.crates.Events.CratePreviewEvent;
+
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class PlayerInteract implements Listener {
     private final CratesPlus cratesPlus;
@@ -32,7 +31,7 @@ public class PlayerInteract implements Listener {
 
         Player p = e.getPlayer();
 
-        if ( !e.getAction().toString().endsWith("_CLICK_BLOCK") ) {
+        if (!e.getAction().toString().endsWith("_CLICK_BLOCK")) {
             return;
         }
 
@@ -41,15 +40,15 @@ public class PlayerInteract implements Listener {
         ItemStack itemOff = cratesPlus.getVersion_util().getItemInPlayersOffHand(p);
 
         String crateType;
-        if ( !clickedBlock.hasMetadata("CrateType") || clickedBlock.getMetadata("CrateType").isEmpty() ) {
+        if (!clickedBlock.hasMetadata("CrateType") || clickedBlock.getMetadata("CrateType").isEmpty()) {
             // Try to use the old method of getting the crate!
-            if ( clickedBlock.getType() != Material.CHEST ) {
+            if (clickedBlock.getType() != Material.CHEST) {
                 return;
             }
 
             Chest chest = (Chest) e.getClickedBlock().getState();
             String title = chest.getCustomName();
-            if ( title == null || !title.contains(" Crate!") ) {
+            if (title == null || !title.contains(" Crate!")) {
                 return;
             }
 
@@ -58,17 +57,17 @@ public class PlayerInteract implements Listener {
             crateType = clickedBlock.getMetadata("CrateType").get(0).asString();
         }
 
-        if ( !cratesPlus.getConfig().isSet("Crates." + crateType) ) {
+        if (!cratesPlus.getConfig().isSet("Crates." + crateType)) {
             return;
         }
 
         Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase());
 
-        if ( crate == null ) {
+        if (crate == null) {
             return; // Not sure if we should do some warning here? TODO
         }
 
-        if ( crate.getPermission() != null && !p.hasPermission(crate.getPermission()) ) {
+        if (crate.getPermission() != null && !p.hasPermission(crate.getPermission())) {
             e.setCancelled(true);
             p.sendMessage(cratesPlus.getPluginPrefix()
                     + cratesPlus.getMessageHandler().getMessage("Crate No Permission", p, crate, null));
@@ -76,36 +75,36 @@ public class PlayerInteract implements Listener {
         }
         String title = ChatColor.stripColor(crate.getKey().getName());
         String lore = crate.getKey().getLore().toString();
-        if ( e.getAction().toString().contains("LEFT") ) {
-            if ( e.getPlayer().isSneaking() ) {
+        if (e.getAction().toString().contains("LEFT")) {
+            if (e.getPlayer().isSneaking()) {
                 return;
             }
             /** Do preview */
             CratePreviewEvent cratePreviewEvent = new CratePreviewEvent(p, crateType, cratesPlus);
-            if ( !cratePreviewEvent.isCanceled() ) {
+            if (!cratePreviewEvent.isCanceled()) {
                 cratePreviewEvent.doEvent();
             }
         } else {
 
-            if ( item == null && itemOff == null ) {
+            if (item == null && itemOff == null) {
                 p.sendMessage(cratesPlus.getPluginPrefix()
                         + cratesPlus.getMessageHandler().getMessage("Crate Open Without Key", p, crate, null));
-                if ( crate.getKnockback() != 0 ) {
+                if (crate.getKnockback() != 0) {
                     p.setVelocity(p.getLocation().getDirection().multiply(-crate.getKnockback()));
                 }
                 e.setCancelled(true);
             }
             /** Opening of Crate **/
             boolean usingOffHand = false;
-            if ( itemOff != null && itemOff.hasItemMeta() && !itemOff.getType().equals(Material.AIR)
+            if (itemOff != null && itemOff.hasItemMeta() && !itemOff.getType().equals(Material.AIR)
                     && itemOff.getItemMeta().getDisplayName() != null
-                    && itemOff.getItemMeta().getDisplayName().equals(title) ) {
+                    && itemOff.getItemMeta().getDisplayName().equals(title)) {
                 item = itemOff;
                 usingOffHand = true;
             }
 
-            if ( cratesPlus.getCrateHandler()
-                    .hasOpening(p.getUniqueId()) ) { /** If already opening crate, show GUI for said crate **/
+            if (cratesPlus.getCrateHandler()
+                    .hasOpening(p.getUniqueId())) { /** If already opening crate, show GUI for said crate **/
                 cratesPlus.getCrateHandler().getOpening(p.getUniqueId()).doReopen(p, crate,
                         e.getClickedBlock().getLocation());
                 e.setCancelled(true);
@@ -116,16 +115,16 @@ public class PlayerInteract implements Listener {
 
             e.setCancelled(true);
 
-            if ( !isKey(item, crate, title, lore) ) { // Not valid key
+            if (!isKey(item, crate, title, lore)) { // Not valid key
                 p.sendMessage(cratesPlus.getPluginPrefix()
                         + cratesPlus.getMessageHandler().getMessage("Crate Open Without Key", p, crate, null));
-                if ( crate.getKnockback() != 0 ) {
+                if (crate.getKnockback() != 0) {
                     p.setVelocity(p.getLocation().getDirection().multiply(-crate.getKnockback()));
                 }
                 return;
             }
 
-            if ( p.getInventory().firstEmpty() == -1 ) {
+            if (p.getInventory().firstEmpty() == -1) {
                 p.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED
                         + "You can't open a Crate while your inventory is full");
                 return;
@@ -133,8 +132,8 @@ public class PlayerInteract implements Listener {
 
             long secondsNow = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
-            if ( crate.getCooldown() > 0 && lastOpended.getOrDefault(p.getUniqueId().toString(), 0L)
-                    + crate.getCooldown() > secondsNow ) {
+            if (crate.getCooldown() > 0 && lastOpended.getOrDefault(p.getUniqueId().toString(), 0L)
+                    + crate.getCooldown() > secondsNow) {
 
                 long whenCooldownEnds = lastOpended.get(p.getUniqueId().toString())
                         + cratesPlus.getConfigHandler().getDefaultCooldown();
@@ -147,10 +146,10 @@ public class PlayerInteract implements Listener {
             // Store time in seconds of when the player opened the crate
             lastOpended.put(p.getUniqueId().toString(), secondsNow);
 
-            if ( item.getAmount() > 1 ) {
+            if (item.getAmount() > 1) {
                 item.setAmount(item.getAmount() - 1);
             } else {
-                if ( usingOffHand ) {
+                if (usingOffHand) {
                     cratesPlus.getVersion_util().removeItemInOffHand(p);
                 } else {
                     p.setItemInHand(null);
@@ -164,21 +163,21 @@ public class PlayerInteract implements Listener {
     }
 
     private boolean isKey(ItemStack item, Crate crate, String title, String lore) {
-        if ( item == null )
+        if (item == null)
             return false;
-        if ( !item.hasItemMeta() )
+        if (!item.hasItemMeta())
             return false;
 
         ItemMeta meta = item.getItemMeta();
 
-        if ( !meta.hasDisplayName() )
+        if (!meta.hasDisplayName())
             return false;
-        if ( !ChatColor.stripColor(meta.getDisplayName()).equals(title) )
+        if (!ChatColor.stripColor(meta.getDisplayName()).equals(title))
             return false;
 
-        if ( !meta.hasLore() )
+        if (!meta.hasLore())
             return false;
-        if ( !meta.getLore().toString().equals(lore) )
+        if (!meta.getLore().toString().equals(lore))
             return false;
 
         return true;

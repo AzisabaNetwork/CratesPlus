@@ -1,12 +1,12 @@
 package plus.crates.Handlers;
 
-import java.util.HashMap;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
 import plus.crates.Opener.BasicGUIOpener;
 import plus.crates.Opener.NoGUIOpener;
 import plus.crates.Opener.Opener;
+
+import java.util.HashMap;
 
 /**
  * Public handler for CratesPlus to be able to modify the way crates open.
@@ -28,7 +28,7 @@ public class OpenHandler {
     }
 
     public void registerOpener(Opener opener) {
-        if ( registered.containsKey(opener.getName()) ) {
+        if (registered.containsKey(opener.getName())) {
             getCratesPlus().getLogger().warning(
                     "An opener with the name \"" + opener.getName() + "\" already exists and will not be registered");
             return;
@@ -36,7 +36,7 @@ public class OpenHandler {
         try {
             opener.doSetup();
             registered.put(opener.getName(), opener);
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -46,14 +46,14 @@ public class OpenHandler {
     }
 
     public Opener getOpener(Crate crate) {
-        if ( registered.containsKey(crate.getOpener()) ) {
+        if (registered.containsKey(crate.getOpener())) {
             return registered.get(crate.getOpener());
         }
         return getDefaultOpener();
     }
 
     public Opener getDefaultOpener() {
-        if ( registered.containsKey(defaultOpener) ) {
+        if (registered.containsKey(defaultOpener)) {
             return registered.get(defaultOpener);
         }
         return registered.get("NoGUI");

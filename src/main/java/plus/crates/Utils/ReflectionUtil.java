@@ -1,12 +1,12 @@
 package plus.crates.Utils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 public class ReflectionUtil {
 
@@ -30,7 +30,7 @@ public class ReflectionUtil {
     public static Class getClass(String name) {
         try {
             return Class.forName(name);
-        } catch ( ClassNotFoundException e ) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         return null;
@@ -52,12 +52,12 @@ public class ReflectionUtil {
         try {
             Field field = clazz.getDeclaredField(fieldName);
 
-            if ( !field.isAccessible() ) {
+            if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
 
             return field;
-        } catch ( NoSuchFieldException e ) {
+        } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
         return null;
@@ -66,7 +66,7 @@ public class ReflectionUtil {
     public static <T> T getField(Class<?> clazz, String fieldName, Object instance) {
         try {
             return (T) getField(clazz, fieldName).get(instance);
-        } catch ( IllegalAccessException e ) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;
@@ -75,7 +75,7 @@ public class ReflectionUtil {
     public static void setField(Class<?> clazz, String fieldName, Object instance, Object value) {
         try {
             getField(clazz, fieldName).set(instance, value);
-        } catch ( IllegalAccessException e ) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -88,12 +88,12 @@ public class ReflectionUtil {
         try {
             Method method = clazz.getDeclaredMethod(methodName, params);
 
-            if ( !method.isAccessible() ) {
+            if (!method.isAccessible()) {
                 method.setAccessible(true);
             }
 
             return method;
-        } catch ( NoSuchMethodException e ) {
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         return null;
@@ -102,9 +102,9 @@ public class ReflectionUtil {
     public static <T> T invokeMethod(Method method, Object instance, Object... args) {
         try {
             return (T) method.invoke(instance, args);
-        } catch ( IllegalAccessException e ) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
-        } catch ( InvocationTargetException e ) {
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
         return null;
@@ -114,12 +114,12 @@ public class ReflectionUtil {
         try {
             Constructor constructor = clazz.getConstructor(params);
 
-            if ( !constructor.isAccessible() ) {
+            if (!constructor.isAccessible()) {
                 constructor.setAccessible(true);
             }
 
             return constructor;
-        } catch ( NoSuchMethodException e ) {
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         return null;
@@ -128,11 +128,11 @@ public class ReflectionUtil {
     public static <T> T invokeConstructor(Constructor constructor, Object... args) {
         try {
             return (T) constructor.newInstance(args);
-        } catch ( InstantiationException e ) {
+        } catch (InstantiationException e) {
             e.printStackTrace();
-        } catch ( IllegalAccessException e ) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
-        } catch ( InvocationTargetException e ) {
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
         return null;
@@ -144,7 +144,7 @@ public class ReflectionUtil {
             Constructor constructor = ReflectionUtil.getNMSClass("BlockPosition")
                     .getConstructor(ReflectionUtil.getNMSClass("Entity"));
             return constructor.newInstance(handle);
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -156,7 +156,7 @@ public class ReflectionUtil {
             Object playerConnection = handle.getClass().getField("playerConnection").get(handle);
             playerConnection.getClass().getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"))
                     .invoke(playerConnection, packet);
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

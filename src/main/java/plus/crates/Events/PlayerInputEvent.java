@@ -3,7 +3,6 @@ package plus.crates.Events;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
 import plus.crates.Utils.SignInputHandler;
 
 public class PlayerInputEvent extends Event {
@@ -17,12 +16,12 @@ public class PlayerInputEvent extends Event {
         SignInputHandler.ejectNetty(player);
     }
 
-    @Override
-    public HandlerList getHandlers() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Override
+    public HandlerList getHandlers() {
         return handlers;
     }
 

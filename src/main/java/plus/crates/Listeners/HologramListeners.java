@@ -1,8 +1,5 @@
 package plus.crates.Listeners;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -14,10 +11,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
 import plus.crates.Utils.Hologram;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class HologramListeners implements Listener {
     private final CratesPlus cratesPlus;
@@ -28,8 +27,8 @@ public class HologramListeners implements Listener {
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
-        for ( Entity entity : event.getChunk().getEntities() ) {
-            if ( entity instanceof Player ) {
+        for (Entity entity : event.getChunk().getEntities()) {
+            if (entity instanceof Player) {
                 loadHolograms((Player) entity, entity.getLocation());
             }
         }
@@ -61,17 +60,17 @@ public class HologramListeners implements Listener {
 
     private void loadHolograms(final Player player, Location location, long delay) {
         Runnable runnable = () -> {
-            for ( Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+            for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
                 HashMap<Location, Hologram> holograms = crate.getValue().getHolograms();
-                if ( !holograms.isEmpty() ) {
-                    for ( Map.Entry<Location, Hologram> hologram : holograms.entrySet() ) {
+                if (!holograms.isEmpty()) {
+                    for (Map.Entry<Location, Hologram> hologram : holograms.entrySet()) {
                         hologram.getValue().display(player);
                     }
                 }
             }
         };
         Bukkit.getScheduler().runTaskLater(cratesPlus, runnable, delay); // Delay this because if it's too quick the packets don't always get sent? May
-                                                                         // improve this later on!
+        // improve this later on!
     }
 
 }

@@ -38,6 +38,6 @@ Disable Key Swapping: false
 
 # %crate% can be used to show the crate name
 Default Hologram Text:
-- "%crate%"
-- "Right-Click to Open!"
-- "Left-Click to Preview!"
+  - "%crate%"
+  - "Right-Click to Open!"
+  - "Left-Click to Preview!"

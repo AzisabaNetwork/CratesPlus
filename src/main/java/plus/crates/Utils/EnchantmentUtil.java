@@ -8,26 +8,26 @@ public class EnchantmentUtil {
         Enchantment enchantment = null;
         try {
             enchantment = Enchantment.getByName(name);
-        } catch ( Exception ignored ) {
+        } catch (Exception ignored) {
         }
 
-        if ( enchantment != null ) {
+        if (enchantment != null) {
             return enchantment;
         }
 
-        if ( name.toLowerCase().equals("sharpness") ) {
+        if (name.toLowerCase().equals("sharpness")) {
             enchantment = Enchantment.DAMAGE_ALL;
-        } else if ( name.toLowerCase().equals("unbreaking") ) {
+        } else if (name.toLowerCase().equals("unbreaking")) {
             enchantment = Enchantment.DURABILITY;
-        } else if ( name.toLowerCase().equals("efficiency") ) {
+        } else if (name.toLowerCase().equals("efficiency")) {
             enchantment = Enchantment.DIG_SPEED;
-        } else if ( name.toLowerCase().equals("protection") ) {
+        } else if (name.toLowerCase().equals("protection")) {
             enchantment = Enchantment.PROTECTION_ENVIRONMENTAL;
-        } else if ( name.toLowerCase().equals("power") ) {
+        } else if (name.toLowerCase().equals("power")) {
             enchantment = Enchantment.ARROW_DAMAGE;
-        } else if ( name.toLowerCase().equals("punch") ) {
+        } else if (name.toLowerCase().equals("punch")) {
             enchantment = Enchantment.ARROW_KNOCKBACK;
-        } else if ( name.toLowerCase().equals("infinite") ) {
+        } else if (name.toLowerCase().equals("infinite")) {
             enchantment = Enchantment.ARROW_INFINITE;
         }
 

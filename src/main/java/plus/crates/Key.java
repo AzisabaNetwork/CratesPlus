@@ -1,13 +1,13 @@
 package plus.crates;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Key {
     private final CratesPlus cratesPlus;
@@ -20,7 +20,7 @@ public class Key {
     public Key(String crateName, Material material, String name, boolean enchanted, CratesPlus cratesPlus) {
         this.cratesPlus = cratesPlus;
         this.crateName = crateName;
-        if ( material == null ) {
+        if (material == null) {
             material = Material.TRIPWIRE_HOOK;
         }
         this.material = material;
@@ -45,7 +45,7 @@ public class Key {
     }
 
     public List<String> getLore() {
-        if ( lore == null || lore.size() == 0 ) {
+        if (lore == null || lore.size() == 0) {
             lore = new ArrayList<>();
             lore.add(
                     ChatColor.GRAY + "Right-Click on a \"" + getCrate().getName(true) + ChatColor.GRAY + "\" crate");
@@ -69,7 +69,7 @@ public class Key {
 
     public ItemStack getKeyItem(Integer amount) {
         ItemStack keyItem = new ItemStack(getMaterial());
-        if ( isEnchanted() ) {
+        if (isEnchanted()) {
             keyItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
         }
         ItemMeta keyItemMeta = keyItem.getItemMeta();
@@ -77,7 +77,7 @@ public class Key {
         keyItemMeta.setDisplayName(title);
         keyItemMeta.setLore(getLore());
         keyItem.setItemMeta(keyItemMeta);
-        if ( amount > 1 ) {
+        if (amount > 1) {
             keyItem.setAmount(amount);
         }
         return keyItem;

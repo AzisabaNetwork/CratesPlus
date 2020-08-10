@@ -1,8 +1,5 @@
 package plus.crates.Listeners;
 
-import java.util.List;
-import java.util.Map;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Chest;
@@ -21,10 +18,12 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-
 import plus.crates.Crate;
 import plus.crates.CratesPlus;
 import plus.crates.Key;
+
+import java.util.List;
+import java.util.Map;
 
 public class BlockListeners implements Listener {
     private final CratesPlus cratesPlus;
@@ -35,21 +34,21 @@ public class BlockListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onItemDrop(PlayerDropItemEvent event) {
-        if ( !cratesPlus.getConfigHandler().isDisableKeySwapping() ) {
+        if (!cratesPlus.getConfigHandler().isDisableKeySwapping()) {
             return;
         }
         String title;
         ItemStack item = event.getItemDrop().getItemStack();
 
-        for ( Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+        for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
             Key key = crate.getValue().getKey();
-            if ( key == null ) {
+            if (key == null) {
                 continue;
             }
             title = key.getName();
 
-            if ( item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                    && item.getItemMeta().getDisplayName().contains(title) ) {
+            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                    && item.getItemMeta().getDisplayName().contains(title)) {
                 event.getPlayer().sendMessage(cratesPlus.getPluginPrefix() + cratesPlus.getMessageHandler()
                         .getMessage("Cant Drop", event.getPlayer(), crate.getValue(), null));
                 event.setCancelled(true);
@@ -62,22 +61,22 @@ public class BlockListeners implements Listener {
     // meh idc where I put my listeners ;)
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-        if ( !cratesPlus.getConfigHandler().isDisableKeySwapping() ) {
+        if (!cratesPlus.getConfigHandler().isDisableKeySwapping()) {
             return;
         }
         String title;
         List<ItemStack> items = event.getDrops();
-        for ( ItemStack item : items ) {
+        for (ItemStack item : items) {
 
-            for ( Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+            for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
                 Key key = crate.getValue().getKey();
-                if ( key == null ) {
+                if (key == null) {
                     continue;
                 }
                 title = key.getName();
 
-                if ( item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                        && item.getItemMeta().getDisplayName().contains(title) ) {
+                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                        && item.getItemMeta().getDisplayName().contains(title)) {
                     event.getDrops().remove(item);
                     cratesPlus.getCrateHandler().giveCrateKey(event.getEntity(), crate.getValue().getName(),
                             item.getAmount(), false, true);
@@ -89,21 +88,21 @@ public class BlockListeners implements Listener {
 
     @EventHandler
     public void onInventoryMove(InventoryMoveItemEvent event) {
-        if ( !cratesPlus.getConfigHandler().isDisableKeySwapping() ) {
+        if (!cratesPlus.getConfigHandler().isDisableKeySwapping()) {
             return;
         }
         String title;
         ItemStack item = event.getItem();
 
-        for ( Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+        for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
             Key key = crate.getValue().getKey();
-            if ( key == null ) {
+            if (key == null) {
                 continue;
             }
             title = key.getName();
 
-            if ( item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                    && item.getItemMeta().getDisplayName().contains(title) ) {
+            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                    && item.getItemMeta().getDisplayName().contains(title)) {
                 // Send message?
                 event.setCancelled(true);
                 return;
@@ -113,22 +112,22 @@ public class BlockListeners implements Listener {
 
     @EventHandler
     public void onInventoryPickup(InventoryPickupItemEvent event) {
-        if ( !cratesPlus.getConfigHandler().isDisableKeySwapping() ) {
+        if (!cratesPlus.getConfigHandler().isDisableKeySwapping()) {
             return;
         }
-        if ( event.getItem().getItemStack() != null ) {
+        if (event.getItem().getItemStack() != null) {
             String title;
             ItemStack item = event.getItem().getItemStack();
 
-            for ( Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+            for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
                 Key key = crate.getValue().getKey();
-                if ( key == null ) {
+                if (key == null) {
                     continue;
                 }
                 title = key.getName();
 
-                if ( item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                        && item.getItemMeta().getDisplayName().contains(title) ) {
+                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                        && item.getItemMeta().getDisplayName().contains(title)) {
                     // Send message?
                     event.setCancelled(true);
                     return;
@@ -139,22 +138,22 @@ public class BlockListeners implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if ( !cratesPlus.getConfigHandler().isDisableKeySwapping() ) {
+        if (!cratesPlus.getConfigHandler().isDisableKeySwapping()) {
             return;
         }
-        if ( !event.getInventory().getType().toString().contains("PLAYER") && event.getCurrentItem() != null ) {
+        if (!event.getInventory().getType().toString().contains("PLAYER") && event.getCurrentItem() != null) {
             String title;
             ItemStack item = event.getCurrentItem();
 
-            for ( Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+            for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
                 Key key = crate.getValue().getKey();
-                if ( key == null ) {
+                if (key == null) {
                     continue;
                 }
                 title = key.getName();
 
-                if ( item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                        && item.getItemMeta().getDisplayName().contains(title) ) {
+                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                        && item.getItemMeta().getDisplayName().contains(title)) {
                     // Send message?
                     event.setCancelled(true);
                     return;
@@ -170,21 +169,21 @@ public class BlockListeners implements Listener {
         ItemStack item = cratesPlus.getVersion_util().getItemInPlayersHand(player);
         ItemStack itemOff = cratesPlus.getVersion_util().getItemInPlayersOffHand(player);
 
-        for ( Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet() ) {
+        for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
             Key key = crate.getValue().getKey();
-            if ( key == null ) {
+            if (key == null) {
                 continue;
             }
             title = key.getName();
 
-            if ( itemOff != null && itemOff.hasItemMeta() && itemOff.getItemMeta().hasDisplayName()
+            if (itemOff != null && itemOff.hasItemMeta() && itemOff.getItemMeta().hasDisplayName()
                     && itemOff.getItemMeta().getDisplayName() != null
-                    && itemOff.getItemMeta().getDisplayName().contains(title) ) {
+                    && itemOff.getItemMeta().getDisplayName().contains(title)) {
                 item = itemOff;
             }
 
-            if ( item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                    && item.getItemMeta().getDisplayName().contains(title) ) {
+            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                    && item.getItemMeta().getDisplayName().contains(title)) {
                 event.getPlayer().sendMessage(cratesPlus.getPluginPrefix() + cratesPlus.getMessageHandler()
                         .getMessage("Cant Place", event.getPlayer(), crate.getValue(), null));
                 event.setCancelled(true);
@@ -192,8 +191,8 @@ public class BlockListeners implements Listener {
             }
         }
 
-        if ( item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                && item.getItemMeta().getDisplayName().contains("Crate!") ) {
+        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                && item.getItemMeta().getDisplayName().contains("Crate!")) {
             final String crateType = item.getItemMeta().getDisplayName().replaceAll(" Crate!", "");
             final Crate crate = cratesPlus.getConfigHandler().getCrates()
                     .get(ChatColor.stripColor(crateType).toLowerCase());
@@ -265,24 +264,24 @@ public class BlockListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        if ( event.getBlock().getMetadata("CrateType") == null || event.getBlock().getMetadata("CrateType").isEmpty() ) {
+        if (event.getBlock().getMetadata("CrateType") == null || event.getBlock().getMetadata("CrateType").isEmpty()) {
             onBlockBreakLegacy(event);
             return;
         }
         String crateType = event.getBlock().getMetadata("CrateType").get(0).asString();
         Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase());
-        if ( crate == null ) {
+        if (crate == null) {
             return;
         }
         Location location = event.getBlock().getLocation();
 
-        if ( event.getPlayer().isSneaking() && cratesPlus.getConfig().getBoolean("Crate Protection")
-                && !event.getPlayer().hasPermission("cratesplus.admin") ) {
+        if (event.getPlayer().isSneaking() && cratesPlus.getConfig().getBoolean("Crate Protection")
+                && !event.getPlayer().hasPermission("cratesplus.admin")) {
             event.getPlayer().sendMessage(
                     cratesPlus.getPluginPrefix() + ChatColor.RED + "You do not have permission to remove this crate");
             event.setCancelled(true);
             return;
-        } else if ( !event.getPlayer().isSneaking() ) {
+        } else if (!event.getPlayer().isSneaking()) {
             event.getPlayer().sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Sneak to break crates");
             event.setCancelled(true);
             return;
@@ -294,34 +293,34 @@ public class BlockListeners implements Listener {
     }
 
     public void onBlockBreakLegacy(BlockBreakEvent event) { // This is to support legacy breaks
-        if ( cratesPlus.versionCompare(cratesPlus.getBukkitVersion(), "1.8") == -1 ) {
+        if (cratesPlus.versionCompare(cratesPlus.getBukkitVersion(), "1.8") == -1) {
             return;
         }
-        if ( event.getBlock().getState() instanceof Chest ) {
+        if (event.getBlock().getState() instanceof Chest) {
             Chest chest = (Chest) event.getBlock().getState();
             String title = chest.getCustomName();
-            if ( title != null && title.contains("Crate!") ) {
+            if (title != null && title.contains("Crate!")) {
                 Location location = chest.getLocation();
 
-                if ( event.getPlayer().isSneaking() && cratesPlus.getConfig().getBoolean("Crate Protection")
-                        && !event.getPlayer().hasPermission("cratesplus.admin") ) {
+                if (event.getPlayer().isSneaking() && cratesPlus.getConfig().getBoolean("Crate Protection")
+                        && !event.getPlayer().hasPermission("cratesplus.admin")) {
                     event.getPlayer().sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED
                             + "You do not have permission to remove this crate");
                     event.setCancelled(true);
                     return;
-                } else if ( !event.getPlayer().isSneaking() ) {
+                } else if (!event.getPlayer().isSneaking()) {
                     event.getPlayer()
                             .sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Sneak to break crates");
                     event.setCancelled(true);
                     return;
                 }
-                for ( Entity entity : location.getWorld().getEntities() ) {
-                    if ( entity.isDead() || entity.getType() != EntityType.ARMOR_STAND ) {
+                for (Entity entity : location.getWorld().getEntities()) {
+                    if (entity.isDead() || entity.getType() != EntityType.ARMOR_STAND) {
                         continue;
                     }
                     title.replace(" Crate!", "");
-                    if ( entity.getLocation().getBlockX() == chest.getX()
-                            && entity.getLocation().getBlockZ() == chest.getZ() ) {
+                    if (entity.getLocation().getBlockX() == chest.getX()
+                            && entity.getLocation().getBlockZ() == chest.getZ()) {
                         entity.remove();
                     }
                 }
