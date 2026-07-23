@@ -5,6 +5,8 @@ import plus.crates.CratesPlus;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.UUID;
 
 /**
@@ -86,8 +88,12 @@ public class StorageHandler {
         return null;
     }
 
-    public void setPlayerData(UUID uuid, String key, String value) {
-
+    public void setPlayerData(UUID uuid, String key, Object value) {
+        if (getStorageType() != StorageType.FLAT) {
+            return;
+        }
+        flatConfig.set("Player." + uuid + "." + key, value);
+        saveFlat();
     }
 
     public void incPlayerData(UUID uuid, String key, Integer value) {
@@ -103,6 +109,25 @@ public class StorageHandler {
                 saveFlat();
                 break;
         }
+    }
+
+    /** Stores per-player, per-crate pity state in data.yml without a schema migration. */
+    public int getPityCount(UUID uuid, String crateName) {
+        return Math.max(0, flatConfig.getInt(pityPath(uuid, crateName), 0));
+    }
+
+    public void setPityCount(UUID uuid, String crateName, int count) {
+        // data.yml is initialized for every storage mode and is already used for
+        // per-instance state. This avoids silently disabling pity on an existing
+        // server configured with one of the not-yet-implemented SQL backends.
+        flatConfig.set(pityPath(uuid, crateName), Math.max(0, count));
+        saveFlat();
+    }
+
+    private String pityPath(UUID uuid, String crateName) {
+        String encodedName = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(crateName.toLowerCase().getBytes(StandardCharsets.UTF_8));
+        return "Player." + uuid + ".Pity." + encodedName;
     }
 
 }

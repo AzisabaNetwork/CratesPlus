@@ -94,11 +94,12 @@ public class SupplyCrate extends Crate {
         // By default run win on the last win and give item
         int wins_amount = getCratesPlus().getCrateHandler().randInt(minimum, maximum);
         for (int i = 0; i < wins_amount; i++) {
-            Winning winning = getRandomWinning();
+            Winning winning = getRandomWinning(player);
             ItemStack itemStack = winning.runWin(player);
             if (itemStack != null) {
                 itemStacks.add(itemStack);
             }
+            recordPity(player, winning);
         }
 
         if (blockPlaced.getType().equals(Material.CHEST) || blockPlaced.getType().equals(Material.TRAPPED_CHEST)) {

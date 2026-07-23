@@ -101,8 +101,12 @@ public final class MessageHandler {
         }
         String message = localeFor(player).getString("messages." + key);
         if (message == null) {
-            cratesPlus.getLogger().warning("Missing message key: " + key);
-            return key;
+            YamlConfiguration fallback = locales.get(DEFAULT_LOCALE);
+            message = fallback == null ? null : fallback.getString("messages." + key);
+            if (message == null) {
+                cratesPlus.getLogger().warning("Missing message key: " + key);
+                return key;
+            }
         }
         return message;
     }

@@ -25,6 +25,7 @@ public class Winning {
     private boolean valid = false;
     private boolean command = false;
     private boolean always = false;
+    private boolean pity = false;
     private double percentage = 0;
     private ItemStack previewItemStack;
     private ItemStack winningItemStack;
@@ -49,6 +50,8 @@ public class Winning {
 
         if (config.isSet(path + ".Always"))
             always = config.getBoolean(path + ".Always");
+        if (config.isSet(path + ".Pity"))
+            pity = config.getBoolean(path + ".Pity");
 
         String type = config.getString(path + ".Type");
         ItemStack itemStack;
@@ -302,6 +305,11 @@ public class Winning {
 
     public boolean isAlways() {
         return always;
+    }
+
+    /** Whether this reward resets and can satisfy this crate's pity system. */
+    public boolean isPity() {
+        return pity;
     }
 
 }

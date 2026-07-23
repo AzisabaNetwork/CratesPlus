@@ -15,3 +15,4 @@ messages:
   crate.remove_no_permission: "&cYou do not have permission to remove this crate."
   crate.remove_sneak: "&cSneak to break crates."
   crate.given: "&aYou have been given a %crate% &acrate."
+  crate.pity_guaranteed: "&6Pity activated! You received %prize%."

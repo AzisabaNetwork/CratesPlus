@@ -39,6 +39,10 @@ Crates:
     Cooldown: 2
     Hide Percentages: true
     Permission: cratesplus.crate.example # Permissions can be anything, it will check that the player has the permission before opening
+    # A hard pity: after 90 pulls without a reward marked Pity: true,
+    # the 90th pull is guaranteed to select one of those rewards.
+    Pity:
+      Limit: 90
     Key:
       Item: TRIPWIRE_HOOK
       Name: '%type% Crate Key'
@@ -60,6 +64,8 @@ Crates:
         - "Testing123"
         Flags:
         - "HIDE_ENCHANTS"
+        # Mark only the rewards that should satisfy the pity.
+        Pity: true
       '2':
         Type: ITEM
         Item Type: DIAMOND_SWORD

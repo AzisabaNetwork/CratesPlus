@@ -1,4 +1,5 @@
 messages:
+  crate.pity_guaranteed: "&6天井が発動しました。%prize% を獲得！"
   command.no_permission: "&cこのコマンドを実行する権限がありません。"
   crate.no_permission: "&cこのクレートを使用する権限がありません。"
   crate.open_without_key: "&c%crate% &cを開くには対応するキーを手に持つ必要があります。"

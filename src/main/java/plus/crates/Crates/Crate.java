@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Crate {
     protected final ConfigHandler configHandler;
@@ -33,6 +34,9 @@ public abstract class Crate {
     protected boolean broadcast = false;
     protected boolean hidePercentages = false;
     protected Integer cooldown = null;
+    /** Number of non-pity rewards allowed before the next pull is guaranteed. Zero disables it. */
+    protected int pityLimit = 0;
+    protected final List<Winning> pityWinnings = new ArrayList<>();
 
     public Crate(ConfigHandler configHandler, String name) {
         this.configHandler = configHandler;
@@ -90,6 +94,39 @@ public abstract class Crate {
                 totalPercentage = totalPercentage + winning.getPercentage();
                 winnings.add(winning);
             }
+        }
+
+        loadPity(cratesPlus);
+    }
+
+    private void loadPity(CratesPlus cratesPlus) {
+        String path = "Crates." + name + ".Pity";
+        if (!cratesPlus.getConfig().isConfigurationSection(path)) {
+            return;
+        }
+
+        pityLimit = cratesPlus.getConfig().getInt(path + ".Limit", 0);
+        if (pityLimit < 1) {
+            if (pityLimit != 0) {
+                cratesPlus.getLogger().warning("Pity.Limit for crate '" + name + "' must be at least 1; pity is disabled.");
+            }
+            pityLimit = 0;
+            return;
+        }
+
+        for (Winning winning : winnings) {
+            if (winning.isPity()) {
+                if (winning.isAlways()) {
+                    cratesPlus.getLogger().warning("Winning marked Pity: true in crate '" + name
+                            + "' is also Always: true and will be ignored by pity.");
+                } else {
+                    pityWinnings.add(winning);
+                }
+            }
+        }
+        if (pityWinnings.isEmpty()) {
+            cratesPlus.getLogger().warning("Pity is configured for crate '" + name + "' but no winning has Pity: true; pity is disabled.");
+            pityLimit = 0;
         }
     }
 
@@ -214,8 +251,11 @@ public abstract class Crate {
     }
 
     public Winning handleWin(Player player, Winning actualWinning) {
+        boolean pityGuaranteed = false;
         if (actualWinning == null)
-            actualWinning = getRandomWinning();
+            pityGuaranteed = isPityDue(player);
+        if (actualWinning == null)
+            actualWinning = pityGuaranteed ? getRandomPityWinning() : getRandomWinning();
 
         for (Winning winning : getWinnings()) {
             if (winning.isAlways()) {
@@ -237,39 +277,77 @@ public abstract class Crate {
                 player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item.getValue());
             }
         }
+        recordPity(player, actualWinning, pityGuaranteed);
         return actualWinning;
     }
 
     public Winning getRandomWinning() {
-        List<Winning> winnings = getWinningsExcludeAlways();
-        if (winnings.isEmpty()) {
+        return getRandomWinning(getWinningsExcludeAlways());
+    }
+
+    private Winning getRandomPityWinning() {
+        return getRandomWinning(pityWinnings);
+    }
+
+    private Winning getRandomWinning(List<Winning> candidates) {
+        if (candidates.isEmpty()) {
             throw new IllegalStateException("Crate '" + name + "' has no non-always winnings");
         }
 
         Winning winning;
-        if (getTotalPercentage() > 0) {
-            // Compute the total weight of all items together
-            double totalWeight = 0.0d;
-            for (Winning winning1 : winnings) {
-                if (winning1.isAlways())
-                    continue;
-                totalWeight += winning1.getPercentage();
-            }
-
-            // Now choose a random item
-            double random = Math.random() * totalWeight;
-            for (int i = 0; i < winnings.size(); ++i) {
-                random -= winnings.get(i).getPercentage();
+        double totalWeight = candidates.stream().mapToDouble(Winning::getPercentage).sum();
+        if (totalWeight > 0) {
+            double random = ThreadLocalRandom.current().nextDouble(totalWeight);
+            for (int i = 0; i < candidates.size(); ++i) {
+                random -= candidates.get(i).getPercentage();
                 if (random <= 0.0d) {
-                    return winnings.get(i);
+                    return candidates.get(i);
                 }
             }
             // Protect against floating-point rounding at the upper boundary.
-            winning = winnings.get(winnings.size() - 1);
+            winning = candidates.get(candidates.size() - 1);
         } else {
-            winning = winnings.get(CratesPlus.getOpenHandler().getCratesPlus().getCrateHandler().randInt(0, winnings.size() - 1));
+            winning = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
         }
         return winning;
+    }
+
+    protected Winning getRandomWinning(Player player) {
+        return isPityDue(player) ? getRandomPityWinning() : getRandomWinning();
+    }
+
+    protected void recordPity(Player player, Winning winning) {
+        recordPity(player, winning, isPityDue(player));
+    }
+
+    private void recordPity(Player player, Winning winning, boolean pityGuaranteed) {
+        if (!isPityEnabled()) {
+            return;
+        }
+        if (pityWinnings.contains(winning)) {
+            getCratesPlus().getStorageHandler().setPityCount(player.getUniqueId(), name, 0);
+            if (pityGuaranteed) {
+                plus.crates.Handlers.MessageHandler.sendMessage(player, "crate.pity_guaranteed", this, winning);
+            }
+            return;
+        }
+
+        int nextCount = Math.min(pityLimit - 1,
+                getCratesPlus().getStorageHandler().getPityCount(player.getUniqueId(), name) + 1);
+        getCratesPlus().getStorageHandler().setPityCount(player.getUniqueId(), name, nextCount);
+    }
+
+    private boolean isPityDue(Player player) {
+        return isPityEnabled()
+                && getCratesPlus().getStorageHandler().getPityCount(player.getUniqueId(), name) >= pityLimit - 1;
+    }
+
+    private boolean isPityEnabled() {
+        return pityLimit > 0 && !pityWinnings.isEmpty();
+    }
+
+    public int getPityLimit() {
+        return pityLimit;
     }
 
     public boolean isHidePercentages() {
