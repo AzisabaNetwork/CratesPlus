@@ -476,6 +476,7 @@ public class CrateCommand implements CommandExecutor {
             return;
         }
         GUI gui = new GUI("Claim Crate Keys");
+        gui.setAllowsKeyMovement(true);
         Integer i = 0;
         for (Map.Entry<String, Integer> map : cratesPlus.getCrateHandler().getPendingKey(player.getUniqueId()).entrySet()) {
             final String crateName = map.getKey();

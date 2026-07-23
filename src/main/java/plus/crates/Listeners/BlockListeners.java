@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import plus.crates.Crates.*;
@@ -141,7 +142,9 @@ public class BlockListeners implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!cratesPlus.getConfigHandler().isDisableKeySwapping() || event.getView().getTitle().equals("Claim Crate Keys"))
+        Inventory topInventory = event.getView().getTopInventory();
+        if (!cratesPlus.getConfigHandler().isDisableKeySwapping()
+                || (topInventory.getHolder() instanceof plus.crates.Utils.GUI.Holder holder && holder.getGui().allowsKeyMovement()))
             return;
         if (!event.getInventory().getType().toString().contains("PLAYER") && event.getCurrentItem() != null) {
             String title;

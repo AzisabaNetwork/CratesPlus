@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.Crates.Crate;
@@ -103,7 +104,9 @@ public class BasicGUIOpener extends Opener implements Listener {
         int max = crate.getWinnings().size() - 1;
         int min = 0;
         currentItem[0] = random.nextInt((max - min) + 1) + min;
-        winGUI = Bukkit.createInventory(null, 45, crate.getColor() + crate.getName() + " Win");
+        WinningInventoryHolder holder = new WinningInventoryHolder();
+        winGUI = Bukkit.createInventory(holder, 45, crate.getColor() + crate.getName() + " Win");
+        holder.setInventory(winGUI);
         guis.put(player.getUniqueId(), winGUI);
         player.openInventory(winGUI);
         final int maxTimeTicks = length * 10;
@@ -145,7 +148,7 @@ public class BasicGUIOpener extends Opener implements Listener {
                     if (sound) {
                         final Sound finalSound = Sound.BLOCK_NOTE_BLOCK_HARP;
                         Bukkit.getScheduler().runTask(cratesPlus, () -> {
-                            if (player.getOpenInventory().getTitle() != null && player.getOpenInventory().getTitle().contains(" Win"))
+                            if (player.getOpenInventory().getTopInventory().getHolder() instanceof WinningInventoryHolder)
                                 player.playSound(player.getLocation(), finalSound, (float) 0.2, 2);
                         });
                     }
@@ -172,17 +175,29 @@ public class BasicGUIOpener extends Opener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        String title = event.getView().getTitle();
-        if (title.contains(" Win") && !title.contains("Edit ")) {
-            if ((event.getInventory().getType() == InventoryType.CHEST && event.getSlot() != 22) || event.getCurrentItem() != null) {
-                event.setCancelled(true);
-                event.getWhoClicked().closeInventory();
-            }
+        Inventory inventory = event.getView().getTopInventory();
+        if (!(inventory.getHolder() instanceof WinningInventoryHolder)) return;
+        event.setCancelled(true);
+        if (event.getRawSlot() < inventory.getSize()) {
+            event.getWhoClicked().closeInventory();
         }
     }
 
     public boolean doesSupport(Crate crate) {
         return true;
+    }
+
+    private static final class WinningInventoryHolder implements InventoryHolder {
+        private Inventory inventory;
+
+        private void setInventory(Inventory inventory) {
+            this.inventory = inventory;
+        }
+
+        @Override
+        public Inventory getInventory() {
+            return inventory;
+        }
     }
 
 }

@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -48,6 +49,7 @@ public class GUI {
     private HashMap<Integer, ClickHandler> clickHandlers = new HashMap<>();
     private ClickHandler goBackHandler = null;
     private boolean showPages = false;
+    private boolean allowsKeyMovement = false;
 
     public GUI(String title) {
         this.title = title;
@@ -135,6 +137,14 @@ public class GUI {
         this.showPages = showPages;
     }
 
+    public boolean allowsKeyMovement() {
+        return allowsKeyMovement;
+    }
+
+    public void setAllowsKeyMovement(boolean allowsKeyMovement) {
+        this.allowsKeyMovement = allowsKeyMovement;
+    }
+
     public ClickHandler getGoBackHandler() {
         return goBackHandler;
     }
@@ -159,7 +169,9 @@ public class GUI {
         if (isShowPages()) {
             title += " (Page " + page + "/" + pages + ")";
         }
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        Holder holder = new Holder(this, page);
+        Inventory inventory = Bukkit.createInventory(holder, size, title);
+        holder.setInventory(inventory);
 
         for (int i = startFrom; i < startFrom + itemsPerPage; i++) {
             if (!getItems().containsKey(i))
@@ -205,6 +217,35 @@ public class GUI {
 
     public abstract static class ClickHandler {
         public abstract void doClick(Player player, GUI gui);
+    }
+
+    /** Stable identity for a plugin GUI; never use the display title for routing. */
+    public static final class Holder implements InventoryHolder {
+        private final GUI gui;
+        private final int page;
+        private Inventory inventory;
+
+        private Holder(GUI gui, int page) {
+            this.gui = gui;
+            this.page = page;
+        }
+
+        private void setInventory(Inventory inventory) {
+            this.inventory = inventory;
+        }
+
+        public GUI getGui() {
+            return gui;
+        }
+
+        public int getPage() {
+            return page;
+        }
+
+        @Override
+        public Inventory getInventory() {
+            return inventory;
+        }
     }
 
 }
