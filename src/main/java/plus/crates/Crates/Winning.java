@@ -209,7 +209,7 @@ public class Winning {
         if (percentage > 0 && !crate.isHidePercentages()) {
             if (cratesPlus.getConfig().getBoolean("Chance Message Gap", true))
                 lore.add(ChatColor.LIGHT_PURPLE + "");
-            lore.add(MessageHandler.getMessage("&d%percentage%% Chance", null, crate, this).replaceAll("\\n", ""));
+            lore.add(MessageHandler.getMessage("crate.chance", null, crate, this).replaceAll("\\n", ""));
         }
         previewItemStackItemMeta.setLore(lore);
         previewItemStack.setItemMeta(previewItemStackItemMeta);
@@ -241,7 +241,7 @@ public class Winning {
         }
 
         if (crate.isBroadcast())
-            Bukkit.broadcastMessage(cratesPlus.getPluginPrefix() + MessageHandler.getMessage("&d%displayname% &dopened a %crate% &dcrate", player, crate, winning));
+            Bukkit.broadcast(MessageHandler.component("crate.broadcast", player, crate, winning));
 
         if (crate.isFirework())
             cratesPlus.getCrateHandler().spawnFirework(player.getLocation());

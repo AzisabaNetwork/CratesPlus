@@ -34,18 +34,7 @@ public class NoGUIOpener extends Opener {
     @Override
     public void doOpen(Player player, Crate crate, Location location) {
         if (chestSound) {
-            Sound sound = null;
-            try {
-                sound = Sound.valueOf("CHEST_OPEN");
-            } catch (Exception e) {
-                try {
-                    sound = Sound.valueOf("BLOCK_CHEST_OPEN");
-                } catch (Exception ee) {
-                    // This should never happen!
-                }
-            }
-            if (sound != null)
-                player.playSound(player.getLocation(), sound, (float) 0.5, 1);
+            player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, (float) 0.5, 1);
         }
         crate.handleWin(player);
         finish(player);

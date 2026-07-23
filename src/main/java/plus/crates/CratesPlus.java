@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import plus.crates.Commands.CrateCommand;
@@ -42,6 +43,8 @@ public class CratesPlus extends JavaPlugin implements Listener {
     private StorageHandler storageHandler;
     private String bukkitVersion = "0.0";
     private Version_Util version_util;
+    private TextInputHandler textInputHandler;
+    private NamespacedKey keyCrateKey;
     private static OpenHandler openHandler;
     private ArrayList<UUID> creatingCrate = new ArrayList<>();
 
@@ -59,29 +62,9 @@ public class CratesPlus extends JavaPlugin implements Listener {
         if (getConfig().isSet("Bukkit Version"))
             bukkitVersion = getConfig().getString("Bukkit Version");
 
-        if (LinfootUtil.versionCompare(bukkitVersion, "1.14.2") > 0) {
-            // This means the plugin is using something newer than the latest tested build... we'll show a warning but carry on as usual
-            getLogger().warning("CratesPlus has not yet been officially tested with Bukkit " + bukkitVersion + " but should still work");
-        }
-
-        if (LinfootUtil.versionCompare(bukkitVersion, "1.9") > -1) {
-            // Use 1.9+ Util
-            version_util = new Version_1_9(this);
-        } else if (LinfootUtil.versionCompare(bukkitVersion, "1.8") > -1) {
-            // Use 1.8 Util
-            version_util = new Version_1_8(this);
-        } else if (LinfootUtil.versionCompare(bukkitVersion, "1.7") > -1) {
-            // Use Default Util
-            getLogger().warning("CratesPlus does NOT fully support Bukkit 1.7, if you have issues please report them but they may not be fixed");
-            version_util = new Version_Util(this);
-        } else {
-            getLogger().severe("CratesPlus does NOT support Bukkit " + bukkitVersion + ", if you believe this is an error please let me know");
-            if (!getConfig().isSet("Ignore Version") || !getConfig().getBoolean("Ignore Version")) { // People should only ignore this in the case of an error, doing an ignore on a unsupported version could break something
-                setEnabled(false);
-                return;
-            }
-            version_util = new Version_Util(this); // Use the 1.7 util? Probably has a lower chance of breaking
-        }
+        version_util = new Version_Util(this);
+        textInputHandler = new TextInputHandler(this);
+        keyCrateKey = new NamespacedKey(this, "crate_key");
 
         final ConsoleCommandSender console = server.getConsoleSender();
         getConfig().options().copyDefaults(true);
@@ -409,6 +392,14 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
     public Version_Util getVersion_util() {
         return version_util;
+    }
+
+    public TextInputHandler getTextInputHandler() {
+        return textInputHandler;
+    }
+
+    public NamespacedKey getKeyCrateKey() {
+        return keyCrateKey;
     }
 
     public boolean isUpdateAvailable() {

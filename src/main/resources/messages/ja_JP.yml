@@ -1,0 +1,12 @@
+messages:
+  command.no_permission: "&cこのコマンドを実行する権限がありません。"
+  crate.no_permission: "&cこのクレートを使用する権限がありません。"
+  crate.open_without_key: "&c%crate% &cを開けるには対応するキーを持っている必要があります。"
+  key.given: "&a%crate% &aのキーを受け取りました。"
+  key.cannot_drop: "&cクレートキーはドロップできません。"
+  key.cannot_place: "&cクレートキーは設置できません。"
+  key.inventory_full_claim: "&aインベントリが満杯です。あとで /crate からキーを受け取れます。"
+  key.claim_join: "&a受け取り待ちのキーがあります。/crate で受け取れます。"
+  crate.broadcast: "&d%displayname% &dが %crate% &dを開封しました。"
+  crate.chance: "&d当選確率: %percentage%%"
+  crate.possible_wins: "入手できるアイテム:"

@@ -117,7 +117,7 @@ public class KeyCrate extends Crate {
 
     public void openPreviewGUI(Player player) {
         List<Winning> winnings = this.getWinnings();
-        GUI previewGUI = new GUI(this.getName(true) + " " + MessageHandler.getMessage("Possible Wins:", null, this, null));
+        GUI previewGUI = new GUI(this.getName(true) + " " + MessageHandler.getMessage("crate.possible_wins", null, this, null));
         for (Winning winning : winnings) {
             ItemStack itemStack = winning.getPreviewItemStack();
             if (itemStack == null)

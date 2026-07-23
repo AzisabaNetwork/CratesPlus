@@ -11,13 +11,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.Crates.Crate;
 import plus.crates.Crates.Winning;
 import plus.crates.CratesPlus;
-import plus.crates.Events.PlayerInputEvent;
 import plus.crates.Utils.GUI;
 import plus.crates.Utils.LegacyMaterial;
-import plus.crates.Utils.ReflectionUtil;
-import plus.crates.Utils.SignInputHandler;
-
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class SettingsHandler implements Listener {
@@ -162,20 +157,13 @@ public class SettingsHandler implements Listener {
             public void doClick(Player player, GUI gui) {
                 player.closeInventory();
                 renaming.put(player.getUniqueId(), crateName);
-                try {
-                    //Send fake sign cause 1.13
-                    player.sendBlockChange(player.getLocation(), Material.valueOf("SIGN"), (byte) 0);
-
-                    Constructor signConstructor = ReflectionUtil.getNMSClass("PacketPlayOutOpenSignEditor").getConstructor(ReflectionUtil.getNMSClass("BlockPosition"));
-                    Object packet = signConstructor.newInstance(ReflectionUtil.getBlockPosition(player));
-                    SignInputHandler.injectNetty(player);
-                    ReflectionUtil.sendPacket(player, packet);
-
-                    player.sendBlockChange(player.getLocation(), player.getLocation().getBlock().getType(), player.getLocation().getBlock().getData());
-                } catch (Exception e) {
-                    player.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Please use /crate rename <old> <new>");
+                cratesPlus.getTextInputHandler().request(player, "Rename crate", newName -> {
                     renaming.remove(player.getUniqueId());
-                }
+                    if (!newName.isBlank()) {
+                        Bukkit.dispatchCommand(player, "crate rename " + crateName + " " + newName.trim());
+                        cratesPlus.getSettingsHandler().openCrate(player, newName.trim());
+                    }
+                });
             }
         });
 
@@ -398,31 +386,6 @@ public class SettingsHandler implements Listener {
 
     public HashMap<String, String> getLastCrateEditing() {
         return lastCrateEditing;
-    }
-
-    @EventHandler
-    public void onPlayerInput(final PlayerInputEvent event) {
-        if (renaming.containsKey(event.getPlayer().getUniqueId())) {
-            String name = renaming.get(event.getPlayer().getUniqueId());
-            renaming.remove(event.getPlayer().getUniqueId());
-            String newName = "";
-            for (String line : event.getLines()) {
-                newName += line;
-            }
-            if (!name.isEmpty() && !newName.isEmpty())
-                Bukkit.dispatchCommand(event.getPlayer(), "crate rename " + name + " " + newName);
-            cratesPlus.getSettingsHandler().openCrate(event.getPlayer(), newName);
-        } else if (cratesPlus.isCreating(event.getPlayer().getUniqueId())) {
-            cratesPlus.removeCreating(event.getPlayer().getUniqueId());
-            String name = "";
-            for (String line : event.getLines()) {
-                name += line;
-            }
-            if (!name.isEmpty()) {
-                final String finalName = name;
-                Bukkit.getScheduler().runTask(cratesPlus, () -> Bukkit.dispatchCommand(event.getPlayer(), "crate create " + finalName));
-            }
-        }
     }
 
 }

@@ -93,6 +93,12 @@ public class BasicGUIOpener extends Opener implements Listener {
         final Integer[] timer = {0};
         final Integer[] currentItem = new Integer[1];
 
+        if (crate.getWinnings().isEmpty()) {
+            player.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "This crate has no valid winnings.");
+            finish(player);
+            return;
+        }
+
         Random random = new Random();
         int max = crate.getWinnings().size() - 1;
         int min = 0;
@@ -101,12 +107,15 @@ public class BasicGUIOpener extends Opener implements Listener {
         guis.put(player.getUniqueId(), winGUI);
         player.openInventory(winGUI);
         final int maxTimeTicks = length * 10;
-        tasks.put(player.getUniqueId(), Bukkit.getScheduler().runTaskTimerAsynchronously(cratesPlus, () -> {
+        // Bukkit inventories and player state are main-thread-only. Running this asynchronously
+        // caused intermittent item loss, duplicated openings, and server-thread safety violations.
+        tasks.put(player.getUniqueId(), Bukkit.getScheduler().runTaskTimer(cratesPlus, () -> {
             if (!player.isOnline()) {
                 finish(player);
                 //TODO Want to re-explore what we should do here, this happens if the player logs off mid-opening.
                 Bukkit.getScheduler().runTask(cratesPlus, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "crate key " + player.getName() + " " + crate.getName() + " 1"));
-                Bukkit.getScheduler().cancelTask(tasks.get(player.getUniqueId()));
+                Integer taskId = tasks.remove(player.getUniqueId());
+                if (taskId != null) Bukkit.getScheduler().cancelTask(taskId);
                 return;
             }
             Integer i = 0;
@@ -134,17 +143,7 @@ public class BasicGUIOpener extends Opener implements Listener {
                     itemMeta.setDisplayName(ChatColor.RESET + winnerText);
                 } else {
                     if (sound) {
-                        Sound sound;
-                        try {
-                            sound = Sound.valueOf("NOTE_PIANO");
-                        } catch (Exception e) {
-                            try {
-                                sound = Sound.valueOf("BLOCK_NOTE_HARP");
-                            } catch (Exception ee) {
-                                return; // This should never happen!
-                            }
-                        }
-                        final Sound finalSound = sound;
+                        final Sound finalSound = Sound.BLOCK_NOTE_BLOCK_HARP;
                         Bukkit.getScheduler().runTask(cratesPlus, () -> {
                             if (player.getOpenInventory().getTitle() != null && player.getOpenInventory().getTitle().contains(" Win"))
                                 player.playSound(player.getLocation(), finalSound, (float) 0.2, 2);
@@ -158,7 +157,8 @@ public class BasicGUIOpener extends Opener implements Listener {
             }
             if (timer[0] == maxTimeTicks) {
                 finish(player);
-                Bukkit.getScheduler().cancelTask(tasks.get(player.getUniqueId()));
+                Integer taskId = tasks.remove(player.getUniqueId());
+                if (taskId != null) Bukkit.getScheduler().cancelTask(taskId);
                 return;
             }
             timer[0]++;
@@ -174,7 +174,7 @@ public class BasicGUIOpener extends Opener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
         if (title.contains(" Win") && !title.contains("Edit ")) {
-            if (event.getInventory().getType() == InventoryType.CHEST && event.getSlot() != 22 || event.getCurrentItem() != null) {
+            if ((event.getInventory().getType() == InventoryType.CHEST && event.getSlot() != 22) || event.getCurrentItem() != null) {
                 event.setCancelled(true);
                 event.getWhoClicked().closeInventory();
             }

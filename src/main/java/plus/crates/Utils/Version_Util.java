@@ -3,8 +3,8 @@ package plus.crates.Utils;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.SpawnEgg;
 import plus.crates.CratesPlus;
 
 import java.util.List;
@@ -17,26 +17,35 @@ public class Version_Util {
     }
 
     public ItemStack getItemInPlayersHand(Player player) {
-        return player.getItemInHand();
+        return player.getInventory().getItemInMainHand();
     }
 
     public ItemStack getItemInPlayersOffHand(Player player) {
-        return null;
+        return player.getInventory().getItemInOffHand();
     }
 
     public void removeItemInOffHand(Player player) {
-
+        player.getInventory().setItemInOffHand(null);
     }
 
     public ItemStack getSpawnEgg(EntityType entityType, Integer amount) {
-        ItemStack egg = new ItemStack(LegacyMaterial.MONSTER_EGG.getMaterial(), amount);
-        egg.setDurability(entityType.getTypeId());
-        return egg;
+        Material material = Material.getMaterial(entityType.name() + "_SPAWN_EGG");
+        if (material == null) {
+            throw new IllegalArgumentException("No spawn egg exists for " + entityType);
+        }
+        return new ItemStack(material, amount);
     }
 
     public EntityType getEntityTypeFromItemStack(ItemStack itemStack) {
-        SpawnEgg spawnEgg = (SpawnEgg) itemStack.getData();
-        return spawnEgg.getSpawnedType();
+        if (itemStack == null || !itemStack.getType().name().endsWith("_SPAWN_EGG")) {
+            return null;
+        }
+        String entityName = itemStack.getType().name().replace("_SPAWN_EGG", "");
+        try {
+            return EntityType.valueOf(entityName);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 
     public ItemMeta handleItemFlags(ItemMeta itemMeta, List<String> flags) {

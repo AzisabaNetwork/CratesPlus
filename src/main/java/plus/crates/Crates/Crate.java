@@ -230,9 +230,13 @@ public abstract class Crate {
     }
 
     public Winning getRandomWinning() {
+        List<Winning> winnings = getWinningsExcludeAlways();
+        if (winnings.isEmpty()) {
+            throw new IllegalStateException("Crate '" + name + "' has no non-always winnings");
+        }
+
         Winning winning;
         if (getTotalPercentage() > 0) {
-            List<Winning> winnings = getWinningsExcludeAlways();
             // Compute the total weight of all items together
             double totalWeight = 0.0d;
             for (Winning winning1 : winnings) {
@@ -242,18 +246,17 @@ public abstract class Crate {
             }
 
             // Now choose a random item
-            int randomIndex = -1;
             double random = Math.random() * totalWeight;
             for (int i = 0; i < winnings.size(); ++i) {
                 random -= winnings.get(i).getPercentage();
                 if (random <= 0.0d) {
-                    randomIndex = i;
-                    break;
+                    return winnings.get(i);
                 }
             }
-            winning = winnings.get(randomIndex);
+            // Protect against floating-point rounding at the upper boundary.
+            winning = winnings.get(winnings.size() - 1);
         } else {
-            winning = getWinningsExcludeAlways().get(CratesPlus.getOpenHandler().getCratesPlus().getCrateHandler().randInt(0, getWinningsExcludeAlways().size() - 1));
+            winning = winnings.get(CratesPlus.getOpenHandler().getCratesPlus().getCrateHandler().randInt(0, winnings.size() - 1));
         }
         return winning;
     }

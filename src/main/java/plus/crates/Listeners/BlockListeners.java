@@ -23,6 +23,7 @@ import plus.crates.Handlers.MessageHandler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 public class BlockListeners implements Listener {
     private CratesPlus cratesPlus;
@@ -48,8 +49,8 @@ public class BlockListeners implements Listener {
                 continue;
             title = key.getName();
 
-            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(title)) {
-                MessageHandler.sendMessage(event.getPlayer(), "&cYou can not drop crate keys", crate.getValue(), null);
+            if (key.matches(item)) {
+                MessageHandler.sendMessage(event.getPlayer(), "key.cannot_drop", crate.getValue(), null);
                 event.setCancelled(true);
                 return;
             }
@@ -64,7 +65,8 @@ public class BlockListeners implements Listener {
             return;
         String title;
         List<ItemStack> items = event.getDrops();
-        for (ItemStack item : items) {
+        for (Iterator<ItemStack> iterator = items.iterator(); iterator.hasNext(); ) {
+            ItemStack item = iterator.next();
             for (Map.Entry<String, Crate> crate : cratesPlus.getConfigHandler().getCrates().entrySet()) {
                 if (!(crate.getValue() instanceof KeyCrate)) {
                     continue;
@@ -75,10 +77,12 @@ public class BlockListeners implements Listener {
                     continue;
                 title = key.getName();
 
-                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(title)) {
-                    event.getDrops().remove(item);
+                if (key.matches(item)) {
+                    // Removing from the list inside a for-each loop threw a
+                    // ConcurrentModificationException and could lose keys on death.
+                    iterator.remove();
                     cratesPlus.getCrateHandler().giveCrateKey(event.getEntity(), crate.getValue().getName(), item.getAmount(), false, true);
-                    return;
+                    break;
                 }
             }
         }
@@ -101,7 +105,7 @@ public class BlockListeners implements Listener {
                 continue;
             title = key.getName();
 
-            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(title)) {
+            if (key.matches(item)) {
                 // Send message?
                 event.setCancelled(true);
                 return;
@@ -126,7 +130,7 @@ public class BlockListeners implements Listener {
                     continue;
                 title = key.getName();
 
-                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(title)) {
+                if (key.matches(item)) {
                     // Send message?
                     event.setCancelled(true);
                     return;
@@ -152,7 +156,7 @@ public class BlockListeners implements Listener {
                     continue;
                 title = key.getName();
 
-                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(title)) {
+                if (key.matches(item)) {
                     // Send message?
                     event.setCancelled(true);
                     return;
@@ -178,12 +182,12 @@ public class BlockListeners implements Listener {
                 continue;
             title = key.getName();
 
-            if (itemOff != null && itemOff.hasItemMeta() && itemOff.getItemMeta().hasDisplayName() && itemOff.getItemMeta().getDisplayName() != null && itemOff.getItemMeta().getDisplayName().contains(title)) {
+            if (key.matches(itemOff)) {
                 item = itemOff;
             }
 
-            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(title)) {
-                MessageHandler.sendMessage(event.getPlayer(), "&cYou can not place crate keys", crate.getValue(), null);
+            if (key.matches(item)) {
+                MessageHandler.sendMessage(event.getPlayer(), "key.cannot_place", crate.getValue(), null);
                 event.setCancelled(true);
                 return;
             }

@@ -1,6 +1,7 @@
 package plus.crates.Handlers;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import plus.crates.Crates.Crate;
@@ -8,110 +9,132 @@ import plus.crates.Crates.Winning;
 import plus.crates.CratesPlus;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
-public class MessageHandler {
+/** Localised player-facing messages, with legacy ampersand colour-code support. */
+public final class MessageHandler {
+    private static final String DEFAULT_LOCALE = "en_US";
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private static final Map<String, YamlConfiguration> locales = new HashMap<>();
     private static CratesPlus cratesPlus;
-    private static YamlConfiguration config;
-    private static File file;
-    private static HashMap<String, String> messages = new HashMap<>();
     public static boolean testMessages = false;
 
-    public static void loadMessageConfiguration(CratesPlus cratesPlus, YamlConfiguration config, File file) {
-        MessageHandler.cratesPlus = cratesPlus;
-        MessageHandler.config = config;
-        MessageHandler.file = file;
-
-        handleConversion();
-
-        try {
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private MessageHandler() {
     }
 
-    private static void handleConversion() {
-        if (cratesPlus == null || config == null || file == null) {
+    public static void loadMessageConfiguration(CratesPlus plugin, YamlConfiguration ignored, File ignoredFile) {
+        cratesPlus = plugin;
+        locales.clear();
+        loadLocale(DEFAULT_LOCALE);
+        loadLocale("ja_JP");
+        migrateLegacyMessages(ignored);
+    }
+
+    private static void loadLocale(String locale) {
+        File directory = new File(cratesPlus.getDataFolder(), "messages");
+        if (!directory.exists() && !directory.mkdirs()) {
+            cratesPlus.getLogger().warning("Could not create messages directory");
             return;
         }
+        File file = new File(directory, locale + ".yml");
+        if (!file.exists()) {
+            cratesPlus.saveResource("messages/" + locale + ".yml", false);
+        }
+        locales.put(locale, YamlConfiguration.loadConfiguration(file));
+    }
 
-        if (!config.isSet("Messages Version")) {
-            config.set("Messages Version", 2);
-
-            HashMap<String, String> oldKeys = new HashMap<>();
-            oldKeys.put("Command No Permission", "&cYou do not have the correct permission to run this command");
-            oldKeys.put("Crate No Permission", "&cYou do not have the correct permission to use this crate");
-            oldKeys.put("Crate Open Without Key", "&cYou must be holding a %crate% &ckey to open this crate");
-            oldKeys.put("Key Given", "&aYou have been given a %crate% &acrate key");
-            oldKeys.put("Broadcast", "&d%displayname% &dopened a %crate% &dcrate");
-            oldKeys.put("Cant Place", "&cYou can not place crate keys");
-            oldKeys.put("Cant Drop", "&cYou can not drop crate keys");
-            oldKeys.put("Chance Message", "&d%percentage%% Chance");
-            oldKeys.put("Inventory Full Claim", "&aYou're inventory is full, you can claim your keys later using /crate");
-            oldKeys.put("Claim Join", "&aYou currently have keys waiting to be claimed, use /crate to claim");
-            oldKeys.put("Possible Wins Title", "Possible Wins:");
-
-            oldKeys.forEach((key, value) -> {
-                if (config.isSet(key)) {
-                    config.set(value, config.getString(key));
-                    config.set(key, null);
-                }
-            });
-
-            cratesPlus.getConfig().set("Prefix", config.getString("Prefix", "&7[&bCratesPlus&7]"));
-            config.set("Prefix", null);
-            cratesPlus.getConfig().set("Chance Message Gap", config.getBoolean("Chance Message Gap", true));
-            config.set("Chance Message Gap", null);
-            cratesPlus.saveConfig();
-
+    private static void migrateLegacyMessages(YamlConfiguration legacy) {
+        if (legacy == null) {
+            return;
+        }
+        Map<String, String> legacyKeys = Map.ofEntries(
+                Map.entry("Command No Permission", "command.no_permission"),
+                Map.entry("Crate No Permission", "crate.no_permission"),
+                Map.entry("Crate Open Without Key", "crate.open_without_key"),
+                Map.entry("Key Given", "key.given"),
+                Map.entry("Broadcast", "crate.broadcast"),
+                Map.entry("Cant Place", "key.cannot_place"),
+                Map.entry("Cant Drop", "key.cannot_drop"),
+                Map.entry("Chance Message", "crate.chance"),
+                Map.entry("Inventory Full Claim", "key.inventory_full_claim"),
+                Map.entry("Claim Join", "key.claim_join"),
+                Map.entry("Possible Wins Title", "crate.possible_wins")
+        );
+        YamlConfiguration target = localeFor(null);
+        boolean changed = false;
+        for (Map.Entry<String, String> entry : legacyKeys.entrySet()) {
+            if (legacy.isString(entry.getKey())) {
+                target.set("messages." + entry.getValue(), legacy.getString(entry.getKey()));
+                changed = true;
+            }
+        }
+        if (changed) {
             try {
-                config.save(file);
-            } catch (IOException e) {
-                e.printStackTrace();
+                target.save(new File(new File(cratesPlus.getDataFolder(), "messages"),
+                        cratesPlus.getConfig().getString("Locale", DEFAULT_LOCALE) + ".yml"));
+            } catch (Exception exception) {
+                cratesPlus.getLogger().warning("Could not migrate legacy messages: " + exception.getMessage());
             }
         }
     }
 
-    private static String getMessageFromConfig(String message) {
-        if (testMessages) {
-            return "TRANSLATED(" + message + ChatColor.RESET + ") ";
+    private static YamlConfiguration localeFor(Player player) {
+        String configured = cratesPlus.getConfig().getString("Locale", DEFAULT_LOCALE);
+        if (player != null) {
+            Locale playerLocale = player.locale();
+            String playerKey = playerLocale.getLanguage() + "_" + playerLocale.getCountry();
+            if (locales.containsKey(playerKey)) {
+                return locales.get(playerKey);
+            }
         }
-        if (messages.containsKey(message))
-            return message;
-        // TODO Insert into config reeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+        return locales.getOrDefault(configured, locales.get(DEFAULT_LOCALE));
+    }
+
+    private static String template(String key, Player player) {
+        if (testMessages) {
+            return "&7[&e" + key + "&7] ";
+        }
+        String message = localeFor(player).getString("messages." + key);
+        if (message == null) {
+            cratesPlus.getLogger().warning("Missing message key: " + key);
+            return key;
+        }
         return message;
     }
 
     public static String convertPlaceholders(String message, Player player, Crate crate, Winning winning) {
-        message = ChatColor.translateAlternateColorCodes('&', message);
-        if (player != null)
-            message = message.replaceAll("%name%", player.getName()).replaceAll("%displayname%", player.getDisplayName()).replaceAll("%uuid%", player.getUniqueId().toString());
-
-        if (crate != null)
-            message = message.replaceAll("%crate%", crate.getName(true) + ChatColor.RESET);
-
+        if (player != null) {
+            message = message.replace("%name%", player.getName())
+                    .replace("%displayname%", player.getName())
+                    .replace("%uuid%", player.getUniqueId().toString());
+        }
+        if (crate != null) {
+            message = message.replace("%crate%", crate.getName(true));
+        }
         if (winning != null) {
-            String name;
-            if (winning.getWinningItemStack().hasItemMeta() && winning.getWinningItemStack().getItemMeta().hasDisplayName()) {
-                name = winning.getWinningItemStack().getItemMeta().getDisplayName();
-            } else {
-                name = winning.getWinningItemStack().getType().name();
-                name = name.substring(0, 1).toUpperCase() + name.substring(1);
-            }
-            message = message.replaceAll("%prize%", name + ChatColor.RESET).replaceAll("%winning%", name + ChatColor.RESET).replaceAll("%percentage%", String.valueOf(winning.getPercentage()));
+            String name = winning.getWinningItemStack().hasItemMeta() && winning.getWinningItemStack().getItemMeta().hasDisplayName()
+                    ? winning.getWinningItemStack().getItemMeta().getDisplayName()
+                    : winning.getWinningItemStack().getType().translationKey();
+            message = message.replace("%prize%", name)
+                    .replace("%winning%", name)
+                    .replace("%percentage%", String.valueOf(winning.getPercentage()));
         }
         return message;
     }
 
-    public static String getMessage(String message, Player player, Crate crate, Winning winning) {
-        message = getMessageFromConfig(message);
-        return ChatColor.translateAlternateColorCodes('&', convertPlaceholders(message, player, crate, winning));
+    /** Returns a legacy string for inventories and older configuration paths. */
+    public static String getMessage(String key, Player player, Crate crate, Winning winning) {
+        return LEGACY.serialize(component(key, player, crate, winning));
     }
 
-    public static void sendMessage(Player player, String message, Crate crate, Winning winning) {
-        player.sendMessage(cratesPlus.getPluginPrefix() + getMessage(message, player, crate, winning));
+    public static Component component(String key, Player player, Crate crate, Winning winning) {
+        return LEGACY.deserialize(convertPlaceholders(template(key, player), player, crate, winning));
     }
 
+    public static void sendMessage(Player player, String key, Crate crate, Winning winning) {
+        String prefix = cratesPlus.getConfig().getString("Prefix", "&7[&bCratesPlus&7]") + " ";
+        player.sendMessage(LEGACY.deserialize(prefix).append(component(key, player, crate, winning)));
+    }
 }

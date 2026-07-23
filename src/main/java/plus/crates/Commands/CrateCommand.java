@@ -26,7 +26,6 @@ import plus.crates.Utils.*;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -47,7 +46,7 @@ public class CrateCommand implements CommandExecutor {
                 doClaim((Player) sender);
                 return true;
             }
-            sender.sendMessage(cratesPlus.getPluginPrefix() + MessageHandler.getMessage("&cYou do not have the correct permission to run this command", (Player) sender, null, null));
+            MessageHandler.sendMessage((Player) sender, "command.no_permission", null, null);
             return false;
         }
 
@@ -68,8 +67,7 @@ public class CrateCommand implements CommandExecutor {
                     sender.sendMessage(ChatColor.AQUA + "Creating creeper egg...");
                     ItemStack itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.CREEPER, 1);
                     sender.sendMessage(ChatColor.AQUA + "Testing creeper egg...");
-                    SpawnEggNBT spawnEggNBT = SpawnEggNBT.fromItemStack(itemStack);
-                    if (spawnEggNBT.getSpawnedType().equals(EntityType.CREEPER)) {
+                    if (EntityType.CREEPER.equals(cratesPlus.getVersion_util().getEntityTypeFromItemStack(itemStack))) {
                         sender.sendMessage(ChatColor.GREEN + "Creeper egg successful");
                         if (player != null)
                             player.getInventory().addItem(itemStack);
@@ -80,8 +78,7 @@ public class CrateCommand implements CommandExecutor {
                     sender.sendMessage(ChatColor.AQUA + "Creating spider egg...");
                     itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.SPIDER, 2);
                     sender.sendMessage(ChatColor.AQUA + "Testing spider egg...");
-                    spawnEggNBT = SpawnEggNBT.fromItemStack(itemStack);
-                    if (spawnEggNBT.getSpawnedType().equals(EntityType.SPIDER)) {
+                    if (EntityType.SPIDER.equals(cratesPlus.getVersion_util().getEntityTypeFromItemStack(itemStack))) {
                         sender.sendMessage(ChatColor.GREEN + "Spider egg successful");
                         if (player != null)
                             player.getInventory().addItem(itemStack);
@@ -92,8 +89,7 @@ public class CrateCommand implements CommandExecutor {
                     sender.sendMessage(ChatColor.AQUA + "Creating silverfish egg...");
                     itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.SILVERFISH, 3);
                     sender.sendMessage(ChatColor.AQUA + "Testing silverfish egg...");
-                    spawnEggNBT = SpawnEggNBT.fromItemStack(itemStack);
-                    if (spawnEggNBT.getSpawnedType().equals(EntityType.SILVERFISH)) {
+                    if (EntityType.SILVERFISH.equals(cratesPlus.getVersion_util().getEntityTypeFromItemStack(itemStack))) {
                         sender.sendMessage(ChatColor.GREEN + "Silverfish egg successful");
                         if (player != null)
                             player.getInventory().addItem(itemStack);
@@ -194,24 +190,14 @@ public class CrateCommand implements CommandExecutor {
                 case "create":
                     // TODO Handle different crate types lol, default is KeyCrate for now
                     if (sender instanceof Player && args.length < 2) {
-                        // Lets try and open a sign to do the name! :D
-                        player = (Player) sender;
-
-                        cratesPlus.addCreating(player.getUniqueId());
-                        try {
-                            //Send fake sign cause 1.13
-                            player.sendBlockChange(player.getLocation(), Material.valueOf("SIGN"), (byte) 0);
-
-                            Constructor signConstructor = ReflectionUtil.getNMSClass("PacketPlayOutOpenSignEditor").getConstructor(ReflectionUtil.getNMSClass("BlockPosition"));
-                            Object packet = signConstructor.newInstance(ReflectionUtil.getBlockPosition(player));
-                            SignInputHandler.injectNetty(player);
-                            ReflectionUtil.sendPacket(player, packet);
-
-                            player.sendBlockChange(player.getLocation(), player.getLocation().getBlock().getType(), player.getLocation().getBlock().getData());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            cratesPlus.removeCreating(player.getUniqueId());
-                        }
+                        final Player creatingPlayer = (Player) sender;
+                        cratesPlus.addCreating(creatingPlayer.getUniqueId());
+                        cratesPlus.getTextInputHandler().request(creatingPlayer, "Create crate", name -> {
+                            cratesPlus.removeCreating(creatingPlayer.getUniqueId());
+                            if (!name.isBlank()) {
+                                Bukkit.dispatchCommand(creatingPlayer, "crate create " + name.trim());
+                            }
+                        });
                         return true;
                     }
 

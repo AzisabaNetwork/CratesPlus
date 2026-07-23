@@ -18,6 +18,9 @@ Config Version: 7
 # Plugin Prefix
 Prefix: "&7[&bCratesPlus&7]"
 
+# Default language. A matching player client language is used when available.
+Locale: en_US
+
 # Checks if an update is available and notifies staff
 Update Checks: true
 Update Branch: "release"

@@ -1,0 +1,12 @@
+messages:
+  command.no_permission: "&cYou do not have permission to run this command."
+  crate.no_permission: "&cYou do not have permission to use this crate."
+  crate.open_without_key: "&cYou must be holding a %crate% &ckey to open this crate."
+  key.given: "&aYou have been given a %crate% &acrate key."
+  key.cannot_drop: "&cYou cannot drop crate keys."
+  key.cannot_place: "&cYou cannot place crate keys."
+  key.inventory_full_claim: "&aYour inventory is full. Use /crate later to claim your keys."
+  key.claim_join: "&aYou have keys waiting to be claimed. Use /crate to claim them."
+  crate.broadcast: "&d%displayname% &dopened a %crate% &dcrate."
+  crate.chance: "&d%percentage%% Chance"
+  crate.possible_wins: "Possible Wins:"

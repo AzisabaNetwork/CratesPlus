@@ -49,6 +49,9 @@ public class CrateHandler {
     }
 
     public int randInt(int min, int max) {
+        if (min > max) {
+            throw new IllegalArgumentException("min must not be greater than max");
+        }
         return rand.nextInt((max - min) + 1) + min;
     }
 
@@ -120,7 +123,7 @@ public class CrateHandler {
     }
 
     public void spawnFirework(Location location) {
-        Firework fw = (Firework) location.getWorld().spawnEntity(location, EntityType.FIREWORK);
+        Firework fw = location.getWorld().spawn(location, Firework.class);
         FireworkMeta fwm = fw.getFireworkMeta();
         Random r = new Random();
         int rt = r.nextInt(4) + 1;
@@ -208,7 +211,7 @@ public class CrateHandler {
                 pendingKeys.put(player.getUniqueId(), keys);
                 updateKeysData(offlinePlayer.getUniqueId());
                 if (showMessage)
-                    MessageHandler.sendMessage(player, "&aYou're inventory is full, you can claim your keys later using /crate", crate, null);
+                    MessageHandler.sendMessage(player, "key.inventory_full_claim", crate, null);
                 return;
             }
 
@@ -223,7 +226,7 @@ public class CrateHandler {
             }
 
             if (showMessage)
-                MessageHandler.sendMessage(player, "&aYou have been given a %crate% &acrate key", crate, null);
+                MessageHandler.sendMessage(player, "key.given", crate, null);
         } else {
             HashMap<String, Integer> keys = new HashMap<>();
             if (hasPendingKeys(offlinePlayer.getUniqueId()))
@@ -431,9 +434,6 @@ public class CrateHandler {
 
         String finalString = "";
         finalString = finalString + itemStack.getType().toString();
-        if (itemStack.getData().getData() != 0) {
-            finalString = finalString + "-" + itemStack.getData().getData();
-        }
         finalString = finalString + ":" + itemStack.getAmount();
 
         if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
@@ -452,9 +452,9 @@ public class CrateHandler {
                 finalString = finalString + "|";
             }
             if (level > 1) {
-                finalString = finalString + enchantment.getName().toUpperCase() + "-" + level;
+                finalString = finalString + enchantment.getKey().getKey().toUpperCase() + "-" + level;
             } else {
-                finalString = finalString + enchantment.getName().toUpperCase();
+                finalString = finalString + enchantment.getKey().getKey().toUpperCase();
             }
             i++;
         }

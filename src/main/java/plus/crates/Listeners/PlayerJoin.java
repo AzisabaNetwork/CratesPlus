@@ -27,7 +27,7 @@ public class PlayerJoin implements Listener {
             }
             if (cratesPlus.getCrateHandler().hasPendingKeys(event.getPlayer().getUniqueId())) {
                 if (cratesPlus.getConfigHandler().getClaimMessageDelay() > -1) {
-                    Bukkit.getScheduler().runTaskLater(cratesPlus, () -> MessageHandler.sendMessage(event.getPlayer(), "&aYou currently have keys waiting to be claimed, use /crate to claim", null, null), cratesPlus.getConfigHandler().getClaimMessageDelay() > 0 ? (20 * cratesPlus.getConfigHandler().getClaimMessageDelay()) : 0);
+                    Bukkit.getScheduler().runTaskLater(cratesPlus, () -> MessageHandler.sendMessage(event.getPlayer(), "key.claim_join", null, null), cratesPlus.getConfigHandler().getClaimMessageDelay() > 0 ? (20 * cratesPlus.getConfigHandler().getClaimMessageDelay()) : 0);
                 }
             }
         }, 1L);

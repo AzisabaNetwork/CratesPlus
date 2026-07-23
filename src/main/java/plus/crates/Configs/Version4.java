@@ -28,7 +28,6 @@ public class Version4 extends ConfigVersion {
 
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Type", "COMMAND");
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Item Type", itemStack.getType().toString());
-                    getConfig().set("Crates." + name + ".Winnings." + count + ".Item Data", itemStack.getData().getData());
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Amount", itemStack.getAmount());
                     if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName())
                         getConfig().set("Crates." + name + ".Winnings." + count + ".Name", itemStack.getItemMeta().getDisplayName());
@@ -39,9 +38,9 @@ public class Version4 extends ConfigVersion {
                         Integer level = entry.getValue();
 
                         if (level > 1) {
-                            enchantments.add(enchantment.getName().toUpperCase() + "-" + level);
+                            enchantments.add(enchantment.getKey().getKey().toUpperCase() + "-" + level);
                         } else {
-                            enchantments.add(enchantment.getName().toUpperCase());
+                            enchantments.add(enchantment.getKey().getKey().toUpperCase());
                         }
                     }
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Enchantments", enchantments);
@@ -58,7 +57,6 @@ public class Version4 extends ConfigVersion {
 
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Type", "ITEM");
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Item Type", itemStack.getType().toString());
-                    getConfig().set("Crates." + name + ".Winnings." + count + ".Item Data", itemStack.getData().getData());
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Amount", itemStack.getAmount());
                     if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName())
                         getConfig().set("Crates." + name + ".Winnings." + count + ".Name", itemStack.getItemMeta().getDisplayName());
@@ -69,9 +67,9 @@ public class Version4 extends ConfigVersion {
                         Integer level = entry.getValue();
 
                         if (level > 1) {
-                            enchantments.add(enchantment.getName().toUpperCase() + "-" + level);
+                            enchantments.add(enchantment.getKey().getKey().toUpperCase() + "-" + level);
                         } else {
-                            enchantments.add(enchantment.getName().toUpperCase());
+                            enchantments.add(enchantment.getKey().getKey().toUpperCase());
                         }
                     }
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Enchantments", enchantments);

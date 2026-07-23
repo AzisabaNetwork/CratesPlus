@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.MessageHandler;
 
@@ -64,7 +65,7 @@ public class Key {
     public ItemStack getKeyItem(Integer amount) {
         ItemStack keyItem = new ItemStack(getMaterial(), amount, getData());
         if (isEnchanted())
-            keyItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            keyItem.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
         ItemMeta keyItemMeta = keyItem.getItemMeta();
         String title = getName().replaceAll("%type%", getCrate().getName(true));
         keyItemMeta.setDisplayName(title);
@@ -73,7 +74,14 @@ public class Key {
         flags.add("HIDE_ENCHANTS");
         keyItemMeta = cratesPlus.getVersion_util().handleItemFlags(keyItemMeta, flags);
         keyItem.setItemMeta(keyItemMeta);
+        keyItem.editPersistentDataContainer(pdc -> pdc.set(
+                cratesPlus.getKeyCrateKey(), PersistentDataType.STRING, getCrate().getSlug()));
         return keyItem;
+    }
+
+    public boolean matches(ItemStack itemStack) {
+        return itemStack != null && getCrate().getSlug().equals(
+                itemStack.getPersistentDataContainer().get(cratesPlus.getKeyCrateKey(), PersistentDataType.STRING));
     }
 
     public KeyCrate getCrate() {

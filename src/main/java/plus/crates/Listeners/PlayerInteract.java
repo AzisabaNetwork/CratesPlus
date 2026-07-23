@@ -6,7 +6,9 @@ import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import plus.crates.Crates.Crate;
 import plus.crates.Crates.KeyCrate;
@@ -27,6 +29,10 @@ public class PlayerInteract implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
+        // Paper emits this event once per hand. Only the main-hand interaction may consume a key.
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
         Player player = event.getPlayer();
         if (event.getClickedBlock() == null || event.getClickedBlock().getType() == Material.AIR)
             return;
@@ -65,12 +71,10 @@ public class PlayerInteract implements Listener {
 
         if (crate.getPermission() != null && !player.hasPermission(crate.getPermission())) {
             event.setCancelled(true);
-            MessageHandler.sendMessage(player, "&cYou do not have the correct permission to use this crate", crate, null);
+            MessageHandler.sendMessage(player, "crate.no_permission", crate, null);
             return;
         }
-        String title = ChatColor.stripColor(keyCrate.getKey().getName());
-        String lore = keyCrate.getKey().getLore().toString();
-        if (event.getAction().toString().contains("LEFT")) {
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
             if (event.getPlayer().isSneaking())
                 return;
 
@@ -78,7 +82,7 @@ public class PlayerInteract implements Listener {
                 keyCrate.openPreviewGUI(player);
         } else {
             boolean usingOffHand = false;
-            if (itemOff != null && itemOff.hasItemMeta() && !itemOff.getType().equals(Material.AIR) && itemOff.getItemMeta().getDisplayName() != null && ChatColor.stripColor(itemOff.getItemMeta().getDisplayName()).equals(title)) {
+            if (keyCrate.getKey().matches(itemOff)) {
                 item = itemOff;
                 usingOffHand = true;
             }
@@ -89,7 +93,7 @@ public class PlayerInteract implements Listener {
                 return;
             }
 
-            if (item != null && item.hasItemMeta() && !item.getType().equals(Material.AIR) && item.getItemMeta().getDisplayName() != null && ChatColor.stripColor(item.getItemMeta().getDisplayName()).equals(title) && item.getItemMeta().hasLore() && item.getItemMeta().getLore().toString().equals(lore)) {
+            if (keyCrate.getKey().matches(item)) {
                 event.setCancelled(true);
 
                 if (player.getInventory().firstEmpty() == -1) {
@@ -113,14 +117,14 @@ public class PlayerInteract implements Listener {
                     if (usingOffHand) {
                         cratesPlus.getVersion_util().removeItemInOffHand(player);
                     } else {
-                        player.setItemInHand(null);
+                        player.getInventory().setItemInMainHand(null);
                     }
                 }
 
                 CrateOpenEvent crateOpenEvent = new CrateOpenEvent(player, keyCrate, event.getClickedBlock().getLocation(), cratesPlus);
                 crateOpenEvent.doEvent();
             } else {
-                MessageHandler.sendMessage(player, "&cYou must be holding a %crate% &ckey to open this crate", crate, null);
+                MessageHandler.sendMessage(player, "crate.open_without_key", crate, null);
                 if (keyCrate.getKnockback() != 0) {
                     player.setVelocity(player.getLocation().getDirection().multiply(-keyCrate.getKnockback()));
                 }
