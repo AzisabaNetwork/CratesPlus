@@ -41,6 +41,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
     private SettingsHandler settingsHandler;
     private HologramHandler hologramHandler;
     private StorageHandler storageHandler;
+    private LegacyMigrationService legacyMigrationService;
     private String bukkitVersion = "0.0";
     private Version_Util version_util;
     private TextInputHandler textInputHandler;
@@ -97,6 +98,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
         MessageHandler.loadMessageConfiguration(this, messagesConfig, messagesFile);
 
         configHandler = new ConfigHandler(getConfig(), this);
+        legacyMigrationService = new LegacyMigrationService(this);
 
         if (getConfig().getBoolean("Metrics")) {
             try {
@@ -376,6 +378,10 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
     public StorageHandler getStorageHandler() {
         return storageHandler;
+    }
+
+    public LegacyMigrationService getLegacyMigrationService() {
+        return legacyMigrationService;
     }
 
     public String getUpdateMessage() {

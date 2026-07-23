@@ -24,24 +24,31 @@ public class LinfootUtil {
 
         switch (name.toLowerCase()) {
             case "sharpness":
+            case "damage_all":
                 enchantment = Enchantment.SHARPNESS;
                 break;
             case "unbreaking":
+            case "durability":
                 enchantment = Enchantment.UNBREAKING;
                 break;
             case "efficiency":
+            case "dig_speed":
                 enchantment = Enchantment.EFFICIENCY;
                 break;
             case "protection":
+            case "protection_environmental":
                 enchantment = Enchantment.PROTECTION;
                 break;
             case "power":
+            case "arrow_damage":
                 enchantment = Enchantment.POWER;
                 break;
             case "punch":
+            case "arrow_knockback":
                 enchantment = Enchantment.PUNCH;
                 break;
             case "infinite":
+            case "arrow_infinite":
                 enchantment = Enchantment.INFINITY;
                 break;
         }

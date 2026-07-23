@@ -84,6 +84,21 @@ public class Key {
                 itemStack.getPersistentDataContainer().get(cratesPlus.getKeyCrateKey(), PersistentDataType.STRING));
     }
 
+    /** Converts an exact pre-PDC key held by an online player. */
+    public boolean migrateLegacy(ItemStack itemStack) {
+        if (matches(itemStack) || itemStack == null || itemStack.getType() != material || !itemStack.hasItemMeta()) {
+            return false;
+        }
+        ItemMeta meta = itemStack.getItemMeta();
+        String expectedName = getName().replace("%type%", getCrate().getName(true));
+        if (!meta.hasDisplayName() || !expectedName.equals(meta.getDisplayName()) || !getLore().equals(meta.getLore())) {
+            return false;
+        }
+        itemStack.editPersistentDataContainer(pdc -> pdc.set(
+                cratesPlus.getKeyCrateKey(), PersistentDataType.STRING, getCrate().getSlug()));
+        return true;
+    }
+
     public KeyCrate getCrate() {
         return crate;
     }

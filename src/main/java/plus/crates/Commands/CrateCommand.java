@@ -20,6 +20,7 @@ import plus.crates.Crates.KeyCrate;
 import plus.crates.Crates.MysteryCrate;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.MessageHandler;
+import plus.crates.Handlers.LegacyMigrationService;
 import plus.crates.Opener.Opener;
 import plus.crates.Utils.*;
 
@@ -179,6 +180,32 @@ public class CrateCommand implements CommandExecutor {
                 case "reload":
                     cratesPlus.reloadPlugin();
                     sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "CratesPlus was reloaded - This feature is not fully supported and may not work correctly");
+                    break;
+                case "migratelegacy":
+                    if (args.length < 2 || args[1].equalsIgnoreCase("report")) {
+                        sendMigrationReport(sender, cratesPlus.getLegacyMigrationService().inspect(false), false);
+                    } else if (args[1].equalsIgnoreCase("apply")) {
+                        sendMigrationReport(sender, cratesPlus.getLegacyMigrationService().inspect(true), true);
+                    } else if (args[1].equalsIgnoreCase("keys")) {
+                        Player target;
+                        if (args.length >= 3) {
+                            target = Bukkit.getPlayer(args[2]);
+                        } else if (sender instanceof Player) {
+                            target = (Player) sender;
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "Usage: /crate migratelegacy keys <online-player>");
+                            return false;
+                        }
+                        if (target == null) {
+                            sender.sendMessage(ChatColor.RED + "That player must be online to migrate keys.");
+                            return false;
+                        }
+                        int migrated = cratesPlus.getLegacyMigrationService().migrateLegacyKeys(target);
+                        sender.sendMessage(ChatColor.GREEN + "Migrated " + migrated + " legacy key(s) for " + target.getName() + ".");
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Usage: /crate migratelegacy [report|apply|keys <online-player>]");
+                        return false;
+                    }
                     break;
                 case "settings":
                     if (!(sender instanceof Player)) {
@@ -430,6 +457,16 @@ public class CrateCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    private void sendMigrationReport(CommandSender sender, LegacyMigrationService.Report report, boolean applied) {
+        sender.sendMessage(ChatColor.AQUA + report.summary(applied));
+        for (String warning : report.warnings()) {
+            sender.sendMessage(ChatColor.YELLOW + " - " + warning);
+        }
+        if (!applied) {
+            sender.sendMessage(ChatColor.GRAY + "Run /crate migratelegacy apply after reviewing this report.");
+        }
     }
 
     private void doClaim(Player player) {
