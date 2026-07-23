@@ -11,8 +11,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Handlers.MessageHandler;
-import plus.crates.Utils.LinfootUtil;
 import plus.crates.Utils.ComponentUtil;
+import plus.crates.Utils.LinfootUtil;
 
 import java.util.ArrayList;
 import java.util.List;

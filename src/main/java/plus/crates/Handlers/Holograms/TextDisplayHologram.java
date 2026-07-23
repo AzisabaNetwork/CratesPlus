@@ -11,11 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 import plus.crates.Crates.Crate;
 import plus.crates.Utils.ComponentUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /** Paper-native holograms backed by TextDisplay entities. */
 public final class TextDisplayHologram implements Hologram {

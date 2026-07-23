@@ -9,15 +9,14 @@ import plus.crates.Crates.Crate;
 import plus.crates.Crates.KeyCrate;
 import plus.crates.CratesPlus;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /** Explicit, report-first migration for pre-1.21 CratesPlus data. */
 public final class LegacyMigrationService {

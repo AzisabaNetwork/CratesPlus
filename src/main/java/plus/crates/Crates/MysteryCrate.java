@@ -6,9 +6,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
-import plus.crates.Utils.GUI;
-import plus.crates.Utils.ComponentUtil;
 import plus.crates.Handlers.MessageHandler;
+import plus.crates.Utils.ComponentUtil;
+import plus.crates.Utils.GUI;
 
 import java.util.List;
 import java.util.UUID;

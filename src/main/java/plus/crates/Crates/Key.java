@@ -6,8 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import plus.crates.CratesPlus;
-import plus.crates.Utils.ComponentUtil;
 import plus.crates.Handlers.MessageHandler;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.ArrayList;
 import java.util.List;

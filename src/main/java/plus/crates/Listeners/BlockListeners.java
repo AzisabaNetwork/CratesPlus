@@ -12,17 +12,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import plus.crates.Crates.*;
 import plus.crates.CratesPlus;
 import plus.crates.Events.CrateOpenEvent;
 import plus.crates.Handlers.MessageHandler;
 import plus.crates.Utils.ComponentUtil;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 
 public class BlockListeners implements Listener {
     private CratesPlus cratesPlus;

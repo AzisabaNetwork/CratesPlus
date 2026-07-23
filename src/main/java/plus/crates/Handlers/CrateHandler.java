@@ -3,7 +3,6 @@ package plus.crates.Handlers;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,8 +13,8 @@ import plus.crates.Crates.Key;
 import plus.crates.Crates.KeyCrate;
 import plus.crates.CratesPlus;
 import plus.crates.Opener.Opener;
-import plus.crates.Utils.LegacyMaterial;
 import plus.crates.Utils.ComponentUtil;
+import plus.crates.Utils.LegacyMaterial;
 
 import java.util.*;
 

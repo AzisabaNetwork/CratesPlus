@@ -1,7 +1,7 @@
 package plus.crates.Commands;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,18 +11,17 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import net.kyori.adventure.text.Component;
-import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import plus.crates.Crates.Crate;
 import plus.crates.Crates.KeyCrate;
 import plus.crates.Crates.MysteryCrate;
 import plus.crates.CratesPlus;
-import plus.crates.Handlers.MessageHandler;
 import plus.crates.Handlers.LegacyMigrationService;
+import plus.crates.Handlers.MessageHandler;
 import plus.crates.Opener.Opener;
-import plus.crates.Utils.*;
+import plus.crates.Utils.GUI;
+import plus.crates.Utils.LinfootUtil;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

@@ -2,8 +2,8 @@ package plus.crates.Handlers;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import plus.crates.Crates.Crate;
 import plus.crates.Crates.Winning;

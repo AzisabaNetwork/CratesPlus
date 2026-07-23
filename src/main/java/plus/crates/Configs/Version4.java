@@ -2,8 +2,8 @@ package plus.crates.Configs;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import plus.crates.Utils.ComponentUtil;
 import plus.crates.CratesPlus;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.ArrayList;
 import java.util.List;

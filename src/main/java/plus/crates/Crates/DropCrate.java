@@ -13,11 +13,7 @@ import org.bukkit.scheduler.BukkitTask;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Drop it like it's hot!

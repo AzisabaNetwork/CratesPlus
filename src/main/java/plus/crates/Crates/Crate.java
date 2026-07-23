@@ -1,5 +1,7 @@
 package plus.crates.Crates;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -8,10 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Opener.Opener;
-import plus.crates.Utils.MaterialResolver;
 import plus.crates.Utils.ComponentUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import plus.crates.Utils.MaterialResolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;

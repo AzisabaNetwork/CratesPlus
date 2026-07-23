@@ -1,19 +1,19 @@
 package plus.crates.Handlers;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.Crates.Crate;
 import plus.crates.Crates.Winning;
 import plus.crates.CratesPlus;
-import plus.crates.Utils.GUI;
 import plus.crates.Utils.ComponentUtil;
+import plus.crates.Utils.GUI;
+
 import java.util.*;
 
 public class SettingsHandler implements Listener {

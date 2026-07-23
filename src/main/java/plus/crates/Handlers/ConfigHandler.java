@@ -2,7 +2,10 @@ package plus.crates.Handlers;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import plus.crates.Configs.*;
-import plus.crates.Crates.*;
+import plus.crates.Crates.Crate;
+import plus.crates.Crates.DropCrate;
+import plus.crates.Crates.KeyCrate;
+import plus.crates.Crates.SupplyCrate;
 import plus.crates.CratesPlus;
 
 import java.util.ArrayList;
