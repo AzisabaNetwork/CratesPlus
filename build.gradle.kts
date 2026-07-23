@@ -23,8 +23,6 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly(files("lib/HolographicDisplaysAPI.jar", "lib/IndividualHolograms.jar"))
-
     implementation("commons-io:commons-io:2.16.1")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 }

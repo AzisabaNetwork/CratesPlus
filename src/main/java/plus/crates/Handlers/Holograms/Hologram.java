@@ -11,4 +11,7 @@ public interface Hologram {
 
     void remove(Location location, Crate crate);
 
+    default void clear() {
+    }
+
 }

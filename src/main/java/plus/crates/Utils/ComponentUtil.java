@@ -28,4 +28,12 @@ public final class ComponentUtil {
     public static String plain(Component component) {
         return PlainTextComponentSerializer.plainText().serialize(component);
     }
+
+    public static String legacy(Component component) {
+        return AMPERSAND.serialize(component);
+    }
+
+    public static String legacyString(String text) {
+        return legacy(legacy(text));
+    }
 }

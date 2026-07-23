@@ -1,6 +1,5 @@
 package plus.crates.Crates;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -65,7 +64,7 @@ public class SupplyCrate extends Crate {
         Player player = (Player) offlinePlayer;
         if (player.getInventory().firstEmpty() == -1) {
             // TODO Inventory full, do something for this!
-            player.sendMessage(ChatColor.RED + "Inventory full, I'll do something for this soon...");
+            plus.crates.Handlers.MessageHandler.sendLegacy(player, "&cInventory full, I'll do something for this soon...");
             return false;
         } else {
             player.getInventory().addItem(getCrateItemStack(amount));
@@ -139,7 +138,7 @@ public class SupplyCrate extends Crate {
     private List<String> getLore() {
         if (this.lore == null || this.lore.size() == 0) {
             this.lore = new ArrayList<>();
-            this.lore.add(ChatColor.GRAY + "Place this crate to open!");
+            this.lore.add("&7Place this crate to open!");
             this.lore.add("");
         }
         return this.lore;

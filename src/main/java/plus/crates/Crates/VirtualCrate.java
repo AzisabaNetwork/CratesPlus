@@ -1,6 +1,5 @@
 package plus.crates.Crates;
 
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -52,7 +51,7 @@ public class VirtualCrate extends Crate {
                 @Override
                 public void doClick(Player player, GUI gui) {
                     // TODO
-                    player.sendMessage(ChatColor.YELLOW + "// TODO");
+                    plus.crates.Handlers.MessageHandler.sendLegacy(player, "&eThis virtual crate is not implemented yet.");
                 }
             });
         }

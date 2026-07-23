@@ -1,8 +1,9 @@
 package plus.crates.Handlers;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +39,7 @@ public class SettingsHandler implements Listener {
 
         itemStack = new ItemStack(Material.CHEST);
         itemMeta = itemStack.getItemMeta();
-        itemMeta.displayName(ComponentUtil.legacy(ChatColor.GREEN + "Edit Crates"));
+        itemMeta.displayName(Component.text("Edit Crates", NamedTextColor.GREEN));
         lore = new ArrayList<>();
         lore.add("");
         itemMeta.lore(ComponentUtil.legacy(lore));
@@ -53,7 +54,7 @@ public class SettingsHandler implements Listener {
 
         itemStack = new ItemStack(Material.BARRIER);
         itemMeta = itemStack.getItemMeta();
-        itemMeta.displayName(ComponentUtil.legacy(ChatColor.GREEN + "Reload Config"));
+        itemMeta.displayName(Component.text("Reload Config", NamedTextColor.GREEN));
         lore = new ArrayList<>();
         lore.add("");
         itemMeta.lore(ComponentUtil.legacy(lore));
@@ -63,7 +64,7 @@ public class SettingsHandler implements Listener {
             public void doClick(Player player, GUI gui) {
                 player.closeInventory();
                 cratesPlus.reloadPlugin();
-                player.sendMessage(ChatColor.GREEN + "Reloaded config");
+                MessageHandler.sendLegacy(player, "&aReloaded config");
             }
         });
     }
@@ -103,12 +104,12 @@ public class SettingsHandler implements Listener {
     public void openCrateWinnings(final Player player, String crateName) {
         Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateName.toLowerCase());
         if (crate == null) {
-            player.sendMessage(ChatColor.RED + "Unable to find " + crateName + " crate");
+            MessageHandler.sendLegacy(player, "&cUnable to find " + crateName + " crate");
             return;
         }
 
         if (crate.containsCommandItem()) {
-            player.sendMessage(ChatColor.RED + "You can not currently edit a crate in the GUI which has command items");
+            MessageHandler.sendLegacy(player, "&cYou can not currently edit a crate in the GUI which has command items");
             player.closeInventory();
             return;
         }
@@ -140,7 +141,7 @@ public class SettingsHandler implements Listener {
 
         itemStack = new ItemStack(Material.NAME_TAG);
         itemMeta = itemStack.getItemMeta();
-        itemMeta.displayName(ComponentUtil.legacy(ChatColor.GREEN + "Rename Crate"));
+        itemMeta.displayName(Component.text("Rename Crate", NamedTextColor.GREEN));
         lore = new ArrayList<>();
         lore.add("");
         itemMeta.lore(ComponentUtil.legacy(lore));
@@ -165,7 +166,7 @@ public class SettingsHandler implements Listener {
 
         itemStack = new ItemStack(Material.DIAMOND);
         itemMeta = itemStack.getItemMeta();
-        itemMeta.displayName(ComponentUtil.legacy(ChatColor.RED + "Edit Crate Winnings"));
+        itemMeta.displayName(Component.text("Edit Crate Winnings", NamedTextColor.RED));
         lore = new ArrayList<>();
         lore.add("");
         itemMeta.lore(ComponentUtil.legacy(lore));
@@ -173,7 +174,7 @@ public class SettingsHandler implements Listener {
         gui.setItem(2, itemStack, new GUI.ClickHandler() {
             @Override
             public void doClick(Player player, GUI gui) {
-                player.sendMessage(ChatColor.RED + "This feature is currently disabled!");
+                MessageHandler.sendLegacy(player, "&cThis feature is currently disabled!");
 //                GUI.ignoreClosing.add(player.getUniqueId());
 //                openCrateWinnings(player, crateName);
             }
@@ -184,7 +185,7 @@ public class SettingsHandler implements Listener {
 
         itemStack = new ItemStack(Material.CYAN_WOOL);
         itemMeta = itemStack.getItemMeta();
-        itemMeta.displayName(ComponentUtil.legacy(ChatColor.GREEN + "Edit Crate Color"));
+        itemMeta.displayName(Component.text("Edit Crate Color", NamedTextColor.GREEN));
         lore = new ArrayList<>();
         lore.add("");
         itemMeta.lore(ComponentUtil.legacy(lore));
@@ -202,7 +203,7 @@ public class SettingsHandler implements Listener {
 
         itemStack = new ItemStack(Material.BARRIER);
         itemMeta = itemStack.getItemMeta();
-        itemMeta.displayName(ComponentUtil.legacy(ChatColor.GREEN + "Delete Crate"));
+        itemMeta.displayName(Component.text("Delete Crate", NamedTextColor.GREEN));
         lore = new ArrayList<>();
         lore.add("");
         itemMeta.lore(ComponentUtil.legacy(lore));
@@ -222,41 +223,41 @@ public class SettingsHandler implements Listener {
     private void openCrateColor(final Player player, final Crate crate) {
         GUI gui = new GUI("Edit Crate Color");
 
-        addColorOption(gui, crate, Material.CYAN_WOOL, ChatColor.AQUA, "Aqua");
-        addColorOption(gui, crate, Material.BLACK_WOOL, ChatColor.BLACK, "Black");
-        addColorOption(gui, crate, Material.BLUE_WOOL, ChatColor.BLUE, "Blue");
-        addColorOption(gui, crate, Material.CYAN_WOOL, ChatColor.DARK_AQUA, "Dark Aqua");
-        addColorOption(gui, crate, Material.BLUE_WOOL, ChatColor.DARK_BLUE, "Dark Blue");
-        addColorOption(gui, crate, Material.GRAY_WOOL, ChatColor.DARK_GRAY, "Dark Gray");
-        addColorOption(gui, crate, Material.GREEN_WOOL, ChatColor.DARK_GREEN, "Dark Green");
-        addColorOption(gui, crate, Material.PURPLE_WOOL, ChatColor.DARK_PURPLE, "Dark Purple");
-        addColorOption(gui, crate, Material.RED_WOOL, ChatColor.DARK_RED, "Dark Red");
-        addColorOption(gui, crate, Material.ORANGE_WOOL, ChatColor.GOLD, "Gold");
-        addColorOption(gui, crate, Material.LIGHT_GRAY_WOOL, ChatColor.GRAY, "Gray");
-        addColorOption(gui, crate, Material.LIME_WOOL, ChatColor.GREEN, "Green");
-        addColorOption(gui, crate, Material.MAGENTA_WOOL, ChatColor.LIGHT_PURPLE, "Light Purple");
-        addColorOption(gui, crate, Material.RED_WOOL, ChatColor.RED, "Red");
-        addColorOption(gui, crate, Material.WHITE_WOOL, ChatColor.WHITE, "White");
-        addColorOption(gui, crate, Material.YELLOW_WOOL, ChatColor.YELLOW, "Yellow");
+        addColorOption(gui, crate, Material.CYAN_WOOL, NamedTextColor.AQUA, "Aqua");
+        addColorOption(gui, crate, Material.BLACK_WOOL, NamedTextColor.BLACK, "Black");
+        addColorOption(gui, crate, Material.BLUE_WOOL, NamedTextColor.BLUE, "Blue");
+        addColorOption(gui, crate, Material.CYAN_WOOL, NamedTextColor.DARK_AQUA, "Dark Aqua");
+        addColorOption(gui, crate, Material.BLUE_WOOL, NamedTextColor.DARK_BLUE, "Dark Blue");
+        addColorOption(gui, crate, Material.GRAY_WOOL, NamedTextColor.DARK_GRAY, "Dark Gray");
+        addColorOption(gui, crate, Material.GREEN_WOOL, NamedTextColor.DARK_GREEN, "Dark Green");
+        addColorOption(gui, crate, Material.PURPLE_WOOL, NamedTextColor.DARK_PURPLE, "Dark Purple");
+        addColorOption(gui, crate, Material.RED_WOOL, NamedTextColor.DARK_RED, "Dark Red");
+        addColorOption(gui, crate, Material.ORANGE_WOOL, NamedTextColor.GOLD, "Gold");
+        addColorOption(gui, crate, Material.LIGHT_GRAY_WOOL, NamedTextColor.GRAY, "Gray");
+        addColorOption(gui, crate, Material.LIME_WOOL, NamedTextColor.GREEN, "Green");
+        addColorOption(gui, crate, Material.MAGENTA_WOOL, NamedTextColor.LIGHT_PURPLE, "Light Purple");
+        addColorOption(gui, crate, Material.RED_WOOL, NamedTextColor.RED, "Red");
+        addColorOption(gui, crate, Material.WHITE_WOOL, NamedTextColor.WHITE, "White");
+        addColorOption(gui, crate, Material.YELLOW_WOOL, NamedTextColor.YELLOW, "Yellow");
 
         gui.open(player);
     }
 
-    private void addColorOption(GUI gui, Crate crate, Material material, ChatColor color, String name) {
+    private void addColorOption(GUI gui, Crate crate, Material material, NamedTextColor color, String name) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ComponentUtil.legacy(color + name));
+        meta.displayName(Component.text(name, color));
         item.setItemMeta(meta);
         gui.addItem(item, getColorClickHandler(crate, color));
     }
 
-    private GUI.ClickHandler getColorClickHandler(Crate crate, ChatColor color) {
+    private GUI.ClickHandler getColorClickHandler(Crate crate, NamedTextColor color) {
         return new GUI.ClickHandler() {
             @Override
             public void doClick(Player player, GUI gui) {
                 GUI.ignoreClosing.add(player.getUniqueId());
                 crate.setColor(color);
-                player.sendMessage(color.name());
+                player.sendMessage(Component.text(NamedTextColor.NAMES.key(color), color));
                 openCrate(player, crate.getName());
             }
         };
@@ -273,7 +274,7 @@ public class SettingsHandler implements Listener {
 
         ItemStack cancel = new ItemStack(Material.RED_WOOL);
         ItemMeta cancelMeta = cancel.getItemMeta();
-        cancelMeta.displayName(ComponentUtil.legacy(ChatColor.RED + "Cancel"));
+        cancelMeta.displayName(Component.text("Cancel", NamedTextColor.RED));
         cancel.setItemMeta(cancelMeta);
         gui.setItem(16, cancel, new GUI.ClickHandler() {
             @Override
@@ -285,13 +286,16 @@ public class SettingsHandler implements Listener {
 
         ItemStack confirm = new ItemStack(Material.LIME_WOOL);
         ItemMeta confirmMeta = confirm.getItemMeta();
-        confirmMeta.displayName(ComponentUtil.legacy(ChatColor.GREEN + "Confirm"));
+        confirmMeta.displayName(Component.text("Confirm", NamedTextColor.GREEN));
         confirm.setItemMeta(confirmMeta);
         gui.setItem(18, confirm, new GUI.ClickHandler() {
             @Override
             public void doClick(Player player, GUI gui) {
                 player.closeInventory();
-                player.sendMessage("WILL DELETE");
+                cratesPlus.getConfig().set("Crates." + crate.getName(false), null);
+                cratesPlus.saveConfig();
+                cratesPlus.reloadPlugin();
+                MessageHandler.sendLegacy(player, "&aDeleted crate " + crate.getName(false) + ".");
             }
         });
 

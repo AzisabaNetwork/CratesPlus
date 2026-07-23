@@ -1,7 +1,6 @@
 package plus.crates.Crates;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -106,9 +105,9 @@ public class Winning {
 
             Material itemType = Material.PAPER;
             if (config.isSet(path + ".Item Type"))
-                itemType = Material.getMaterial(config.getString(path + ".Item Type").toUpperCase());
+                itemType = Material.matchMaterial(config.getString(path + ".Item Type"), true);
 
-            if (itemType == null)
+            if (itemType == null || itemType.isLegacy())
                 return;
 
             Integer itemData = 0;
@@ -148,7 +147,7 @@ public class Winning {
 
         String displayName = "";
         if (config.isSet(path + ".Name") && !config.getString(path + ".Name").equals("NONE"))
-            displayName = ChatColor.translateAlternateColorCodes('&', config.getString(path + ".Name"));
+            displayName = ComponentUtil.legacyString(config.getString(path + ".Name"));
         if (showAmountInTitle)
             displayName = displayName + " x" + originalAmount;
         if (!displayName.equals(""))
@@ -164,7 +163,10 @@ public class Winning {
                     Integer level = 1;
                     if (args.length > 1)
                         level = Integer.valueOf(args[1]);
-                    previewItemStack.addUnsafeEnchantment(Enchantment.getByName(args[0].toUpperCase()), level);
+                    Enchantment resolved = LinfootUtil.getEnchantmentFromNiceName(args[0]);
+                    if (resolved != null) {
+                        previewItemStack.addUnsafeEnchantment(resolved, level);
+                    }
                 } catch (Exception ignored) {
                 }
             }
@@ -173,7 +175,7 @@ public class Winning {
         if (config.isSet(path + ".Lore")) {
             List<String> lines = config.getStringList(path + ".Lore");
             for (String line : lines) {
-                this.lore.add(ChatColor.translateAlternateColorCodes('&', line));
+                this.lore.add(ComponentUtil.legacyString(line));
             }
         }
 
@@ -188,7 +190,7 @@ public class Winning {
 
         displayName = "";
         if (config.isSet(path + ".Name") && !config.getString(path + ".Name").equals("NONE"))
-            displayName = ChatColor.translateAlternateColorCodes('&', config.getString(path + ".Name"));
+            displayName = ComponentUtil.legacyString(config.getString(path + ".Name"));
         if (!displayName.equals(""))
             winningItemStackItemMeta.displayName(ComponentUtil.legacy(displayName));
         winningItemStackItemMeta.lore(ComponentUtil.legacy(this.lore));
@@ -204,7 +206,7 @@ public class Winning {
                     level = Integer.valueOf(args[1]);
                 Enchantment enchantment1 = LinfootUtil.getEnchantmentFromNiceName(args[0].toUpperCase());
                 if (enchantment1 == null)
-                    Bukkit.getLogger().warning("Invalid enchantment \"" + args[0].toUpperCase() + "\" found for item \"" + ChatColor.stripColor(displayName) + "\"");
+                    Bukkit.getLogger().warning("Invalid enchantment \"" + args[0].toUpperCase() + "\" found for item \"" + ComponentUtil.plain(ComponentUtil.legacy(displayName)) + "\"");
                 else
                     winningItemStack.addUnsafeEnchantment(enchantment1, level);
             }
@@ -216,7 +218,7 @@ public class Winning {
         List<String> lore = new ArrayList<>(this.lore);
         if (percentage > 0 && !crate.isHidePercentages()) {
             if (cratesPlus.getConfig().getBoolean("Chance Message Gap", true))
-                lore.add(ChatColor.LIGHT_PURPLE + "");
+                lore.add("&d");
             lore.add(MessageHandler.getMessage("crate.chance", null, crate, this).replaceAll("\\n", ""));
         }
         previewItemStackItemMeta.lore(ComponentUtil.legacy(lore));

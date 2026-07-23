@@ -1,6 +1,5 @@
 package plus.crates.Utils;
 
-import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -68,7 +67,7 @@ public class LinfootUtil {
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (name != null) {
-            itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + name));
+            itemMeta.displayName(ComponentUtil.legacy(name));
         }
         if (lore != null) {
             itemMeta.lore(ComponentUtil.legacy(lore));

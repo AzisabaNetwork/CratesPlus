@@ -1,6 +1,5 @@
 package plus.crates.Crates;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -47,13 +46,13 @@ public class Key {
     }
 
     public String getName() {
-        return ChatColor.translateAlternateColorCodes('&', name);
+        return ComponentUtil.legacyString(name);
     }
 
     public List<String> getLore() {
         if (this.lore.isEmpty()) {
-            this.lore.add(ChatColor.GRAY + "Right-Click on a \"" + getCrate().getName(true) + ChatColor.GRAY + "\" crate");
-            this.lore.add(ChatColor.GRAY + "to win an item!");
+            this.lore.add("&7Right-Click on a \"" + getCrate().getName(true) + "&7\" crate");
+            this.lore.add("&7to win an item!");
             this.lore.add("");
         }
         return this.lore;

@@ -80,11 +80,11 @@ public class KeyCrate extends Crate {
         ArrayList<String> list = new ArrayList<>();
         for (String line : cratesPlus.getConfigHandler().getHolograms(this.slug))
             list.add(MessageHandler.convertPlaceholders(line, null, this, null));
-        cratesPlus.getHologramHandler().getHologramPlugin().getHologram().create(location, this, list);
+        cratesPlus.getHologramHandler().getHologram().create(location, this, list);
     }
 
     public void removeHolograms(Location location) {
-        getCratesPlus().getHologramHandler().getHologramPlugin().getHologram().remove(location, this);
+        getCratesPlus().getHologramHandler().getHologram().remove(location, this);
     }
 
     public void removeFromConfig(Location location) {

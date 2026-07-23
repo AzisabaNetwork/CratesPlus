@@ -1,6 +1,5 @@
 package plus.crates.Crates;
 
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -9,6 +8,7 @@ import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Utils.GUI;
 import plus.crates.Utils.ComponentUtil;
+import plus.crates.Handlers.MessageHandler;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,10 +29,10 @@ public class MysteryCrate extends Crate {
     protected void loadCrate() {
         CratesPlus cratesPlus = getCratesPlus();
         if (cratesPlus.getConfig().isSet("Crates." + name + ".GUI Title"))
-            this.guiTitle = ChatColor.translateAlternateColorCodes('&', cratesPlus.getConfig().getString("Crates." + name + ".GUI Title"));
+            this.guiTitle = ComponentUtil.legacyString(cratesPlus.getConfig().getString("Crates." + name + ".GUI Title"));
 
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Item Title"))
-            this.itemTitle = ChatColor.RESET + ChatColor.translateAlternateColorCodes('&', cratesPlus.getConfig().getString("Crates." + name + ".Item Title"));
+            this.itemTitle = ComponentUtil.legacyString(cratesPlus.getConfig().getString("Crates." + name + ".Item Title"));
 
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Lore"))
             this.lore = cratesPlus.getConfig().getStringList("Crates." + name + ".Lore");
@@ -61,8 +61,8 @@ public class MysteryCrate extends Crate {
                 gui.addItem(itemStack, new GUI.ClickHandler() {
                     @Override
                     public void doClick(Player player, GUI gui) {
-                        player.sendMessage(ChatColor.YELLOW + "// TODO");
-                        player.sendMessage(ChatColor.AQUA + "#" + finalI);
+                        MessageHandler.sendLegacy(player, "&eThis mystery crate is not implemented yet.");
+                        MessageHandler.sendLegacy(player, "&b#" + finalI);
                     }
                 });
             }

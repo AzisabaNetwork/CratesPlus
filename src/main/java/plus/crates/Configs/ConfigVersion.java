@@ -1,10 +1,10 @@
 package plus.crates.Configs;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import plus.crates.CratesPlus;
+import plus.crates.Handlers.MessageHandler;
 
 public abstract class ConfigVersion {
     private final CratesPlus cratesPlus;
@@ -46,16 +46,16 @@ public abstract class ConfigVersion {
         String configBackup = backupConfig();
         ConsoleCommandSender console = Bukkit.getConsoleSender();
 
-        console.sendMessage(getCratesPlus().getPluginPrefix() + ChatColor.GREEN + "Converting config to version " + getVersion() + "...");
+        MessageHandler.sendLegacy(console, getCratesPlus().getPluginPrefix() + "&aConverting config to version " + getVersion() + "...");
 
         update();
         getConfig().set("Config Version", getVersion());
         save();
 
-        console.sendMessage(getCratesPlus().getPluginPrefix() + ChatColor.GREEN + "Conversion of config has completed.");
+        MessageHandler.sendLegacy(console, getCratesPlus().getPluginPrefix() + "&aConversion of config has completed.");
         if (configBackup != null && !configBackup.equalsIgnoreCase("")) {
             getCratesPlus().setConfigBackup(configBackup);
-            console.sendMessage(getCratesPlus().getPluginPrefix() + ChatColor.GREEN + "Your old config was backed up to " + configBackup);
+            MessageHandler.sendLegacy(console, getCratesPlus().getPluginPrefix() + "&aYour old config was backed up to " + configBackup);
         }
     }
 

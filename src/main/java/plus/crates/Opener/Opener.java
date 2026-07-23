@@ -32,13 +32,8 @@ public abstract class Opener {
     public void startOpening(final Player player, final Crate crate, final Location blockLocation) {
         CratesPlus.getOpenHandler().getCratesPlus().getCrateHandler().addOpening(player.getUniqueId(), this);
         Runnable runnable = () -> doOpen(player, crate, blockLocation);
-        if (isAsync()) {
-            // Start the opening as a async task
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, runnable);
-        } else {
-            // Run as a non async task
-            Bukkit.getScheduler().runTask(plugin, runnable);
-        }
+        // Opening a crate touches inventories, entities, and events; always stay on Paper's main thread.
+        Bukkit.getScheduler().runTask(plugin, runnable);
     }
 
     public Plugin getPlugin() {

@@ -4,7 +4,6 @@ main: plus.crates.CratesPlus
 version: ${version}
 api-version: '1.21.11'
 author: Connor Linfoot
-softdepend: [HolographicDisplays,IndividualHolograms]
 commands:
   crate:
     description: Main CratesPlus command

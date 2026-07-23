@@ -186,14 +186,14 @@ public class CrateHandler {
         KeyCrate crate = (KeyCrate) cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase());
         if (crate == null) {
             if (offlinePlayer.isOnline())
-                ((Player) offlinePlayer).sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Crate type: '" + crateType + "' does not exist");
+                MessageHandler.sendLegacy((Player) offlinePlayer, cratesPlus.getPluginPrefix() + "&cCrate type: '" + crateType + "' does not exist");
             return;
         }
 
         Key key = crate.getKey();
         if (key == null) {
             if (offlinePlayer.isOnline()) {
-                ((Player) offlinePlayer).sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Could not get key for crate: '" + crateType + "'");
+                MessageHandler.sendLegacy((Player) offlinePlayer, cratesPlus.getPluginPrefix() + "&cCould not get key for crate: '" + crateType + "'");
             }
             return;
         }
@@ -266,7 +266,7 @@ public class CrateHandler {
         ItemMeta crateMeta = crateItem.getItemMeta();
         crateMeta.displayName(ComponentUtil.legacy(crate.getName(true) + " Crate"));
         List<String> lore = new ArrayList<String>();
-        lore.add(ChatColor.GRAY + "Place this crate somewhere!");
+        lore.add("&7Place this crate somewhere!");
         lore.add("");
         crateMeta.lore(ComponentUtil.legacy(lore));
         crateItem.setItemMeta(crateMeta);
@@ -279,7 +279,7 @@ public class CrateHandler {
     public ItemStack stringToItemstackOld(String i) {
         String[] args = i.split(":", -1);
         if (args.length >= 2 && args[0].equalsIgnoreCase("command")) {
-            /** Commands */
+            // Commands
             String command = args[1];
             String title = "Command: /" + command;
             if (args.length == 3) {
@@ -288,11 +288,11 @@ public class CrateHandler {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
             ItemStack itemStack = new ItemStack(LegacyMaterial.EMPTY_MAP.getMaterial());
             ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + title));
+            itemMeta.displayName(ComponentUtil.legacy(title));
             itemStack.setItemMeta(itemMeta);
             return itemStack;
         } else if (args.length == 1) {
-            /** Item without any amounts or enchantments */
+            // Item without any amounts or enchantments
             String[] args1 = args[0].split("-");
             ItemStack itemStack;
             if (args1.length == 1) {
@@ -332,14 +332,14 @@ public class CrateHandler {
                 String name = "Command";
                 String commands;
                 if (args.length >= 3 && !args[1].equalsIgnoreCase("NONE")) {
-                    name = ChatColor.translateAlternateColorCodes('&', args[1]);
+                    name = ComponentUtil.legacyString(args[1]);
                     commands = args[2];
                 } else {
                     commands = args[1];
                 }
 
                 if (isWin) {
-                    /** Do Commands */
+                    // Do commands
                     String[] args1 = commands.split("\\|");
                     for (String command : args1) {
                         player.sendMessage(command);
@@ -351,13 +351,13 @@ public class CrateHandler {
                 ItemStack itemStack = new ItemStack(LegacyMaterial.EMPTY_MAP.getMaterial());
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 List<String> lore = new ArrayList<String>();
-                lore.add(ChatColor.DARK_GRAY + "Crate Command");
+                lore.add("&8Crate Command");
                 itemMeta.lore(ComponentUtil.legacy(lore));
-                itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + name));
+                itemMeta.displayName(ComponentUtil.legacy(name));
                 itemStack.setItemMeta(itemMeta);
                 return itemStack;
             } else if (args.length == 1) {
-                /** Item without any amounts, custom name or enchantments */
+                // Item without any amounts, custom name or enchantments
                 String[] args1 = args[0].split("-");
                 ItemStack itemStack;
                 if (args1.length == 1) {

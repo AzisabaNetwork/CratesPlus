@@ -1,7 +1,6 @@
 package plus.crates.Crates;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -10,6 +9,9 @@ import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Opener.Opener;
 import plus.crates.Utils.MaterialResolver;
+import plus.crates.Utils.ComponentUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +23,7 @@ public abstract class Crate {
     protected String name;
     protected String slug;
     protected String opener = null;
-    protected ChatColor color = ChatColor.WHITE;
+    protected NamedTextColor color = NamedTextColor.WHITE;
     protected Material block = Material.CHEST;
     protected int blockData = 0;
     protected String permission = null;
@@ -49,8 +51,14 @@ public abstract class Crate {
         CratesPlus cratesPlus = configHandler.getCratesPlus();
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Hide Percentages"))
             this.hidePercentages = cratesPlus.getConfig().getBoolean("Crates." + name + ".Hide Percentages");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Color"))
-            this.color = ChatColor.valueOf(cratesPlus.getConfig().getString("Crates." + name + ".Color").toUpperCase());
+        if (cratesPlus.getConfig().isSet("Crates." + name + ".Color")) {
+            NamedTextColor parsedColor = NamedTextColor.NAMES.value(cratesPlus.getConfig().getString("Crates." + name + ".Color").toLowerCase());
+            if (parsedColor == null) {
+                cratesPlus.getLogger().warning("Invalid crate color for " + name + "; using white.");
+            } else {
+                this.color = parsedColor;
+            }
+        }
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Block"))
             this.block = MaterialResolver.resolve(cratesPlus,
                     cratesPlus.getConfig().getString("Crates." + name + ".Block"), Material.CHEST,
@@ -102,7 +110,7 @@ public abstract class Crate {
     }
 
     public String getName(boolean includecolor) {
-        if (includecolor) return getColor() + this.name;
+        if (includecolor) return ComponentUtil.legacy(Component.text(this.name, getColor()));
         return this.name;
     }
 
@@ -114,15 +122,15 @@ public abstract class Crate {
         return slug;
     }
 
-    public void setColor(ChatColor color) {
+    public void setColor(NamedTextColor color) {
         this.color = color;
         String path = "Crates." + name + ".Color";
-        getCratesPlus().getConfig().set(path, color.name());
+        getCratesPlus().getConfig().set(path, NamedTextColor.NAMES.key(color));
         getCratesPlus().saveConfig();
         getCratesPlus().reloadPlugin();
     }
 
-    public ChatColor getColor() {
+    public NamedTextColor getColor() {
         return color;
     }
 

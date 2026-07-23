@@ -111,8 +111,6 @@ public class CratesPlus extends JavaPlugin implements Listener {
                 Metrics metrics = new Metrics(this);
                 metrics.start();
 
-                MetricsCustom metricsCustom = new MetricsCustom(this);
-                metricsCustom.start();
             } catch (IOException e) {
                 // Failed to submit the stats :-(
             }
@@ -122,7 +120,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
         crateHandler = new CrateHandler(this);
 
         // Do Prefix
-        pluginPrefix = ChatColor.translateAlternateColorCodes('&', messagesConfig.getString("Prefix", "&7[&bCratesPlus&7]")) + " " + ChatColor.RESET;
+        pluginPrefix = messagesConfig.getString("Prefix", "&7[&bCratesPlus&7]") + " ";
 
         // Register /crate command
         Bukkit.getPluginCommand("crate").setExecutor(new CrateCommand(this));
@@ -139,29 +137,18 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
         loadCrateLocations(null);
 
-        console.sendMessage(ChatColor.AQUA + getDescription().getName() + " Version " + getDescription().getVersion());
-        if (getDescription().getVersion().contains("SNAPSHOT")) { // Added this because some people didn't really understand what a "snapshot" is...
-            console.sendMessage(ChatColor.RED + "Warning: You are running a snapshot build of CratesPlus");
-            console.sendMessage(ChatColor.RED + "It is advised that you do NOT run this on a production server!");
+        MessageHandler.sendLegacy(console, "&b" + getPluginMeta().getName() + " Version " + getPluginMeta().getVersion());
+        if (getPluginMeta().getVersion().contains("SNAPSHOT")) {
+            MessageHandler.sendLegacy(console, "&cWarning: You are running a snapshot build of CratesPlus");
+            MessageHandler.sendLegacy(console, "&cIt is advised that you do NOT run this on a production server!");
         }
 
-        switch (getHologramHandler().getHologramPlugin()) {
-            default:
-            case NONE:
-                console.sendMessage(ChatColor.RED + "Unable to find compatible Hologram plugin, holograms will not work!");
-                break;
-            case HOLOGRAPHIC_DISPLAYS:
-                console.sendMessage(ChatColor.GREEN + "HolographicDisplays was found, hooking in!");
-                break;
-            case INDIVIDUAL_HOLOGRAMS:
-                console.sendMessage(ChatColor.GREEN + "IndividualHolograms was found, hooking in!");
-                break;
-        }
+        MessageHandler.sendLegacy(console, "&aUsing Paper TextDisplay holograms.");
 
         if (configBackup != null && Bukkit.getOnlinePlayers().size() > 0) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.hasPermission("cratesplus.admin")) {
-                    player.sendMessage(pluginPrefix + ChatColor.GREEN + "Your config has been updated. Your old config was backed up to " + configBackup);
+                    MessageHandler.sendLegacy(player, pluginPrefix + "&aYour config has been updated. Your old config was backed up to " + configBackup);
                     configBackup = null;
                 }
             }
@@ -173,6 +160,9 @@ public class CratesPlus extends JavaPlugin implements Listener {
     }
 
     public void onDisable() {
+        if (hologramHandler != null) {
+            hologramHandler.clear();
+        }
         if (configHandler != null) {
             configHandler.getCrates().forEach((key, crate) -> crate.onDisable());
         }
@@ -224,9 +214,9 @@ public class CratesPlus extends JavaPlugin implements Listener {
         String branch = updateBranch.toLowerCase();
 
         if (branch.equalsIgnoreCase("snapshot")) {
-            console.sendMessage(ChatColor.RED + "WARNING: Snapshot updates are not recommended on production servers");
+            MessageHandler.sendLegacy(console, "&cWARNING: Snapshot updates are not recommended on production servers");
         }
-        console.sendMessage(ChatColor.GREEN + "Checking for updates via " + branch + " branch...");
+        MessageHandler.sendLegacy(console, "&aChecking for updates via " + branch + " branch...");
         final LinfootUpdater updater = new LinfootUpdater(this, branch);
         final LinfootUpdater.UpdateResult snapShotResult = updater.getResult();
         switch (snapShotResult) {
@@ -252,7 +242,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
         }
 
         if (updateMessage != null)
-            console.sendMessage(updateMessage);
+            MessageHandler.sendLegacy(console, updateMessage);
 
     }
 
@@ -266,7 +256,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
         reloadConfig();
 
         // Do Prefix
-        pluginPrefix = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Prefix", "&7[&bCratesPlus&7]")) + " " + ChatColor.RESET;
+        pluginPrefix = getConfig().getString("Prefix", "&7[&bCratesPlus&7]") + " ";
 
         // Reload Configuration
         configHandler = new ConfigHandler(getConfig(), this);

@@ -1,6 +1,5 @@
 package plus.crates.Listeners;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -15,6 +14,7 @@ import plus.crates.Crates.KeyCrate;
 import plus.crates.CratesPlus;
 import plus.crates.Events.CrateOpenEvent;
 import plus.crates.Handlers.MessageHandler;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +48,7 @@ public class PlayerInteract implements Listener {
             String title = chest.getCustomName();
             if (title == null || !title.contains(" Crate"))
                 return;
-            crateType = ChatColor.stripColor(title.replaceAll(" Crate", ""));
+            crateType = ComponentUtil.plain(ComponentUtil.legacy(title.replaceAll(" Crate", "")));
         }
 
         if (!cratesPlus.getConfig().isSet("Crates." + crateType)) {

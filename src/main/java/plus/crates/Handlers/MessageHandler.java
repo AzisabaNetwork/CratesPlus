@@ -138,7 +138,7 @@ public final class MessageHandler {
 
     /** Converts existing section-sign messages while the remaining command UI is migrated to locale keys. */
     public static Component legacyComponent(String message) {
-        return SECTION_LEGACY.deserialize(message);
+        return ComponentUtil.legacy(message);
     }
 
     public static void sendLegacy(CommandSender sender, String message) {

@@ -1,7 +1,6 @@
 package plus.crates.Listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -22,7 +21,7 @@ public class PlayerJoin implements Listener {
                 event.getPlayer().sendMessage(cratesPlus.getUpdateMessage());
             }
             if (cratesPlus.getConfigBackup() != null && event.getPlayer().hasPermission("cratesplus.admin")) {
-                event.getPlayer().sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "Your config has been updated. Your old config was backed up to " + cratesPlus.getConfigBackup());
+                MessageHandler.sendLegacy(event.getPlayer(), cratesPlus.getPluginPrefix() + "&aYour config has been updated. Your old config was backed up to " + cratesPlus.getConfigBackup());
                 cratesPlus.setConfigBackup(null);
             }
             if (cratesPlus.getCrateHandler().hasPendingKeys(event.getPlayer().getUniqueId())) {

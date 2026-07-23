@@ -1,7 +1,6 @@
 package plus.crates.Opener;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,6 +17,7 @@ import plus.crates.Crates.Crate;
 import plus.crates.Crates.Winning;
 import plus.crates.CratesPlus;
 import plus.crates.Utils.ComponentUtil;
+import net.kyori.adventure.text.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -115,7 +115,7 @@ public class BasicGUIOpener extends Opener implements Listener {
         int min = 0;
         currentItem[0] = random.nextInt((max - min) + 1) + min;
         WinningInventoryHolder holder = new WinningInventoryHolder();
-        winGUI = Bukkit.createInventory(holder, 45, ComponentUtil.legacy(crate.getColor() + crate.getName() + " Win"));
+        winGUI = Bukkit.createInventory(holder, 45, Component.text(crate.getName(), crate.getColor()).append(Component.text(" Win")));
         holder.setInventory(winGUI);
         guis.put(player.getUniqueId(), winGUI);
         player.openInventory(winGUI);
@@ -153,7 +153,7 @@ public class BasicGUIOpener extends Opener implements Listener {
                 ItemStack itemStack = new ItemStack(ROLLING_PANES[cratesPlus.getCrateHandler().randInt(0, ROLLING_PANES.length - 1)]);
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 if (timer[0] == maxTimeTicks) {
-                    itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + winnerText));
+                    itemMeta.displayName(ComponentUtil.legacy(winnerText));
                 } else {
                     if (sound) {
                         final Sound finalSound = Sound.BLOCK_NOTE_BLOCK_HARP;
@@ -162,7 +162,7 @@ public class BasicGUIOpener extends Opener implements Listener {
                                 player.playSound(player.getLocation(), finalSound, (float) 0.2, 2);
                         });
                     }
-                    itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + rollingText));
+                    itemMeta.displayName(ComponentUtil.legacy(rollingText));
                 }
                 itemStack.setItemMeta(itemMeta);
                 winGUI.setItem(i, itemStack);

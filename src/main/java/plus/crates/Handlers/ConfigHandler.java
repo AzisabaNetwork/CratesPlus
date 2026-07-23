@@ -174,7 +174,7 @@ public class ConfigHandler {
                 case "mystery":
                 case "mysterycrate":
                 case "mysterybox":
-                    addCrate(crateName.toLowerCase(), new MysteryCrate(this, crateName));
+                    cratesPlus.getLogger().warning("Crate \"" + crateName + "\" uses unsupported MysteryCrate type and was not loaded.");
                     break;
                 default:
                     cratesPlus.getLogger().warning("Invalid \"Type\" set for crate \"" + crateName + "\"");

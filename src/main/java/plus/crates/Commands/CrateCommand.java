@@ -1,7 +1,6 @@
 package plus.crates.Commands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -55,48 +54,48 @@ public class CrateCommand implements CommandExecutor {
         if (args.length >= 1) {
             switch (args[0].toLowerCase()) {
                 default:
-                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Unknown arg");
+                    message(sender, cratesPlus.getPluginPrefix() + "&cUnknown arg");
                     break;
                 case "testmessages":
                     MessageHandler.testMessages = !MessageHandler.testMessages;
-                    sender.sendMessage(ChatColor.GREEN + "Test Messages " + (MessageHandler.testMessages ? "ENABLED" : "DISABLED"));
+                    message(sender, "&aTest Messages " + (MessageHandler.testMessages ? "ENABLED" : "DISABLED"));
                     break;
                 case "testeggs":
                     Player player = null;
                     if (sender instanceof Player)
                         player = (Player) sender;
 
-                    sender.sendMessage(ChatColor.AQUA + "Creating creeper egg...");
+                    message(sender, "&bCreating creeper egg...");
                     ItemStack itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.CREEPER, 1);
-                    sender.sendMessage(ChatColor.AQUA + "Testing creeper egg...");
+                    message(sender, "&bTesting creeper egg...");
                     if (EntityType.CREEPER.equals(cratesPlus.getVersion_util().getEntityTypeFromItemStack(itemStack))) {
-                        sender.sendMessage(ChatColor.GREEN + "Creeper egg successful");
+                        message(sender, "&aCreeper egg successful");
                         if (player != null)
                             player.getInventory().addItem(itemStack);
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Creeper egg failed, please post console on GitHub");
+                        message(sender, "&cCreeper egg failed, please post console on GitHub");
                     }
 
-                    sender.sendMessage(ChatColor.AQUA + "Creating spider egg...");
+                    message(sender, "&bCreating spider egg...");
                     itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.SPIDER, 2);
-                    sender.sendMessage(ChatColor.AQUA + "Testing spider egg...");
+                    message(sender, "&bTesting spider egg...");
                     if (EntityType.SPIDER.equals(cratesPlus.getVersion_util().getEntityTypeFromItemStack(itemStack))) {
-                        sender.sendMessage(ChatColor.GREEN + "Spider egg successful");
+                        message(sender, "&aSpider egg successful");
                         if (player != null)
                             player.getInventory().addItem(itemStack);
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Spider egg failed, please post console on GitHub");
+                        message(sender, "&cSpider egg failed, please post console on GitHub");
                     }
 
-                    sender.sendMessage(ChatColor.AQUA + "Creating silverfish egg...");
+                    message(sender, "&bCreating silverfish egg...");
                     itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.SILVERFISH, 3);
-                    sender.sendMessage(ChatColor.AQUA + "Testing silverfish egg...");
+                    message(sender, "&bTesting silverfish egg...");
                     if (EntityType.SILVERFISH.equals(cratesPlus.getVersion_util().getEntityTypeFromItemStack(itemStack))) {
-                        sender.sendMessage(ChatColor.GREEN + "Silverfish egg successful");
+                        message(sender, "&aSilverfish egg successful");
                         if (player != null)
                             player.getInventory().addItem(itemStack);
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Silverfish egg failed, please post console on GitHub");
+                        message(sender, "&cSilverfish egg failed, please post console on GitHub");
                     }
                     break;
                 case "claim":
@@ -104,8 +103,9 @@ public class CrateCommand implements CommandExecutor {
                         doClaim((Player) sender);
                     }
                     break;
+                /* Debug export intentionally removed: it transmitted server configuration and data to a third party.
                 case "debug":
-                    sender.sendMessage(ChatColor.AQUA + "Gathering debug data...");
+                    message(sender, "&bGathering debug data...");
                     String plugins = "";
                     for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
                         plugins += plugin.getName() + " - Version: " + plugin.getDescription().getVersion() + "\n";
@@ -113,73 +113,73 @@ public class CrateCommand implements CommandExecutor {
                     final String pluginList = plugins;
 
                     Bukkit.getScheduler().runTaskAsynchronously(cratesPlus, () -> {
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading config.yml...");
+                        sendOnPrimaryThread(sender, "&bUploading config.yml...");
                         String configLink = cratesPlus.uploadConfig();
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded config.yml");
+                        sendOnPrimaryThread(sender, "&bUploaded config.yml");
 
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading data.yml...");
+                        sendOnPrimaryThread(sender, "&bUploading data.yml...");
                         String dataLink = cratesPlus.uploadData();
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded data.yml");
+                        sendOnPrimaryThread(sender, "&bUploaded data.yml");
 
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading messages.yml...");
+                        sendOnPrimaryThread(sender, "&bUploading messages.yml...");
                         String messagesLink = cratesPlus.uploadMessages();
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded messages.yml");
+                        sendOnPrimaryThread(sender, "&bUploaded messages.yml");
 
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading plugin list...");
+                        sendOnPrimaryThread(sender, "&bUploading plugin list...");
 
                         String pluginsLink = MCDebug.paste("plugins.txt", pluginList);
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded plugin list");
+                        sendOnPrimaryThread(sender, "&bUploaded plugin list");
 
-                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading data to MC Debug...");
+                        sendOnPrimaryThread(sender, "&bUploading data to MC Debug...");
                         String finalLinks = uploadDebugData(configLink, dataLink, messagesLink, pluginsLink);
                         String[] links = null;
                         if (finalLinks != null) {
                             links = finalLinks.split("\\|");
                         }
 
-                        sendOnPrimaryThread(sender, ChatColor.GREEN + "Completed uploading debug data!");
+                        sendOnPrimaryThread(sender, "&aCompleted uploading debug data!");
                         if (links != null && links.length == 2) {
-                            sendOnPrimaryThread(sender, ChatColor.GREEN + "You can use the following link to manage your data " + ChatColor.GOLD + links[1]);
-                            sendOnPrimaryThread(sender, ChatColor.GREEN + "You can use the following link to share your data " + ChatColor.GOLD + links[0]);
+                            sendOnPrimaryThread(sender, "&aYou can use the following link to manage your data &6" + links[1]);
+                            sendOnPrimaryThread(sender, "&aYou can use the following link to share your data &6" + links[0]);
                         } else {
-                            sendOnPrimaryThread(sender, ChatColor.GREEN + "You can use the following link to share your data " + ChatColor.GOLD + finalLinks);
+                            sendOnPrimaryThread(sender, "&aYou can use the following link to share your data &6" + finalLinks);
                         }
 
                     });
-                    break;
+                    break; */
                 case "opener":
                 case "openers":
                     if (args.length > 1) {
                         if (args.length < 3) {
-                            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct usage: /" + string + " " + args[0] + " <crate> <opener>");
+                            message(sender, cratesPlus.getPluginPrefix() + "&cCorrect usage: /" + string + " " + args[0] + " <crate> <opener>");
                         } else {
                             if (CratesPlus.getOpenHandler().openerExist(args[2])) {
                                 Opener opener = CratesPlus.getOpenHandler().getOpener(args[2]);
                                 if (cratesPlus.getConfigHandler().getCrate(args[1].toLowerCase()) == null) {
-                                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "No crate exists with that name");
+                                    message(sender, cratesPlus.getPluginPrefix() + "&cNo crate exists with that name");
                                 } else if (!cratesPlus.getConfigHandler().getCrate(args[1].toLowerCase()).supportsOpener(opener)) {
-                                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Opener does not support crate type");
+                                    message(sender, cratesPlus.getPluginPrefix() + "&cOpener does not support crate type");
                                 } else {
 //									cratesPlus.getConfigHandler().getCrate(args[1].toLowerCase()).setOpener(args[2]);
-                                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "Set opener to " + args[2]);
+                                    message(sender, cratesPlus.getPluginPrefix() + "&aSet opener to " + args[2]);
                                 }
                             } else {
-                                sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "No opener is registered with that name");
+                                message(sender, cratesPlus.getPluginPrefix() + "&cNo opener is registered with that name");
                             }
                         }
 
                     } else {
-                        sender.sendMessage(ChatColor.GOLD + "Registered Openers:");
-                        sender.sendMessage(ChatColor.AQUA + "Name" + ChatColor.GRAY + " | " + ChatColor.YELLOW + "Plugin");
-                        sender.sendMessage(ChatColor.AQUA + "");
+                        message(sender, "&6Registered Openers:");
+                        message(sender, "&bName&7 | &ePlugin");
+                        message(sender, "&b");
                         for (Map.Entry<String, Opener> map : CratesPlus.getOpenHandler().getRegistered().entrySet()) {
-                            sender.sendMessage(ChatColor.AQUA + map.getKey() + ChatColor.GRAY + " | " + ChatColor.YELLOW + map.getValue().getPlugin().getDescription().getName());
+                            message(sender, "&b" + map.getKey() + "&7 | &e" + map.getValue().getPlugin().getDescription().getName());
                         }
                     }
                     break;
                 case "reload":
                     cratesPlus.reloadPlugin();
-                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "CratesPlus was reloaded.");
+                    message(sender, cratesPlus.getPluginPrefix() + "&aCratesPlus was reloaded.");
                     break;
                 case "migratelegacy":
                     if (args.length < 2 || args[1].equalsIgnoreCase("report")) {
@@ -193,23 +193,23 @@ public class CrateCommand implements CommandExecutor {
                         } else if (sender instanceof Player) {
                             target = (Player) sender;
                         } else {
-                            sender.sendMessage(ChatColor.RED + "Usage: /crate migratelegacy keys <online-player>");
+                            message(sender, "&cUsage: /crate migratelegacy keys <online-player>");
                             return false;
                         }
                         if (target == null) {
-                            sender.sendMessage(ChatColor.RED + "That player must be online to migrate keys.");
+                            message(sender, "&cThat player must be online to migrate keys.");
                             return false;
                         }
                         int migrated = cratesPlus.getLegacyMigrationService().migrateLegacyKeys(target);
-                        sender.sendMessage(ChatColor.GREEN + "Migrated " + migrated + " legacy key(s) for " + target.getName() + ".");
+                        message(sender, "&aMigrated " + migrated + " legacy key(s) for " + target.getName() + ".");
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Usage: /crate migratelegacy [report|apply|keys <online-player>]");
+                        message(sender, "&cUsage: /crate migratelegacy [report|apply|keys <online-player>]");
                         return false;
                     }
                     break;
                 case "settings":
                     if (!(sender instanceof Player)) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "This command must be ran as a player");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cThis command must be ran as a player");
                         return false;
                     }
                     cratesPlus.getSettingsHandler().openSettings((Player) sender);
@@ -229,14 +229,14 @@ public class CrateCommand implements CommandExecutor {
                     }
 
                     if (args.length < 2) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct Usage: /crate create <name>");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCorrect Usage: /crate create <name>");
                         return false;
                     }
 
                     String name = args[1];
                     FileConfiguration config = cratesPlus.getConfig();
                     if (config.isSet("Crates." + name)) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + name + " crate already exists");
+                        message(sender, cratesPlus.getPluginPrefix() + "&c" + name + " crate already exists");
                         return false;
                     }
 
@@ -263,11 +263,11 @@ public class CrateCommand implements CommandExecutor {
                     cratesPlus.saveConfig();
                     cratesPlus.reloadPlugin();
 
-                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + name + " crate has been created");
+                    message(sender, cratesPlus.getPluginPrefix() + "&a" + name + " crate has been created");
                     break;
                 case "rename":
                     if (args.length < 3) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct Usage: /crate rename <old name> <new name>");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCorrect Usage: /crate rename <old name> <new name>");
                         return false;
                     }
 
@@ -275,14 +275,14 @@ public class CrateCommand implements CommandExecutor {
                     String newName = args[2];
 
                     if (!cratesPlus.getConfigHandler().getCrates().containsKey(oldName.toLowerCase())) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + oldName + " crate was not found");
+                        message(sender, cratesPlus.getPluginPrefix() + "&c" + oldName + " crate was not found");
                         return false;
                     }
                     Crate crate = cratesPlus.getConfigHandler().getCrates().get(oldName.toLowerCase());
 
                     config = cratesPlus.getConfig();
                     if (config.isSet("Crates." + newName)) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + newName + " crate already exists");
+                        message(sender, cratesPlus.getPluginPrefix() + "&c" + newName + " crate already exists");
                         return false;
                     }
 
@@ -292,18 +292,18 @@ public class CrateCommand implements CommandExecutor {
                     cratesPlus.saveConfig();
                     cratesPlus.reloadPlugin();
 
-                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + oldName + " has been renamed to " + newName);
+                    message(sender, cratesPlus.getPluginPrefix() + "&a" + oldName + " has been renamed to " + newName);
                     break;
                 case "delete":
                     if (args.length < 2) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct Usage: /crate delete <name>");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCorrect Usage: /crate delete <name>");
                         return false;
                     }
 
                     name = args[1];
                     config = cratesPlus.getConfig();
                     if (!config.isSet("Crates." + name)) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + name + " crate doesn't exist");
+                        message(sender, cratesPlus.getPluginPrefix() + "&c" + name + " crate doesn't exist");
                         return false;
                     }
 
@@ -311,11 +311,11 @@ public class CrateCommand implements CommandExecutor {
                     cratesPlus.saveConfig();
                     cratesPlus.reloadPlugin();
 
-                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + name + " crate has been deleted");
+                    message(sender, cratesPlus.getPluginPrefix() + "&a" + name + " crate has been deleted");
                     break;
                 case "mysterygui":
                     if (args.length < 2) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct Usage: /crate mysterygui <crate>");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCorrect Usage: /crate mysterygui <crate>");
                         return false;
                     }
 
@@ -323,12 +323,12 @@ public class CrateCommand implements CommandExecutor {
 
                     crate = cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase());
                     if (crate == null) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Crate not found");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCrate not found");
                         return false;
                     }
 
                     if (!(crate instanceof MysteryCrate) || !(sender instanceof Player)) { // Too lazy to do separate messages
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Crate is not a Mystery Crate!");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCrate is not a Mystery Crate!");
                         return false;
                     }
 
@@ -337,11 +337,11 @@ public class CrateCommand implements CommandExecutor {
                 case "key":
                     cratesPlus.getLogger().warning("\"/crate key\" was used but is deprecated from version 5, please use \"give\" instead.");
                     if (sender instanceof Player) {
-                        sender.sendMessage("\"/crate key\" was used but is deprecated from version 5, please use \"give\" instead.");
+                        message(sender, "&e\"/crate key\" was used but is deprecated from version 5; please use \"give\" instead.");
                     }
                 case "give":
                     if (args.length < 3) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct Usage: /crate give <player/all/alloffline> <crate> [amount]");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCorrect Usage: /crate give <player/all/alloffline> <crate> [amount]");
                         return false;
                     }
 
@@ -350,7 +350,7 @@ public class CrateCommand implements CommandExecutor {
                         try {
                             amount = Integer.parseInt(args[3]);
                         } catch (Exception ignored) {
-                            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Invalid amount");
+                            message(sender, cratesPlus.getPluginPrefix() + "&cInvalid amount");
                             return false;
                         }
                     }
@@ -359,7 +359,7 @@ public class CrateCommand implements CommandExecutor {
                     if (!args[1].equalsIgnoreCase("all") && !args[1].equalsIgnoreCase("alloffline")) {
                         offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                         if (offlinePlayer == null || (!offlinePlayer.hasPlayedBefore() && !offlinePlayer.isOnline())) { // Check if the player is online as "hasPlayedBefore" doesn't work until they disconnect?
-                            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "The player " + args[1] + " was not found");
+                            message(sender, cratesPlus.getPluginPrefix() + "&cThe player " + args[1] + " was not found");
                             return false;
                         }
                     }
@@ -368,33 +368,33 @@ public class CrateCommand implements CommandExecutor {
 
                     crate = cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase());
                     if (crate == null) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Crate not found");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCrate not found");
                         return false;
                     }
 
                     if (offlinePlayer == null) {
                         if (args[1].equalsIgnoreCase("all")) {
                             crate.giveAll(amount);
-                            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "Given all online players a crate/key");
+                            message(sender, cratesPlus.getPluginPrefix() + "&aGiven all online players a crate/key");
                         } else if (args[1].equalsIgnoreCase("alloffline")) {
                             /**
                              * TODO TEST THIS and maybe give better explanation when they do `/crate give`?
                              */
                             crate.giveAllOffline(amount);
-                            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "Given all online and offline players a crate/key");
+                            message(sender, cratesPlus.getPluginPrefix() + "&aGiven all online and offline players a crate/key");
                         }
                     } else {
                         if (crate.give(offlinePlayer, amount))
-                            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "Given " + offlinePlayer.getName() + " a crate/key");
+                            message(sender, cratesPlus.getPluginPrefix() + "&aGiven " + offlinePlayer.getName() + " a crate/key");
                         else
-                            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Failed to give crate/key");
+                            message(sender, cratesPlus.getPluginPrefix() + "&cFailed to give crate/key");
                     }
 
                     break;
                 case "crate":
                 case "keycrate":
                     if (args.length == 1) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct Usage: /crate crate <type> [player]");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCorrect Usage: /crate crate <type> [player]");
                         return false;
                     }
 
@@ -403,60 +403,58 @@ public class CrateCommand implements CommandExecutor {
                     } else if (sender instanceof Player) {
                         player = (Player) sender;
                     } else {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Correct Usage: /crate crate <type> [player]");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cCorrect Usage: /crate crate <type> [player]");
                         return false;
                     }
 
                     if (player == null) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "The player " + args[2] + " was not found");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cThe player " + args[2] + " was not found");
                         return false;
                     }
 
                     try {
                         crateType = args[1];
                     } catch (IllegalArgumentException e) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Please specify a valid crate type");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cPlease specify a valid crate type");
                         return false;
                     }
 
                     if (cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase()) == null || !(cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase()) instanceof KeyCrate)) {
-                        sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "KeyCrate not found");
+                        message(sender, cratesPlus.getPluginPrefix() + "&cKeyCrate not found");
                         return false;
                     }
 
-                    cratesPlus.getCrateHandler().giveCrate(player, crateType);
+                    cratesPlus.getCrateHandler().giveCrate(player,
+                            cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase()));
 
-                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "Given " + player.getDisplayName() + ChatColor.RESET + ChatColor.GREEN + " a crate");
+                    message(sender, cratesPlus.getPluginPrefix() + "&aGiven " + player.getName() + " a crate");
                     break;
             }
         } else {
 
             // Help Messages
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "----- CratePlus v" + cratesPlus.getDescription().getVersion() + " Help -----");
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate reload " + ChatColor.YELLOW + "Reload configuration for CratesPlus (Experimental)");
-//			sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate settings " + ChatColor.YELLOW + "Edit settings of CratesPlus and crate winnings");
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate create <name> " + ChatColor.YELLOW + "Create a new crate");
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate rename <old name> <new name> " + ChatColor.YELLOW + "Rename a crate");
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate delete <name> " + ChatColor.YELLOW + "Delete a crate");
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate give <player/all> [crate] [amount] " + ChatColor.YELLOW + "Give player a crate/key, if no crate given it will be random");
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate crate <type> [player] " + ChatColor.YELLOW + "Give player a crate to be placed, for use by admins");
-            sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate debug " + ChatColor.YELLOW + "Generates a debug link for sending info about your server and config");
-//			sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate claim " + ChatColor.YELLOW + "Claim any keys that are waiting for you");
+            message(sender, cratesPlus.getPluginPrefix() + "&b----- CratePlus v" + cratesPlus.getPluginMeta().getVersion() + " Help -----");
+            message(sender, cratesPlus.getPluginPrefix() + "&b/crate reload &eReload configuration for CratesPlus");
+            message(sender, cratesPlus.getPluginPrefix() + "&b/crate create <name> &eCreate a new crate");
+            message(sender, cratesPlus.getPluginPrefix() + "&b/crate rename <old name> <new name> &eRename a crate");
+            message(sender, cratesPlus.getPluginPrefix() + "&b/crate delete <name> &eDelete a crate");
+            message(sender, cratesPlus.getPluginPrefix() + "&b/crate give <player/all> [crate] [amount] &eGive player a crate/key, if no crate given it will be random");
+            message(sender, cratesPlus.getPluginPrefix() + "&b/crate crate <type> [player] &eGive player a crate to be placed, for use by admins");
+            message(sender, cratesPlus.getPluginPrefix() + "&b/crate debug &eGenerates a debug link for sending info about your server and config");
 
 
-            //			sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.AQUA + "/crate opener <name/type> <opener> " + ChatColor.YELLOW + "- Change the opener for a specific crate or crate type");
         }
 
         return true;
     }
 
     private void sendMigrationReport(CommandSender sender, LegacyMigrationService.Report report, boolean applied) {
-        sender.sendMessage(ChatColor.AQUA + report.summary(applied));
+        message(sender, "&b" + report.summary(applied));
         for (String warning : report.warnings()) {
-            sender.sendMessage(ChatColor.YELLOW + " - " + warning);
+            message(sender, "&e - " + warning);
         }
         if (!applied) {
-            sender.sendMessage(ChatColor.GRAY + "Run /crate migratelegacy apply after reviewing this report.");
+            message(sender, "&7Run /crate migratelegacy apply after reviewing this report.");
         }
     }
 
@@ -464,10 +462,14 @@ public class CrateCommand implements CommandExecutor {
         Bukkit.getScheduler().runTask(cratesPlus, () -> MessageHandler.sendLegacy(sender, message));
     }
 
+    private void message(CommandSender sender, String message) {
+        MessageHandler.sendLegacy(sender, message);
+    }
+
     private void doClaim(Player player) {
         if (!cratesPlus.getCrateHandler().hasPendingKeys(player.getUniqueId())) {
             player.closeInventory();
-            player.sendMessage(ChatColor.RED + "You currently don't have any keys to claim");
+            message(player, "&cYou currently don't have any keys to claim");
             return;
         }
         GUI gui = new GUI("Claim Crate Keys");
