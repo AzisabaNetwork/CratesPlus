@@ -2,6 +2,7 @@ package plus.crates.Configs;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import plus.crates.Utils.ComponentUtil;
 import plus.crates.CratesPlus;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Version4 extends ConfigVersion {
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Item Type", itemStack.getType().toString());
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Amount", itemStack.getAmount());
                     if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName())
-                        getConfig().set("Crates." + name + ".Winnings." + count + ".Name", itemStack.getItemMeta().getDisplayName());
+                        getConfig().set("Crates." + name + ".Winnings." + count + ".Name", ComponentUtil.plain(itemStack.getItemMeta().displayName()));
 
                     ArrayList<String> enchantments = new ArrayList<String>();
                     for (Map.Entry<Enchantment, Integer> entry : itemStack.getEnchantments().entrySet()) {
@@ -46,7 +47,7 @@ public class Version4 extends ConfigVersion {
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Enchantments", enchantments);
 
                     ArrayList<String> commands = new ArrayList<String>();
-                    commands.add(itemStack.getItemMeta().getDisplayName().replaceAll("Command: /", ""));
+                    commands.add(ComponentUtil.plain(itemStack.getItemMeta().displayName()).replaceAll("Command: /", ""));
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Commands", commands);
 
                     getConfig().set("Crates." + name + ".Items", null);
@@ -59,7 +60,7 @@ public class Version4 extends ConfigVersion {
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Item Type", itemStack.getType().toString());
                     getConfig().set("Crates." + name + ".Winnings." + count + ".Amount", itemStack.getAmount());
                     if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName())
-                        getConfig().set("Crates." + name + ".Winnings." + count + ".Name", itemStack.getItemMeta().getDisplayName());
+                        getConfig().set("Crates." + name + ".Winnings." + count + ".Name", ComponentUtil.plain(itemStack.getItemMeta().displayName()));
 
                     ArrayList<String> enchantments = new ArrayList<String>();
                     for (Map.Entry<Enchantment, Integer> entry : itemStack.getEnchantments().entrySet()) {

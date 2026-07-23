@@ -3,10 +3,12 @@ package plus.crates.Handlers;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import plus.crates.Crates.Crate;
 import plus.crates.Crates.Winning;
 import plus.crates.CratesPlus;
+import plus.crates.Utils.ComponentUtil;
 
 import java.io.File;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import java.util.Map;
 public final class MessageHandler {
     private static final String DEFAULT_LOCALE = "en_US";
     private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private static final LegacyComponentSerializer SECTION_LEGACY = LegacyComponentSerializer.legacySection();
     private static final Map<String, YamlConfiguration> locales = new HashMap<>();
     private static CratesPlus cratesPlus;
     public static boolean testMessages = false;
@@ -114,8 +117,8 @@ public final class MessageHandler {
             message = message.replace("%crate%", crate.getName(true));
         }
         if (winning != null) {
-            String name = winning.getWinningItemStack().hasItemMeta() && winning.getWinningItemStack().getItemMeta().hasDisplayName()
-                    ? winning.getWinningItemStack().getItemMeta().getDisplayName()
+            String name = winning.getWinningItemStack().hasItemMeta() && winning.getWinningItemStack().getItemMeta().displayName() != null
+                    ? ComponentUtil.plain(winning.getWinningItemStack().getItemMeta().displayName())
                     : winning.getWinningItemStack().getType().translationKey();
             message = message.replace("%prize%", name)
                     .replace("%winning%", name)
@@ -131,6 +134,15 @@ public final class MessageHandler {
 
     public static Component component(String key, Player player, Crate crate, Winning winning) {
         return LEGACY.deserialize(convertPlaceholders(template(key, player), player, crate, winning));
+    }
+
+    /** Converts existing section-sign messages while the remaining command UI is migrated to locale keys. */
+    public static Component legacyComponent(String message) {
+        return SECTION_LEGACY.deserialize(message);
+    }
+
+    public static void sendLegacy(CommandSender sender, String message) {
+        sender.sendMessage(legacyComponent(message));
     }
 
     public static void sendMessage(Player player, String key, Crate crate, Winning winning) {

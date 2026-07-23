@@ -12,8 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Handlers.MessageHandler;
-import plus.crates.Utils.LegacyMaterial;
 import plus.crates.Utils.LinfootUtil;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,13 +55,11 @@ public class Winning {
         ItemStack itemStack;
         if (type.equalsIgnoreCase("item") || type.equalsIgnoreCase("block")) {
             Material itemType = null;
+            String configuredItemType = null;
             if (config.isSet(path + ".Item Type"))
-                itemType = Material.getMaterial(config.getString(path + ".Item Type").toUpperCase());
+                configuredItemType = config.getString(path + ".Item Type");
             else if (config.isSet(path + ".Block Type"))
-                itemType = Material.getMaterial(config.getString(path + ".Block Type").toUpperCase());
-
-            if (itemType == null)
-                return;
+                configuredItemType = config.getString(path + ".Block Type");
 
             Integer itemData = 0;
             if (config.isSet(path + ".Item Data"))
@@ -77,10 +75,20 @@ public class Winning {
             if (config.isSet(path + ".Amount"))
                 amount = config.getInt(path + ".Amount");
 
-            if (!entityType.isEmpty() && itemType == LegacyMaterial.MONSTER_EGG.getMaterial()) {
-                itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.valueOf(entityType.toUpperCase()), amount);
+            if (!entityType.isEmpty() && isLegacySpawnEgg(configuredItemType)) {
+                try {
+                    itemStack = cratesPlus.getVersion_util().getSpawnEgg(EntityType.valueOf(entityType.toUpperCase()), amount);
+                } catch (IllegalArgumentException exception) {
+                    cratesPlus.getLogger().warning("Invalid Entity Type '" + entityType + "' for " + path);
+                    return;
+                }
             } else {
-                itemStack = new ItemStack(itemType, amount, Short.parseShort(String.valueOf(itemData)));
+                itemType = configuredItemType == null ? null : Material.matchMaterial(configuredItemType, true);
+                if (itemType == null || itemType.isLegacy()) {
+                    cratesPlus.getLogger().warning("Invalid or legacy item type '" + configuredItemType + "' for " + path);
+                    return;
+                }
+                itemStack = new ItemStack(itemType, amount);
             }
         } else if (type.equalsIgnoreCase("command")) {
             command = true;
@@ -114,7 +122,7 @@ public class Winning {
             if (config.isSet(path + ".Amount"))
                 amount = config.getInt(path + ".Amount");
 
-            itemStack = new ItemStack(itemType, amount, Short.parseShort(String.valueOf(itemData)));
+            itemStack = new ItemStack(itemType, amount);
         } else {
             return;
         }
@@ -144,7 +152,7 @@ public class Winning {
         if (showAmountInTitle)
             displayName = displayName + " x" + originalAmount;
         if (!displayName.equals(""))
-            previewItemStackItemMeta.setDisplayName(displayName);
+            previewItemStackItemMeta.displayName(ComponentUtil.legacy(displayName));
         previewItemStack.setItemMeta(previewItemStackItemMeta);
 
         if (config.isSet(path + ".Enchantments")) {
@@ -182,8 +190,8 @@ public class Winning {
         if (config.isSet(path + ".Name") && !config.getString(path + ".Name").equals("NONE"))
             displayName = ChatColor.translateAlternateColorCodes('&', config.getString(path + ".Name"));
         if (!displayName.equals(""))
-            winningItemStackItemMeta.setDisplayName(displayName);
-        winningItemStackItemMeta.setLore(this.lore);
+            winningItemStackItemMeta.displayName(ComponentUtil.legacy(displayName));
+        winningItemStackItemMeta.lore(ComponentUtil.legacy(this.lore));
         winningItemStack.setItemMeta(winningItemStackItemMeta);
 
         if (config.isSet(path + ".Enchantments")) {
@@ -211,7 +219,7 @@ public class Winning {
                 lore.add(ChatColor.LIGHT_PURPLE + "");
             lore.add(MessageHandler.getMessage("crate.chance", null, crate, this).replaceAll("\\n", ""));
         }
-        previewItemStackItemMeta.setLore(lore);
+        previewItemStackItemMeta.lore(ComponentUtil.legacy(lore));
         previewItemStack.setItemMeta(previewItemStackItemMeta);
 
         // Done :D
@@ -247,6 +255,11 @@ public class Winning {
             cratesPlus.getCrateHandler().spawnFirework(player.getLocation());
 
         return null;
+    }
+
+    private boolean isLegacySpawnEgg(String materialName) {
+        return materialName != null && (materialName.equalsIgnoreCase("MONSTER_EGG")
+                || materialName.equalsIgnoreCase("LEGACY_MONSTER_EGG"));
     }
 
     private void runCommands(Player player) {

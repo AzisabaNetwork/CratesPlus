@@ -17,7 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.Crates.Crate;
 import plus.crates.Crates.Winning;
 import plus.crates.CratesPlus;
-import plus.crates.Utils.LegacyMaterial;
+import plus.crates.Utils.ComponentUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,6 +25,16 @@ import java.util.Random;
 import java.util.UUID;
 
 public class BasicGUIOpener extends Opener implements Listener {
+    private static final org.bukkit.Material[] ROLLING_PANES = {
+            org.bukkit.Material.WHITE_STAINED_GLASS_PANE, org.bukkit.Material.ORANGE_STAINED_GLASS_PANE,
+            org.bukkit.Material.MAGENTA_STAINED_GLASS_PANE, org.bukkit.Material.LIGHT_BLUE_STAINED_GLASS_PANE,
+            org.bukkit.Material.YELLOW_STAINED_GLASS_PANE, org.bukkit.Material.LIME_STAINED_GLASS_PANE,
+            org.bukkit.Material.PINK_STAINED_GLASS_PANE, org.bukkit.Material.GRAY_STAINED_GLASS_PANE,
+            org.bukkit.Material.LIGHT_GRAY_STAINED_GLASS_PANE, org.bukkit.Material.CYAN_STAINED_GLASS_PANE,
+            org.bukkit.Material.PURPLE_STAINED_GLASS_PANE, org.bukkit.Material.BLUE_STAINED_GLASS_PANE,
+            org.bukkit.Material.BROWN_STAINED_GLASS_PANE, org.bukkit.Material.GREEN_STAINED_GLASS_PANE,
+            org.bukkit.Material.RED_STAINED_GLASS_PANE, org.bukkit.Material.BLACK_STAINED_GLASS_PANE
+    };
     private CratesPlus cratesPlus;
     private HashMap<UUID, Integer> tasks = new HashMap<>();
     private HashMap<UUID, Inventory> guis = new HashMap<>();
@@ -95,7 +105,7 @@ public class BasicGUIOpener extends Opener implements Listener {
         final Integer[] currentItem = new Integer[1];
 
         if (crate.getWinnings().isEmpty()) {
-            player.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "This crate has no valid winnings.");
+            plus.crates.Handlers.MessageHandler.sendMessage(player, "crate.no_winnings", crate, null);
             finish(player);
             return;
         }
@@ -105,7 +115,7 @@ public class BasicGUIOpener extends Opener implements Listener {
         int min = 0;
         currentItem[0] = random.nextInt((max - min) + 1) + min;
         WinningInventoryHolder holder = new WinningInventoryHolder();
-        winGUI = Bukkit.createInventory(holder, 45, crate.getColor() + crate.getName() + " Win");
+        winGUI = Bukkit.createInventory(holder, 45, ComponentUtil.legacy(crate.getColor() + crate.getName() + " Win"));
         holder.setInventory(winGUI);
         guis.put(player.getUniqueId(), winGUI);
         player.openInventory(winGUI);
@@ -140,10 +150,10 @@ public class BasicGUIOpener extends Opener implements Listener {
                     currentItem[0]++;
                     continue;
                 }
-                ItemStack itemStack = new ItemStack(LegacyMaterial.STAINED_GLASS_PANE.getMaterial(), 1, (short) cratesPlus.getCrateHandler().randInt(0, 15));
+                ItemStack itemStack = new ItemStack(ROLLING_PANES[cratesPlus.getCrateHandler().randInt(0, ROLLING_PANES.length - 1)]);
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 if (timer[0] == maxTimeTicks) {
-                    itemMeta.setDisplayName(ChatColor.RESET + winnerText);
+                    itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + winnerText));
                 } else {
                     if (sound) {
                         final Sound finalSound = Sound.BLOCK_NOTE_BLOCK_HARP;
@@ -152,7 +162,7 @@ public class BasicGUIOpener extends Opener implements Listener {
                                 player.playSound(player.getLocation(), finalSound, (float) 0.2, 2);
                         });
                     }
-                    itemMeta.setDisplayName(ChatColor.RESET + rollingText);
+                    itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + rollingText));
                 }
                 itemStack.setItemMeta(itemMeta);
                 winGUI.setItem(i, itemStack);

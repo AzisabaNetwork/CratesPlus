@@ -9,9 +9,11 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.metadata.MetadataValue;
+import org.bukkit.event.HandlerList;
 import org.bukkit.NamespacedKey;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import plus.crates.Commands.CrateCommand;
 import plus.crates.Crates.Crate;
@@ -25,7 +27,6 @@ import plus.crates.Utils.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -42,10 +43,12 @@ public class CratesPlus extends JavaPlugin implements Listener {
     private HologramHandler hologramHandler;
     private StorageHandler storageHandler;
     private LegacyMigrationService legacyMigrationService;
+    private CrateBlockStorage crateBlockStorage;
     private String bukkitVersion = "0.0";
     private Version_Util version_util;
     private TextInputHandler textInputHandler;
     private NamespacedKey keyCrateKey;
+    private NamespacedKey crateBlockItemKey;
     private static OpenHandler openHandler;
     private ArrayList<UUID> creatingCrate = new ArrayList<>();
 
@@ -66,6 +69,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
         version_util = new Version_Util(this);
         textInputHandler = new TextInputHandler(this);
         keyCrateKey = new NamespacedKey(this, "crate_key");
+        crateBlockItemKey = new NamespacedKey(this, "crate_block_item");
 
         final ConsoleCommandSender console = server.getConsoleSender();
         getConfig().options().copyDefaults(true);
@@ -99,6 +103,8 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
         configHandler = new ConfigHandler(getConfig(), this);
         legacyMigrationService = new LegacyMigrationService(this);
+        crateBlockStorage = new CrateBlockStorage(this);
+        Bukkit.getPluginManager().registerEvents(crateBlockStorage, this);
 
         if (getConfig().getBoolean("Metrics")) {
             try {
@@ -131,7 +137,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
         settingsHandler = new SettingsHandler(this);
 
-        loadMetaData();
+        loadCrateLocations(null);
 
         console.sendMessage(ChatColor.AQUA + getDescription().getName() + " Version " + getDescription().getVersion());
         if (getDescription().getVersion().contains("SNAPSHOT")) { // Added this because some people didn't really understand what a "snapshot" is...
@@ -167,7 +173,12 @@ public class CratesPlus extends JavaPlugin implements Listener {
     }
 
     public void onDisable() {
-        getConfigHandler().getCrates().forEach((key, crate) -> crate.onDisable());
+        if (configHandler != null) {
+            configHandler.getCrates().forEach((key, crate) -> crate.onDisable());
+        }
+        if (settingsHandler != null) {
+            HandlerList.unregisterAll(settingsHandler);
+        }
     }
 
     public String uploadConfig() {
@@ -246,6 +257,12 @@ public class CratesPlus extends JavaPlugin implements Listener {
     }
 
     public void reloadPlugin() {
+        if (configHandler != null) {
+            configHandler.getCrates().forEach((key, crate) -> crate.onDisable());
+        }
+        if (settingsHandler != null) {
+            HandlerList.unregisterAll(settingsHandler);
+        }
         reloadConfig();
 
         // Do Prefix
@@ -256,10 +273,11 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
         // Settings Handler
         settingsHandler = new SettingsHandler(this);
-
+        loadCrateLocations(null);
     }
 
-    private void loadMetaData() {
+    /** Restores PDC markers from legacy data.yml and recreates holograms for loaded worlds. */
+    public void loadCrateLocations(World onlyWorld) {
         if (!getStorageHandler().getFlatConfig().isSet("Crate Locations"))
             return;
         for (String name : getStorageHandler().getFlatConfig().getConfigurationSection("Crate Locations").getKeys(false)) {
@@ -272,87 +290,27 @@ public class CratesPlus extends JavaPlugin implements Listener {
             String path = "Crate Locations." + name;
             List<String> locations = getStorageHandler().getFlatConfig().getStringList(path);
 
-            for (String location : locations) {
-                List<String> strings = Arrays.asList(location.split("\\|"));
-                if (strings.size() < 4)
-                    continue; // Somethings broke?
-                if (strings.size() > 4) {
-                    // Somethings broke? But we'll try and fix it!
-                    for (int i = 0; i < strings.size(); i++) {
-                        if (strings.get(i).isEmpty() || strings.get(i).equals("")) {
-                            strings.remove(i);
-                        }
-                    }
+            for (String serializedLocation : locations) {
+                String[] parts = serializedLocation.split("\\|");
+                if (parts.length != 4) {
+                    getLogger().warning("Ignoring malformed crate location in data.yml: " + serializedLocation);
+                    continue;
                 }
-                Location locationObj;
+                World world = Bukkit.getWorld(parts[0]);
+                if (world == null || (onlyWorld != null && !world.equals(onlyWorld))) {
+                    continue;
+                }
                 try {
-                    locationObj = new Location(Bukkit.getWorld(strings.get(0)), Double.parseDouble(strings.get(1)), Double.parseDouble(strings.get(2)), Double.parseDouble(strings.get(3)));
+                    Location locationObj = new Location(world, Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
                     Block block = locationObj.getBlock();
-                    if (block == null || block.getType().equals(Material.AIR)) {
-                        getLogger().warning("No block found at " + location + " removing from data.yml");
-                        keyCrate.removeFromConfig(locationObj);
+                    if (block.getType().isAir()) {
+                        getLogger().warning("No block found at " + serializedLocation + "; keeping the data.yml entry for recovery.");
                         continue;
                     }
-                    Location location1 = locationObj.getBlock().getLocation().add(0.5, 0.5, 0.5);
-                    keyCrate.loadHolograms(location1);
-                    final CratesPlus cratesPlus = this;
-                    block.setMetadata("CrateType", new MetadataValue() {
-                        @Override
-                        public Object value() {
-                            return crate.getName(false);
-                        }
-
-                        @Override
-                        public int asInt() {
-                            return 0;
-                        }
-
-                        @Override
-                        public float asFloat() {
-                            return 0;
-                        }
-
-                        @Override
-                        public double asDouble() {
-                            return 0;
-                        }
-
-                        @Override
-                        public long asLong() {
-                            return 0;
-                        }
-
-                        @Override
-                        public short asShort() {
-                            return 0;
-                        }
-
-                        @Override
-                        public byte asByte() {
-                            return 0;
-                        }
-
-                        @Override
-                        public boolean asBoolean() {
-                            return false;
-                        }
-
-                        @Override
-                        public String asString() {
-                            return value().toString();
-                        }
-
-                        @Override
-                        public Plugin getOwningPlugin() {
-                            return cratesPlus;
-                        }
-
-                        @Override
-                        public void invalidate() {
-
-                        }
-                    });
-                } catch (Exception ignored) {
+                    crateBlockStorage.set(block, crate.getName(false));
+                    keyCrate.loadHolograms(block.getLocation().add(0.5, 0.5, 0.5));
+                } catch (NumberFormatException exception) {
+                    getLogger().warning("Ignoring malformed crate coordinates in data.yml: " + serializedLocation);
                 }
             }
 
@@ -384,6 +342,10 @@ public class CratesPlus extends JavaPlugin implements Listener {
         return legacyMigrationService;
     }
 
+    public CrateBlockStorage getCrateBlockStorage() {
+        return crateBlockStorage;
+    }
+
     public String getUpdateMessage() {
         return updateMessage;
     }
@@ -406,6 +368,22 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
     public NamespacedKey getKeyCrateKey() {
         return keyCrateKey;
+    }
+
+    public ItemStack tagCrateItem(ItemStack item, Crate crate) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.getPersistentDataContainer().set(crateBlockItemKey, PersistentDataType.STRING, crate.getSlug());
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    public String getCrateType(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
+            return null;
+        }
+        return item.getItemMeta().getPersistentDataContainer().get(crateBlockItemKey, PersistentDataType.STRING);
     }
 
     public boolean isUpdateAvailable() {

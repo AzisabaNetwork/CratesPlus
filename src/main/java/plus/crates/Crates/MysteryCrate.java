@@ -8,6 +8,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Utils.GUI;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -48,9 +49,9 @@ public class MysteryCrate extends Crate {
         CratesPlus cratesPlus = getCratesPlus();
         GUI gui = new GUI(guiTitle != null ? guiTitle : getName(false));
 
-        ItemStack itemStack = new ItemStack(getBlock(), 1, (short) getBlockData());
+        ItemStack itemStack = new ItemStack(getBlock());
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(itemTitle != null ? itemTitle : getName(true));
+        itemMeta.displayName(ComponentUtil.legacy(itemTitle != null ? itemTitle : getName(true)));
         itemStack.setItemMeta(itemMeta);
 
         Integer count = (Integer) cratesPlus.getStorageHandler().getPlayerData(player.getUniqueId(), "Crates-" + getName(false));

@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
+import net.kyori.adventure.text.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +31,10 @@ public final class TextInputHandler implements Listener {
     }
 
     public void request(Player player, String title, Consumer<String> callback) {
-        Inventory inventory = Bukkit.createInventory(null, InventoryType.ANVIL, title);
+        Inventory inventory = Bukkit.createInventory(null, InventoryType.ANVIL, Component.text(title));
         ItemStack input = new ItemStack(Material.PAPER);
         ItemMeta meta = input.getItemMeta();
-        meta.setDisplayName("Enter text here");
+        meta.displayName(Component.text("Enter text here"));
         input.setItemMeta(meta);
         inventory.setItem(0, input);
         pendingInputs.put(player.getUniqueId(), new PendingInput(inventory, callback));
@@ -53,8 +54,8 @@ public final class TextInputHandler implements Listener {
         ItemStack result = event.getCurrentItem();
         pendingInputs.remove(event.getWhoClicked().getUniqueId());
         event.getWhoClicked().closeInventory();
-        if (result != null && result.hasItemMeta() && result.getItemMeta().hasDisplayName()) {
-            pending.callback.accept(result.getItemMeta().getDisplayName());
+        if (result != null && result.hasItemMeta() && result.getItemMeta().displayName() != null) {
+            pending.callback.accept(ComponentUtil.plain(result.getItemMeta().displayName()));
         }
     }
 

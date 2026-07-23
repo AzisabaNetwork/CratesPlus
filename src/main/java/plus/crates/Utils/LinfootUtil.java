@@ -1,6 +1,8 @@
 package plus.crates.Utils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -9,20 +11,24 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 public class LinfootUtil {
 
     public static Enchantment getEnchantmentFromNiceName(String name) {
-        Enchantment enchantment = null;
-        try {
-            enchantment = Enchantment.getByName(name);
-        } catch (Exception ignored) {
+        if (name == null || name.isBlank()) {
+            return null;
         }
+        String normalizedName = name.toLowerCase(Locale.ROOT);
+        NamespacedKey key = normalizedName.contains(":")
+                ? NamespacedKey.fromString(normalizedName)
+                : NamespacedKey.minecraft(normalizedName);
+        Enchantment enchantment = key == null ? null : Registry.ENCHANTMENT.get(key);
 
         if (enchantment != null)
             return enchantment;
 
-        switch (name.toLowerCase()) {
+        switch (normalizedName) {
             case "sharpness":
             case "damage_all":
                 enchantment = Enchantment.SHARPNESS;
@@ -62,10 +68,10 @@ public class LinfootUtil {
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (name != null) {
-            itemMeta.setDisplayName(ChatColor.RESET + name);
+            itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + name));
         }
         if (lore != null) {
-            itemMeta.setLore(lore);
+            itemMeta.lore(ComponentUtil.legacy(lore));
         }
         itemStack.setItemMeta(itemMeta);
         return itemStack;
@@ -76,8 +82,8 @@ public class LinfootUtil {
         String toDot = toPath.equals("") ? "" : ".";
         for (String s : vals.keySet()) {
             Object val = vals.get(s);
-            if (val instanceof List)
-                val = new ArrayList((List) val);
+            if (val instanceof List<?>)
+                val = new ArrayList<>((List<?>) val);
             config.set(toPath + toDot + s, val);
         }
     }

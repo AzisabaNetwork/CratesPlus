@@ -10,3 +10,8 @@ messages:
   crate.broadcast: "&d%displayname% &dopened a %crate% &dcrate."
   crate.chance: "&d%percentage%% Chance"
   crate.possible_wins: "Possible Wins:"
+  crate.inventory_full: "&cYou cannot open a crate while your inventory is full."
+  crate.no_winnings: "&cThis crate has no valid winnings."
+  crate.remove_no_permission: "&cYou do not have permission to remove this crate."
+  crate.remove_sneak: "&cSneak to break crates."
+  crate.given: "&aYou have been given a %crate% &acrate."

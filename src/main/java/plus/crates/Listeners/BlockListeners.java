@@ -15,12 +15,11 @@ import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.plugin.Plugin;
 import plus.crates.Crates.*;
 import plus.crates.CratesPlus;
 import plus.crates.Events.CrateOpenEvent;
 import plus.crates.Handlers.MessageHandler;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -196,9 +195,14 @@ public class BlockListeners implements Listener {
             }
         }
 
-        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains("Crate")) {
-            final String crateType = item.getItemMeta().getDisplayName().replaceAll(" Crate", "");
-            final Crate crate = cratesPlus.getConfigHandler().getCrate(ChatColor.stripColor(crateType).toLowerCase());
+        String crateSlug = cratesPlus.getCrateType(item);
+        if (crateSlug == null && item.hasItemMeta() && item.getItemMeta().displayName() != null
+                && ComponentUtil.plain(item.getItemMeta().displayName()).contains("Crate")) {
+            // Compatibility for crate items issued before the PDC marker was introduced.
+            crateSlug = ComponentUtil.plain(item.getItemMeta().displayName()).replaceAll(" Crate", "").toLowerCase();
+        }
+        if (crateSlug != null) {
+            final Crate crate = cratesPlus.getConfigHandler().getCrate(crateSlug);
 
             if (crate instanceof MysteryCrate) {
                 // TODO????????
@@ -215,63 +219,7 @@ public class BlockListeners implements Listener {
                 Location location = event.getBlock().getLocation();
                 keyCrate.addLocation(location.getBlockX() + "-" + location.getBlockY() + "-" + location.getBlockZ(), location);
                 keyCrate.addToConfig(location);
-                // BlockMeta to be used for some stuff in the future!
-                event.getBlock().setMetadata("CrateType", new MetadataValue() {
-                    @Override
-                    public Object value() {
-                        return crate.getName(false);
-                    }
-
-                    @Override
-                    public int asInt() {
-                        return 0;
-                    }
-
-                    @Override
-                    public float asFloat() {
-                        return 0;
-                    }
-
-                    @Override
-                    public double asDouble() {
-                        return 0;
-                    }
-
-                    @Override
-                    public long asLong() {
-                        return 0;
-                    }
-
-                    @Override
-                    public short asShort() {
-                        return 0;
-                    }
-
-                    @Override
-                    public byte asByte() {
-                        return 0;
-                    }
-
-                    @Override
-                    public boolean asBoolean() {
-                        return false;
-                    }
-
-                    @Override
-                    public String asString() {
-                        return value().toString();
-                    }
-
-                    @Override
-                    public Plugin getOwningPlugin() {
-                        return cratesPlus;
-                    }
-
-                    @Override
-                    public void invalidate() {
-
-                    }
-                });
+                cratesPlus.getCrateBlockStorage().set(event.getBlock(), crate.getName(false));
 
                 Location location1 = location.getBlock().getLocation().add(0.5, 0.5, 0.5);
                 keyCrate.loadHolograms(location1);
@@ -281,10 +229,10 @@ public class BlockListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getBlock().getMetadata("CrateType") == null || event.getBlock().getMetadata("CrateType").isEmpty()) {
+        String crateType = cratesPlus.getCrateBlockStorage().get(event.getBlock());
+        if (crateType == null) {
             return;
         }
-        String crateType = event.getBlock().getMetadata("CrateType").get(0).asString();
         Crate crate = cratesPlus.getConfigHandler().getCrates().get(crateType.toLowerCase());
         if (crate == null) // TODO Better handling of crates removed from the config
             return;
@@ -295,15 +243,15 @@ public class BlockListeners implements Listener {
         Location location = event.getBlock().getLocation();
 
         if (event.getPlayer().isSneaking() && (cratesPlus.getConfig().getBoolean("Crate Protection") && !event.getPlayer().hasPermission("cratesplus.admin"))) {
-            event.getPlayer().sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "You do not have permission to remove this crate");
+            MessageHandler.sendMessage(event.getPlayer(), "crate.remove_no_permission", crate, null);
             event.setCancelled(true);
             return;
         } else if (!event.getPlayer().isSneaking()) {
-            event.getPlayer().sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "Sneak to break crates");
+            MessageHandler.sendMessage(event.getPlayer(), "crate.remove_sneak", crate, null);
             event.setCancelled(true);
             return;
         }
-        location.getBlock().removeMetadata("CrateType", cratesPlus);
+        cratesPlus.getCrateBlockStorage().remove(location.getBlock());
         keyCrate.removeFromConfig(location);
         keyCrate.removeHolograms(location.getBlock().getLocation());
     }

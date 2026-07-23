@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -127,12 +128,12 @@ public class SupplyCrate extends Crate {
 
     private ItemStack getCrateItemStack(Integer amount) {
         // TODO add data ID support
-        ItemStack itemStack = new ItemStack(getBlock(), amount, (short) getBlockData());
+        ItemStack itemStack = new ItemStack(getBlock(), amount);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(getName(true) + " Crate");
-        itemMeta.setLore(getLore());
+        itemMeta.displayName(ComponentUtil.legacy(getName(true) + " Crate"));
+        itemMeta.lore(ComponentUtil.legacy(getLore()));
         itemStack.setItemMeta(itemMeta);
-        return itemStack;
+        return getCratesPlus().tagCrateItem(itemStack, this);
     }
 
     private List<String> getLore() {

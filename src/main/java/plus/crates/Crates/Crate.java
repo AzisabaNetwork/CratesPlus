@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Opener.Opener;
+import plus.crates.Utils.MaterialResolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +52,9 @@ public abstract class Crate {
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Color"))
             this.color = ChatColor.valueOf(cratesPlus.getConfig().getString("Crates." + name + ".Color").toUpperCase());
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Block"))
-            this.block = Material.valueOf(cratesPlus.getConfig().getString("Crates." + name + ".Block").toUpperCase());
+            this.block = MaterialResolver.resolve(cratesPlus,
+                    cratesPlus.getConfig().getString("Crates." + name + ".Block"), Material.CHEST,
+                    "Crates." + name + ".Block");
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Block Data"))
             this.blockData = cratesPlus.getConfig().getInt("Crates." + name + ".Block Data", 0);
         if (cratesPlus.getConfig().isSet("Crates." + name + ".Permission"))

@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import net.kyori.adventure.text.Component;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -105,44 +106,43 @@ public class CrateCommand implements CommandExecutor {
                     break;
                 case "debug":
                     sender.sendMessage(ChatColor.AQUA + "Gathering debug data...");
+                    String plugins = "";
+                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+                        plugins += plugin.getName() + " - Version: " + plugin.getDescription().getVersion() + "\n";
+                    }
+                    final String pluginList = plugins;
 
                     Bukkit.getScheduler().runTaskAsynchronously(cratesPlus, () -> {
-                        sender.sendMessage(ChatColor.AQUA + "Uploading config.yml...");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading config.yml...");
                         String configLink = cratesPlus.uploadConfig();
-                        sender.sendMessage(ChatColor.AQUA + "Uploaded config.yml");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded config.yml");
 
-                        sender.sendMessage(ChatColor.AQUA + "Uploading data.yml...");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading data.yml...");
                         String dataLink = cratesPlus.uploadData();
-                        sender.sendMessage(ChatColor.AQUA + "Uploaded data.yml");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded data.yml");
 
-                        sender.sendMessage(ChatColor.AQUA + "Uploading messages.yml...");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading messages.yml...");
                         String messagesLink = cratesPlus.uploadMessages();
-                        sender.sendMessage(ChatColor.AQUA + "Uploaded messages.yml");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded messages.yml");
 
-                        sender.sendMessage(ChatColor.AQUA + "Generating plugin list...");
-                        String plugins = "";
-                        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-                            plugins += plugin.getName() + " - Version: " + plugin.getDescription().getVersion() + "\n";
-                        }
-                        sender.sendMessage(ChatColor.AQUA + "Completed plugin list");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading plugin list...");
 
-                        sender.sendMessage(ChatColor.AQUA + "Uploading plugin list...");
-                        String pluginsLink = MCDebug.paste("plugins.txt", plugins);
-                        sender.sendMessage(ChatColor.AQUA + "Uploaded plugin list");
+                        String pluginsLink = MCDebug.paste("plugins.txt", pluginList);
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploaded plugin list");
 
-                        sender.sendMessage(ChatColor.AQUA + "Uploading data to MC Debug...");
+                        sendOnPrimaryThread(sender, ChatColor.AQUA + "Uploading data to MC Debug...");
                         String finalLinks = uploadDebugData(configLink, dataLink, messagesLink, pluginsLink);
                         String[] links = null;
                         if (finalLinks != null) {
                             links = finalLinks.split("\\|");
                         }
 
-                        sender.sendMessage(ChatColor.GREEN + "Completed uploading debug data!");
+                        sendOnPrimaryThread(sender, ChatColor.GREEN + "Completed uploading debug data!");
                         if (links != null && links.length == 2) {
-                            sender.sendMessage(ChatColor.GREEN + "You can use the following link to manage your data " + ChatColor.GOLD + links[1]);
-                            sender.sendMessage(ChatColor.GREEN + "You can use the following link to share your data " + ChatColor.GOLD + links[0]);
+                            sendOnPrimaryThread(sender, ChatColor.GREEN + "You can use the following link to manage your data " + ChatColor.GOLD + links[1]);
+                            sendOnPrimaryThread(sender, ChatColor.GREEN + "You can use the following link to share your data " + ChatColor.GOLD + links[0]);
                         } else {
-                            sender.sendMessage(ChatColor.GREEN + "You can use the following link to share your data " + ChatColor.GOLD + finalLinks);
+                            sendOnPrimaryThread(sender, ChatColor.GREEN + "You can use the following link to share your data " + ChatColor.GOLD + finalLinks);
                         }
 
                     });
@@ -179,7 +179,7 @@ public class CrateCommand implements CommandExecutor {
                     break;
                 case "reload":
                     cratesPlus.reloadPlugin();
-                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "CratesPlus was reloaded - This feature is not fully supported and may not work correctly");
+                    sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "CratesPlus was reloaded.");
                     break;
                 case "migratelegacy":
                     if (args.length < 2 || args[1].equalsIgnoreCase("report")) {
@@ -261,10 +261,7 @@ public class CrateCommand implements CommandExecutor {
                     config.set("Crates." + name + ".Color", "WHITE");
                     config.set("Crates." + name + ".Type", "KeyCrate");
                     cratesPlus.saveConfig();
-                    cratesPlus.reloadConfig();
-
-                    cratesPlus.getConfigHandler().registerCrate(cratesPlus, config, name);
-                    cratesPlus.getSettingsHandler().setupCratesInventory();
+                    cratesPlus.reloadPlugin();
 
                     sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + name + " crate has been created");
                     break;
@@ -293,11 +290,7 @@ public class CrateCommand implements CommandExecutor {
 
                     config.set("Crates." + crate.getName(), null);
                     cratesPlus.saveConfig();
-                    cratesPlus.reloadConfig();
-
-                    cratesPlus.getConfigHandler().getCrates().remove(oldName.toLowerCase());
-                    cratesPlus.getConfigHandler().registerCrate(cratesPlus, config, newName);
-                    cratesPlus.getSettingsHandler().setupCratesInventory();
+                    cratesPlus.reloadPlugin();
 
                     sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + oldName + " has been renamed to " + newName);
                     break;
@@ -316,9 +309,7 @@ public class CrateCommand implements CommandExecutor {
 
                     config.set("Crates." + name, null);
                     cratesPlus.saveConfig();
-                    cratesPlus.reloadConfig();
-                    cratesPlus.getConfigHandler().getCrates().remove(name.toLowerCase());
-                    cratesPlus.getSettingsHandler().setupCratesInventory();
+                    cratesPlus.reloadPlugin();
 
                     sender.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + name + " crate has been deleted");
                     break;
@@ -469,6 +460,10 @@ public class CrateCommand implements CommandExecutor {
         }
     }
 
+    private void sendOnPrimaryThread(CommandSender sender, String message) {
+        Bukkit.getScheduler().runTask(cratesPlus, () -> MessageHandler.sendLegacy(sender, message));
+    }
+
     private void doClaim(Player player) {
         if (!cratesPlus.getCrateHandler().hasPendingKeys(player.getUniqueId())) {
             player.closeInventory();
@@ -486,7 +481,7 @@ public class CrateCommand implements CommandExecutor {
             ItemStack keyItem = crate.getKey().getKeyItem(1);
             if (map.getValue() > 1) {
                 ItemMeta itemMeta = keyItem.getItemMeta();
-                itemMeta.setDisplayName(itemMeta.getDisplayName() + " x" + map.getValue());
+                itemMeta.displayName(itemMeta.displayName().append(Component.text(" x" + map.getValue())));
                 keyItem.setItemMeta(itemMeta);
             }
             gui.setItem(i, keyItem, new GUI.ClickHandler() {

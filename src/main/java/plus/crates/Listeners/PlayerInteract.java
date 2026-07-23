@@ -39,8 +39,8 @@ public class PlayerInteract implements Listener {
         ItemStack item = cratesPlus.getVersion_util().getItemInPlayersHand(player);
         ItemStack itemOff = cratesPlus.getVersion_util().getItemInPlayersOffHand(player);
 
-        String crateType;
-        if (event.getClickedBlock().getMetadata("CrateType").isEmpty()) {
+        String crateType = cratesPlus.getCrateBlockStorage().get(event.getClickedBlock());
+        if (crateType == null) {
             // Try to use the old method of getting the crate!
             if (event.getClickedBlock().getType() != Material.CHEST)
                 return;
@@ -49,8 +49,6 @@ public class PlayerInteract implements Listener {
             if (title == null || !title.contains(" Crate"))
                 return;
             crateType = ChatColor.stripColor(title.replaceAll(" Crate", ""));
-        } else {
-            crateType = event.getClickedBlock().getMetadata("CrateType").get(0).asString();
         }
 
         if (!cratesPlus.getConfig().isSet("Crates." + crateType)) {
@@ -97,7 +95,7 @@ public class PlayerInteract implements Listener {
                 event.setCancelled(true);
 
                 if (player.getInventory().firstEmpty() == -1) {
-                    player.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.RED + "You can't open a Crate while your inventory is full");
+                    MessageHandler.sendMessage(player, "crate.inventory_full", crate, null);
                     return;
                 }
 

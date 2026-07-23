@@ -1,13 +1,14 @@
 package plus.crates.Utils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.*;
 
@@ -44,7 +45,7 @@ public class GUI {
         put(20, 34);
     }};
 
-    private String title;
+    private Component title;
     private NavigableMap<Integer, ItemStack> items = new TreeMap<>();
     private HashMap<Integer, ClickHandler> clickHandlers = new HashMap<>();
     private ClickHandler goBackHandler = null;
@@ -52,14 +53,18 @@ public class GUI {
     private boolean allowsKeyMovement = false;
 
     public GUI(String title) {
+        this(ComponentUtil.legacy(title));
+    }
+
+    public GUI(Component title) {
         this.title = title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(Component title) {
         this.title = title;
     }
 
-    public String getTitle() {
+    public Component getTitle() {
         return title;
     }
 
@@ -165,9 +170,9 @@ public class GUI {
         if (getGoBackHandler() != null || page > 1 || pages > page)
             size = size + 9;
 
-        String title = getTitle();
+        Component title = getTitle();
         if (isShowPages()) {
-            title += " (Page " + page + "/" + pages + ")";
+            title = title.append(Component.text(" (Page " + page + "/" + pages + ")"));
         }
         Holder holder = new Holder(this, page);
         Inventory inventory = Bukkit.createInventory(holder, size, title);
@@ -183,13 +188,13 @@ public class GUI {
         if (page == 1 && getGoBackHandler() != null) {
             ItemStack back = new ItemStack(Material.ARROW);
             ItemMeta backMeta = back.getItemMeta();
-            backMeta.setDisplayName(ChatColor.YELLOW + "Go Back");
+            backMeta.displayName(Component.text("Go Back", NamedTextColor.YELLOW));
             back.setItemMeta(backMeta);
             inventory.setItem(48, back);
         } else if (page > 1) {
             ItemStack prev = new ItemStack(Material.ARROW);
             ItemMeta prevMeta = prev.getItemMeta();
-            prevMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
+            prevMeta.displayName(Component.text("Previous Page", NamedTextColor.YELLOW));
             prev.setItemMeta(prevMeta);
             inventory.setItem(48, prev);
         }
@@ -197,7 +202,7 @@ public class GUI {
         if (pages > page) {
             ItemStack prev = new ItemStack(Material.ARROW);
             ItemMeta prevMeta = prev.getItemMeta();
-            prevMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
+            prevMeta.displayName(Component.text("Next Page", NamedTextColor.YELLOW));
             prev.setItemMeta(prevMeta);
             inventory.setItem(50, prev);
         }

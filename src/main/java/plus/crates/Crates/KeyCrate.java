@@ -9,6 +9,7 @@ import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Handlers.MessageHandler;
 import plus.crates.Utils.GUI;
+import plus.crates.Utils.MaterialResolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,10 @@ public class KeyCrate extends Crate {
         if (!cratesPlus.getConfig().isSet("Crates." + name + ".Key") || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Item") || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Name") || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Enchanted"))
             return;
 
-        this.key = new Key(this, Material.valueOf(cratesPlus.getConfig().getString("Crates." + name + ".Key.Item")), (short) cratesPlus.getConfig().getInt("Crates." + name + ".Key.Data", 0), cratesPlus.getConfig().getString("Crates." + name + ".Key.Name").replaceAll("%type%", getName(true)), cratesPlus.getConfig().getBoolean("Crates." + name + ".Key.Enchanted"), cratesPlus.getConfig().getStringList("Crates." + name + ".Key.Lore"), cratesPlus);
+        Material material = MaterialResolver.resolve(cratesPlus,
+                cratesPlus.getConfig().getString("Crates." + name + ".Key.Item"), Material.TRIPWIRE_HOOK,
+                "Crates." + name + ".Key.Item");
+        this.key = new Key(this, material, (short) cratesPlus.getConfig().getInt("Crates." + name + ".Key.Data", 0), cratesPlus.getConfig().getString("Crates." + name + ".Key.Name").replaceAll("%type%", getName(true)), cratesPlus.getConfig().getBoolean("Crates." + name + ".Key.Enchanted"), cratesPlus.getConfig().getStringList("Crates." + name + ".Key.Lore"), cratesPlus);
     }
 
     public Key getKey() {

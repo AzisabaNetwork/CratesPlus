@@ -15,6 +15,7 @@ import plus.crates.Crates.KeyCrate;
 import plus.crates.CratesPlus;
 import plus.crates.Opener.Opener;
 import plus.crates.Utils.LegacyMaterial;
+import plus.crates.Utils.ComponentUtil;
 
 import java.util.*;
 
@@ -261,16 +262,17 @@ public class CrateHandler {
     public void giveCrate(Player player, Crate crate) {
         if (player == null || !player.isOnline() || crate == null) return;
 
-        ItemStack crateItem = new ItemStack(crate.getBlock(), 1, (short) crate.getBlockData());
+        ItemStack crateItem = new ItemStack(crate.getBlock());
         ItemMeta crateMeta = crateItem.getItemMeta();
-        crateMeta.setDisplayName(crate.getName(true) + " Crate");
+        crateMeta.displayName(ComponentUtil.legacy(crate.getName(true) + " Crate"));
         List<String> lore = new ArrayList<String>();
         lore.add(ChatColor.GRAY + "Place this crate somewhere!");
         lore.add("");
-        crateMeta.setLore(lore);
+        crateMeta.lore(ComponentUtil.legacy(lore));
         crateItem.setItemMeta(crateMeta);
+        cratesPlus.tagCrateItem(crateItem, crate);
         player.getInventory().addItem(crateItem);
-        player.sendMessage(cratesPlus.getPluginPrefix() + ChatColor.GREEN + "You have been given a " + crate.getName(true) + ChatColor.GREEN + " crate");
+        MessageHandler.sendMessage(player, "crate.given", crate, null);
     }
 
     @Deprecated
@@ -286,7 +288,7 @@ public class CrateHandler {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
             ItemStack itemStack = new ItemStack(LegacyMaterial.EMPTY_MAP.getMaterial());
             ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.setDisplayName(ChatColor.RESET + title);
+            itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + title));
             itemStack.setItemMeta(itemMeta);
             return itemStack;
         } else if (args.length == 1) {
@@ -350,8 +352,8 @@ public class CrateHandler {
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 List<String> lore = new ArrayList<String>();
                 lore.add(ChatColor.DARK_GRAY + "Crate Command");
-                itemMeta.setLore(lore);
-                itemMeta.setDisplayName(ChatColor.RESET + name);
+                itemMeta.lore(ComponentUtil.legacy(lore));
+                itemMeta.displayName(ComponentUtil.legacy(ChatColor.RESET + name));
                 itemStack.setItemMeta(itemMeta);
                 return itemStack;
             } else if (args.length == 1) {
@@ -388,7 +390,7 @@ public class CrateHandler {
                         itemStack = new ItemStack(Material.getMaterial(args1[0].toUpperCase()), Integer.parseInt(args[1]), Byte.parseByte(args1[1]));
                     }
                     ItemMeta itemMeta = itemStack.getItemMeta();
-                    itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', args[2]));
+                    itemMeta.displayName(ComponentUtil.legacy(args[2]));
                     itemStack.setItemMeta(itemMeta);
                     return itemStack;
                 }
@@ -417,7 +419,7 @@ public class CrateHandler {
                 }
                 if (!args[2].equalsIgnoreCase("NONE")) {
                     ItemMeta itemMeta = itemStack.getItemMeta();
-                    itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', args[2]));
+                    itemMeta.displayName(ComponentUtil.legacy(args[2]));
                     itemStack.setItemMeta(itemMeta);
                 }
                 return itemStack;
@@ -437,7 +439,7 @@ public class CrateHandler {
         finalString = finalString + ":" + itemStack.getAmount();
 
         if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
-            finalString = finalString + ":" + itemStack.getItemMeta().getDisplayName();
+            finalString = finalString + ":" + ComponentUtil.plain(itemStack.getItemMeta().displayName());
         } else {
             finalString = finalString + ":NONE";
         }

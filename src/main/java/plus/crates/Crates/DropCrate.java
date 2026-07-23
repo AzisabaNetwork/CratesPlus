@@ -6,13 +6,17 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.scheduler.BukkitTask;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -27,6 +31,8 @@ public class DropCrate extends SupplyCrate implements Listener {
     private Integer radiusClosestToPlayer = 300; // will spawn 300 blocks close to a player TODO Make this and any others configurable!
     private Integer despawnTimer = 30 * 60; // will despawn after 30 minutes if nobody has found it
     private Integer minPlayers = 2;
+    private BukkitTask nextSpawnTask;
+    private final Map<Location, BukkitTask> despawnTasks = new HashMap<>();
 
     public DropCrate(ConfigHandler configHandler, String name) {
         super(configHandler, name);
@@ -58,7 +64,7 @@ public class DropCrate extends SupplyCrate implements Listener {
         // TODO Use a debug option to show this?
         getCratesPlus().getLogger().info("Will attempt to drop crate \"" + getName() + "\" in " + timer + " seconds!");
         // TODO Should we validate the config first? I feel like we should...
-        Bukkit.getScheduler().runTaskLater(getCratesPlus(), this::spawnCrate, 20L * timer);
+        nextSpawnTask = Bukkit.getScheduler().runTaskLater(getCratesPlus(), this::spawnCrate, 20L * timer);
     }
 
     private void spawnCrate() {
@@ -87,8 +93,8 @@ public class DropCrate extends SupplyCrate implements Listener {
         double randomZ = randInt((int) location.getZ() - radiusClosestToPlayer, (int) location.getZ() + radiusClosestToPlayer);
         location.setX(randomX);
         location.setZ(randomZ);
-        location = world.getHighestBlockAt(location).getLocation().clone().add(0, 0, 0);
-        if (location.getBlock().getType().equals(Material.AIR)) {
+        location = world.getHighestBlockAt(location).getLocation().add(0, 1, 0);
+        if (location.getBlock().isEmpty()) {
             location.getBlock().setType(getBlock());
             // TODO idk how to handle the below, is it even needed with 1.13? So reflection if thats the case...
 //            location.getBlock().setData((byte) getBlockData());
@@ -99,12 +105,14 @@ public class DropCrate extends SupplyCrate implements Listener {
             if (despawnTimer > 0) {
                 // TODO Despawn
                 Location finalLocation = location;
-                Bukkit.getScheduler().runTaskLater(getCratesPlus(), () -> {
+                BukkitTask despawnTask = Bukkit.getScheduler().runTaskLater(getCratesPlus(), () -> {
                     if (drops.contains(finalLocation)) {
                         drops.remove(finalLocation);
+                        despawnTasks.remove(finalLocation);
                         finalLocation.getBlock().setType(Material.AIR);
                     }
                 }, despawnTimer * 20);
+                despawnTasks.put(finalLocation, despawnTask);
             }
         }
     }
@@ -128,6 +136,14 @@ public class DropCrate extends SupplyCrate implements Listener {
     @Override
     public void onDisable() {
         super.onDisable();
-        drops.forEach(location -> location.getBlock().setType(Material.AIR));
+        if (nextSpawnTask != null) {
+            nextSpawnTask.cancel();
+            nextSpawnTask = null;
+        }
+        despawnTasks.values().forEach(BukkitTask::cancel);
+        despawnTasks.clear();
+        new ArrayList<>(drops).forEach(location -> location.getBlock().setType(Material.AIR));
+        drops.clear();
+        HandlerList.unregisterAll(this);
     }
 }

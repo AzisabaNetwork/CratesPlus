@@ -48,7 +48,7 @@ public class VirtualCrate extends Crate {
             Crate crate = getCratesPlus().getConfigHandler().getCrate(crateName);
             if (crate == null)
                 continue;
-            gui.addItem(LinfootUtil.buildItemStack(new ItemStack(crate.getBlock(), 1, (short) getBlockData()), crate.getName(true), null), new GUI.ClickHandler() {
+            gui.addItem(LinfootUtil.buildItemStack(new ItemStack(crate.getBlock()), crate.getName(true), null), new GUI.ClickHandler() {
                 @Override
                 public void doClick(Player player, GUI gui) {
                     // TODO

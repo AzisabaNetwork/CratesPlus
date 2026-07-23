@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import plus.crates.CratesPlus;
+import plus.crates.Utils.ComponentUtil;
 import plus.crates.Handlers.MessageHandler;
 
 import java.util.ArrayList;
@@ -63,13 +64,13 @@ public class Key {
     }
 
     public ItemStack getKeyItem(Integer amount) {
-        ItemStack keyItem = new ItemStack(getMaterial(), amount, getData());
+        ItemStack keyItem = new ItemStack(getMaterial(), amount);
         if (isEnchanted())
             keyItem.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
         ItemMeta keyItemMeta = keyItem.getItemMeta();
         String title = getName().replaceAll("%type%", getCrate().getName(true));
-        keyItemMeta.setDisplayName(title);
-        keyItemMeta.setLore(getLore());
+        keyItemMeta.displayName(ComponentUtil.legacy(title));
+        keyItemMeta.lore(ComponentUtil.legacy(getLore()));
         ArrayList<String> flags = new ArrayList<>();
         flags.add("HIDE_ENCHANTS");
         keyItemMeta = cratesPlus.getVersion_util().handleItemFlags(keyItemMeta, flags);
@@ -91,7 +92,8 @@ public class Key {
         }
         ItemMeta meta = itemStack.getItemMeta();
         String expectedName = getName().replace("%type%", getCrate().getName(true));
-        if (!meta.hasDisplayName() || !expectedName.equals(meta.getDisplayName()) || !getLore().equals(meta.getLore())) {
+        if (meta.displayName() == null || !ComponentUtil.legacy(expectedName).equals(meta.displayName())
+                || !ComponentUtil.legacy(getLore()).equals(meta.lore())) {
             return false;
         }
         itemStack.editPersistentDataContainer(pdc -> pdc.set(
