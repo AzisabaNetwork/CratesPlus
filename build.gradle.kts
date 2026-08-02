@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "plus.crates"
-version = "5.0.0"
+version = "1.21.11+5.0.1"
 description = "Free crates plugin built for Paper."
 
 val pluginProperties = mapOf(
