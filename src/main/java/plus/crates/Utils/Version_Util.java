@@ -1,6 +1,7 @@
 package plus.crates.Utils;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -49,6 +50,13 @@ public class Version_Util {
     }
 
     public ItemMeta handleItemFlags(ItemMeta itemMeta, List<String> flags) {
+        for (String flagName : flags) {
+            try {
+                itemMeta.addItemFlags(ItemFlag.valueOf(flagName.toUpperCase(java.util.Locale.ROOT)));
+            } catch (IllegalArgumentException ignored) {
+                cratesPlus.getLogger().warning("Ignoring unknown item flag '" + flagName + "'.");
+            }
+        }
         return itemMeta;
     }
 

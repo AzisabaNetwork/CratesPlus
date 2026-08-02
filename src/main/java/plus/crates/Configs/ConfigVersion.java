@@ -6,6 +6,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.MessageHandler;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public abstract class ConfigVersion {
     private final CratesPlus cratesPlus;
     private final Integer version;
@@ -39,7 +45,17 @@ public abstract class ConfigVersion {
     }
 
     private String backupConfig() {
-        return getCratesPlus().uploadFile("config.yml");
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+            File source = new File(getCratesPlus().getDataFolder(), "config.yml");
+            File backup = new File(getCratesPlus().getDataFolder(), "config.yml.v"
+                    + getVersion() + "-migration-" + timestamp + ".bak");
+            Files.copy(source.toPath(), backup.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+            return backup.getName();
+        } catch (Exception exception) {
+            getCratesPlus().getLogger().warning("Could not back up config.yml before migration: " + exception.getMessage());
+            return null;
+        }
     }
 
     protected void runUpdate() {

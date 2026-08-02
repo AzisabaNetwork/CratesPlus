@@ -63,7 +63,8 @@ public final class MessageHandler {
                 Map.entry("Chance Message", "crate.chance"),
                 Map.entry("Inventory Full Claim", "key.inventory_full_claim"),
                 Map.entry("Claim Join", "key.claim_join"),
-                Map.entry("Possible Wins Title", "crate.possible_wins")
+                Map.entry("Possible Wins Title", "crate.possible_wins"),
+                Map.entry("Crate Given", "crate.given")
         );
         YamlConfiguration target = localeFor(null);
         boolean changed = false;
@@ -80,6 +81,10 @@ public final class MessageHandler {
             } catch (Exception exception) {
                 cratesPlus.getLogger().warning("Could not migrate legacy messages: " + exception.getMessage());
             }
+        }
+        if (legacy.isString("Prefix")) {
+            cratesPlus.getConfig().set("Prefix", legacy.getString("Prefix"));
+            cratesPlus.saveConfig();
         }
     }
 

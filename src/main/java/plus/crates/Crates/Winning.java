@@ -3,11 +3,14 @@ package plus.crates.Crates;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import plus.crates.CratesPlus;
 import plus.crates.Handlers.ConfigHandler;
 import plus.crates.Handlers.MessageHandler;
@@ -16,6 +19,7 @@ import plus.crates.Utils.LinfootUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,10 +143,7 @@ public class Winning {
             previewItemStack.setAmount(previewItemStack.getMaxStackSize());
         }
 
-        ItemMeta previewItemStackItemMeta = previewItemStack.getItemMeta();
-        if (config.isSet(path + ".Metadata") && config.get(path + ".Metadata") instanceof ItemMeta) {
-            previewItemStackItemMeta = (ItemMeta) config.get(path + ".Metadata");
-        }
+        ItemMeta previewItemStackItemMeta = getConfiguredMeta(config, path, previewItemStack.getItemMeta());
 
         if (config.isSet(path + ".Flags")) {
             previewItemStackItemMeta = cratesPlus.getVersion_util().handleItemFlags(previewItemStackItemMeta, config.getStringList(path + ".Flags"));
@@ -182,10 +183,7 @@ public class Winning {
             }
         }
 
-        ItemMeta winningItemStackItemMeta = winningItemStack.getItemMeta();
-        if (config.isSet(path + ".Metadata") && config.get(path + ".Metadata") instanceof ItemMeta) {
-            winningItemStackItemMeta = (ItemMeta) config.get(path + ".Metadata");
-        }
+        ItemMeta winningItemStackItemMeta = getConfiguredMeta(config, path, winningItemStack.getItemMeta());
 
         if (config.isSet(path + ".Flags")) {
             winningItemStackItemMeta = cratesPlus.getVersion_util().handleItemFlags(winningItemStackItemMeta, config.getStringList(path + ".Flags"));
@@ -230,6 +228,66 @@ public class Winning {
         // Done :D
         valid = true;
         this.previewItemStack = previewItemStack;
+    }
+
+    /**
+     * Serialized 1.15 ItemMeta cannot always be reconstructed by a current
+     * Paper runtime. Recover portable YAML fields when Paper exposes it as a
+     * map, rather than silently discarding the custom-model data and flags.
+     */
+    private ItemMeta getConfiguredMeta(FileConfiguration config, String path, ItemMeta fallback) {
+        Object stored = config.get(path + ".Metadata");
+        if (stored instanceof ItemMeta itemMeta) {
+            return itemMeta.clone();
+        }
+        if (stored instanceof ConfigurationSection section) {
+            return getConfiguredMeta(section.getValues(false), fallback);
+        }
+        if (!(stored instanceof Map<?, ?> metadata)) {
+            return fallback;
+        }
+
+        return getConfiguredMeta(metadata, fallback);
+    }
+
+    private ItemMeta getConfiguredMeta(Map<?, ?> metadata, ItemMeta fallback) {
+
+        Object unbreakable = metadata.get("Unbreakable");
+        if (unbreakable instanceof Boolean value) {
+            fallback.setUnbreakable(value);
+        }
+        applyLegacyItemFlags(metadata.get("ItemFlags"), fallback);
+        applyCustomModelData(metadata.get("custom-model-data"), fallback);
+        applyDamage(metadata.get("Damage"), fallback);
+        return fallback;
+    }
+
+    private void applyLegacyItemFlags(Object value, ItemMeta itemMeta) {
+        if (!(value instanceof Iterable<?> flags)) {
+            return;
+        }
+        List<String> names = new ArrayList<>();
+        for (Object flag : flags) {
+            if (flag != null) {
+                names.add(flag.toString());
+            }
+        }
+        cratesPlus.getVersion_util().handleItemFlags(itemMeta, names);
+    }
+
+    private void applyCustomModelData(Object value, ItemMeta itemMeta) {
+        if (!(value instanceof Number number)) {
+            return;
+        }
+        CustomModelDataComponent customModelData = itemMeta.getCustomModelDataComponent();
+        customModelData.setFloats(List.of(number.floatValue()));
+        itemMeta.setCustomModelDataComponent(customModelData);
+    }
+
+    private void applyDamage(Object value, ItemMeta itemMeta) {
+        if (value instanceof Number number && itemMeta instanceof Damageable damageable) {
+            damageable.setDamage(Math.max(0, number.intValue()));
+        }
     }
 
     public boolean isValid() {
