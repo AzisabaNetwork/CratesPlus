@@ -7,6 +7,8 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -46,6 +48,8 @@ public class CratesPlus extends JavaPlugin implements Listener {
     private String bukkitVersion = "0.0";
     private Version_Util version_util;
     private TextInputHandler textInputHandler;
+    private File cratesFile;
+    private YamlConfiguration cratesConfig;
     private NamespacedKey keyCrateKey;
     private NamespacedKey crateBlockItemKey;
     private static OpenHandler openHandler;
@@ -73,6 +77,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
         final ConsoleCommandSender console = server.getConsoleSender();
         getConfig().options().copyDefaults(true);
         saveConfig();
+        loadCratesConfig();
 
         hologramHandler = new HologramHandler();
 
@@ -100,7 +105,7 @@ public class CratesPlus extends JavaPlugin implements Listener {
         YamlConfiguration messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
         MessageHandler.loadMessageConfiguration(this, messagesConfig, messagesFile);
 
-        configHandler = new ConfigHandler(getConfig(), this);
+        configHandler = new ConfigHandler(getConfig(), getCratesConfig(), this);
         legacyMigrationService = new LegacyMigrationService(this);
         crateBlockStorage = new CrateBlockStorage(this);
         Bukkit.getPluginManager().registerEvents(crateBlockStorage, this);
@@ -122,7 +127,9 @@ public class CratesPlus extends JavaPlugin implements Listener {
         pluginPrefix = messagesConfig.getString("Prefix", "&7[&bCratesPlus&7]") + " ";
 
         // Register /crate command
-        Bukkit.getPluginCommand("crate").setExecutor(new CrateCommand(this));
+        CrateCommand crateCommand = new CrateCommand(this);
+        Bukkit.getPluginCommand("crate").setExecutor(crateCommand);
+        Bukkit.getPluginCommand("crate").setTabCompleter(crateCommand);
 
         // Register Events
         Bukkit.getPluginManager().registerEvents(new BlockListeners(this), this);
@@ -258,7 +265,8 @@ public class CratesPlus extends JavaPlugin implements Listener {
         pluginPrefix = getConfig().getString("Prefix", "&7[&bCratesPlus&7]") + " ";
 
         // Reload Configuration
-        configHandler = new ConfigHandler(getConfig(), this);
+        loadCratesConfig();
+        configHandler = new ConfigHandler(getConfig(), getCratesConfig(), this);
 
         // Settings Handler
         settingsHandler = new SettingsHandler(this);
@@ -325,6 +333,51 @@ public class CratesPlus extends JavaPlugin implements Listener {
 
     public StorageHandler getStorageHandler() {
         return storageHandler;
+    }
+
+    /** Crate definitions are intentionally separate from general plugin settings. */
+    public FileConfiguration getCratesConfig() {
+        return cratesConfig;
+    }
+
+    public void saveCratesConfig() {
+        try {
+            cratesConfig.save(cratesFile);
+        } catch (IOException exception) {
+            getLogger().severe("Could not save crates.yml: " + exception.getMessage());
+        }
+    }
+
+    private void loadCratesConfig() {
+        cratesFile = new File(getDataFolder(), "crates.yml");
+        cratesConfig = YamlConfiguration.loadConfiguration(cratesFile);
+        if (!cratesFile.exists()) {
+            if (getConfig().isConfigurationSection("Crates")) {
+                copySection(getConfig().getConfigurationSection("Crates"), cratesConfig.createSection("Crates"));
+                saveCratesConfig();
+                getConfig().set("Crates", null);
+                saveConfig();
+                getLogger().info("Migrated crate definitions from config.yml to crates.yml.");
+            } else {
+                cratesConfig.createSection("Crates");
+                saveCratesConfig();
+            }
+        }
+        if (!cratesConfig.isConfigurationSection("Crates")) {
+            cratesConfig.createSection("Crates");
+            saveCratesConfig();
+        }
+    }
+
+    private void copySection(ConfigurationSection source, ConfigurationSection target) {
+        for (String key : source.getKeys(false)) {
+            Object value = source.get(key);
+            if (value instanceof ConfigurationSection child) {
+                copySection(child, target.createSection(key));
+            } else {
+                target.set(key, value);
+            }
+        }
     }
 
     public LegacyMigrationService getLegacyMigrationService() {

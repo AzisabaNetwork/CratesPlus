@@ -37,7 +37,7 @@ public final class LegacyMigrationService {
     }
 
     public Report inspect(boolean apply) {
-        FileConfiguration config = plugin.getConfig();
+        FileConfiguration config = plugin.getCratesConfig();
         Report report = new Report();
         if (apply) {
             report.backupFile = backupConfig();

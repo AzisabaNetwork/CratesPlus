@@ -51,7 +51,7 @@ public class PlayerInteract implements Listener {
             crateType = ComponentUtil.plain(ComponentUtil.legacy(title.replaceAll(" Crate", "")));
         }
 
-        if (!cratesPlus.getConfig().isSet("Crates." + crateType)) {
+        if (!cratesPlus.getCratesConfig().isSet("Crates." + crateType)) {
             return;
         }
 

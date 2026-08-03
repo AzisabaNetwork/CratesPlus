@@ -18,8 +18,8 @@ public class VirtualCrate extends Crate {
     }
 
     protected void loadCrate() {
-        if (getCratesPlus().getConfig().isSet("Crates." + name + ".Crates")) {
-            for (String key : getCratesPlus().getConfig().getStringList("Crates." + name + ".Crates")) {
+        if (getCratesPlus().getCratesConfig().isSet("Crates." + name + ".Crates")) {
+            for (String key : getCratesPlus().getCratesConfig().getStringList("Crates." + name + ".Crates")) {
                 Crate crate = getConfigHandler().getCrate(key.toLowerCase());
                 if (crate == null) {
                     getCratesPlus().getLogger().warning("Failed to find crate \"" + key + "\"");

@@ -19,10 +19,10 @@ Config Version: 7
 Prefix: "&7[&bCratesPlus&7]"
 
 # Default language. A matching player client language is used when available.
-Locale: en_US
+Locale: ja_JP
 
 # Checks if an update is available and notifies staff
-Update Checks: true
+Update Checks: false
 Update Branch: "release"
 
 # Uploads anonymous data about your server, used for general statics
@@ -30,13 +30,13 @@ Metrics: true
 
 Crates:
 
-# Opener which is used by default
+# Opener that is used by default
 Default Opener: BasicGUI
 
 # Default cooldown between opening crates
 Default Cooldown: 5
 
-# If true it will stop players without the admin perm breaking crates
+# If true, it will stop players without the admin perm breaking crates
 Crate Protection: false
 
 # Disable players being allowed to drop keys to other players, putting them in a chest, or even drop them on death

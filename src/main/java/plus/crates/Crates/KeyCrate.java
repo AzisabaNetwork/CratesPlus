@@ -28,18 +28,18 @@ public class KeyCrate extends Crate {
 
     protected void loadCrate() {
         CratesPlus cratesPlus = getCratesPlus();
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Preview"))
-            this.preview = cratesPlus.getConfig().getBoolean("Crates." + name + ".Preview");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Knockback"))
-            this.knockback = cratesPlus.getConfig().getDouble("Crates." + name + ".Knockback");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Preview"))
+            this.preview = cratesPlus.getCratesConfig().getBoolean("Crates." + name + ".Preview");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Knockback"))
+            this.knockback = cratesPlus.getCratesConfig().getDouble("Crates." + name + ".Knockback");
 
-        if (!cratesPlus.getConfig().isSet("Crates." + name + ".Key") || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Item") || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Name") || !cratesPlus.getConfig().isSet("Crates." + name + ".Key.Enchanted"))
+        if (!cratesPlus.getCratesConfig().isSet("Crates." + name + ".Key") || !cratesPlus.getCratesConfig().isSet("Crates." + name + ".Key.Item") || !cratesPlus.getCratesConfig().isSet("Crates." + name + ".Key.Name") || !cratesPlus.getCratesConfig().isSet("Crates." + name + ".Key.Enchanted"))
             return;
 
         Material material = MaterialResolver.resolve(cratesPlus,
-                cratesPlus.getConfig().getString("Crates." + name + ".Key.Item"), Material.TRIPWIRE_HOOK,
+                cratesPlus.getCratesConfig().getString("Crates." + name + ".Key.Item"), Material.TRIPWIRE_HOOK,
                 "Crates." + name + ".Key.Item");
-        this.key = new Key(this, material, (short) cratesPlus.getConfig().getInt("Crates." + name + ".Key.Data", 0), cratesPlus.getConfig().getString("Crates." + name + ".Key.Name").replaceAll("%type%", getName(true)), cratesPlus.getConfig().getBoolean("Crates." + name + ".Key.Enchanted"), cratesPlus.getConfig().getStringList("Crates." + name + ".Key.Lore"), cratesPlus);
+        this.key = new Key(this, material, (short) cratesPlus.getCratesConfig().getInt("Crates." + name + ".Key.Data", 0), cratesPlus.getCratesConfig().getString("Crates." + name + ".Key.Name").replaceAll("%type%", getName(true)), cratesPlus.getCratesConfig().getBoolean("Crates." + name + ".Key.Enchanted"), cratesPlus.getCratesConfig().getStringList("Crates." + name + ".Key.Lore"), cratesPlus);
     }
 
     public Key getKey() {

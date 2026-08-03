@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -29,12 +30,60 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 
-public class CrateCommand implements CommandExecutor {
+public class CrateCommand implements CommandExecutor, TabCompleter {
     private final CratesPlus cratesPlus;
 
     public CrateCommand(CratesPlus cratesPlus) {
         this.cratesPlus = cratesPlus;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> candidates = new ArrayList<>();
+        boolean admin = !(sender instanceof Player) || sender.hasPermission("cratesplus.admin");
+        if (args.length == 1) {
+            candidates.add("claim");
+            if (admin) {
+                candidates.addAll(List.of("reload", "settings", "create", "rename", "delete", "give", "key",
+                        "crate", "keycrate", "opener", "openers", "migratelegacy", "mysterygui",
+                        "testmessages", "testeggs"));
+            }
+        } else if (admin) {
+            String action = args[0].toLowerCase(Locale.ROOT);
+            switch (action) {
+                case "rename", "delete", "mysterygui", "crate", "keycrate", "opener", "openers" -> {
+                    if (args.length == 2) candidates.addAll(crateNames());
+                    else if ((action.equals("crate") || action.equals("keycrate")) && args.length == 3) candidates.addAll(playerNames());
+                    else if ((action.equals("opener") || action.equals("openers")) && args.length == 3) candidates.addAll(CratesPlus.getOpenHandler().getRegistered().keySet());
+                }
+                case "give", "key" -> {
+                    if (args.length == 2) {
+                        candidates.addAll(playerNames());
+                        candidates.add("all");
+                        candidates.add("alloffline");
+                    } else if (args.length == 3) candidates.addAll(crateNames());
+                }
+                case "migratelegacy" -> {
+                    if (args.length == 2) candidates.addAll(List.of("report", "apply", "keys"));
+                    else if (args.length == 3 && args[1].equalsIgnoreCase("keys")) candidates.addAll(playerNames());
+                }
+            }
+        }
+        String prefix = args[args.length - 1].toLowerCase(Locale.ROOT);
+        return candidates.stream().filter(value -> value.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();
+    }
+
+    private Collection<String> crateNames() {
+        return cratesPlus.getConfigHandler().getCrates().values().stream().map(Crate::getName).toList();
+    }
+
+    private Collection<String> playerNames() {
+        return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
     }
 
     @Override
@@ -233,7 +282,7 @@ public class CrateCommand implements CommandExecutor {
                     }
 
                     String name = args[1];
-                    FileConfiguration config = cratesPlus.getConfig();
+                    FileConfiguration config = cratesPlus.getCratesConfig();
                     if (config.isSet("Crates." + name)) {
                         message(sender, cratesPlus.getPluginPrefix() + "&c" + name + " crate already exists");
                         return false;
@@ -259,7 +308,7 @@ public class CrateCommand implements CommandExecutor {
                     config.set("Crates." + name + ".Block", "CHEST");
                     config.set("Crates." + name + ".Color", "WHITE");
                     config.set("Crates." + name + ".Type", "KeyCrate");
-                    cratesPlus.saveConfig();
+                    cratesPlus.saveCratesConfig();
                     cratesPlus.reloadPlugin();
 
                     message(sender, cratesPlus.getPluginPrefix() + "&a" + name + " crate has been created");
@@ -279,7 +328,7 @@ public class CrateCommand implements CommandExecutor {
                     }
                     Crate crate = cratesPlus.getConfigHandler().getCrates().get(oldName.toLowerCase());
 
-                    config = cratesPlus.getConfig();
+                    config = cratesPlus.getCratesConfig();
                     if (config.isSet("Crates." + newName)) {
                         message(sender, cratesPlus.getPluginPrefix() + "&c" + newName + " crate already exists");
                         return false;
@@ -288,7 +337,7 @@ public class CrateCommand implements CommandExecutor {
                     LinfootUtil.copyConfigSection(config, "Crates." + crate.getName(), "Crates." + newName);
 
                     config.set("Crates." + crate.getName(), null);
-                    cratesPlus.saveConfig();
+                    cratesPlus.saveCratesConfig();
                     cratesPlus.reloadPlugin();
 
                     message(sender, cratesPlus.getPluginPrefix() + "&a" + oldName + " has been renamed to " + newName);
@@ -300,14 +349,14 @@ public class CrateCommand implements CommandExecutor {
                     }
 
                     name = args[1];
-                    config = cratesPlus.getConfig();
+                    config = cratesPlus.getCratesConfig();
                     if (!config.isSet("Crates." + name)) {
                         message(sender, cratesPlus.getPluginPrefix() + "&c" + name + " crate doesn't exist");
                         return false;
                     }
 
                     config.set("Crates." + name, null);
-                    cratesPlus.saveConfig();
+                    cratesPlus.saveCratesConfig();
                     cratesPlus.reloadPlugin();
 
                     message(sender, cratesPlus.getPluginPrefix() + "&a" + name + " crate has been deleted");

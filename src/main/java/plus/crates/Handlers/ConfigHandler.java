@@ -24,7 +24,7 @@ public class ConfigHandler {
     private boolean debugMode = false;
     private List<ConfigVersion> configVersions = new ArrayList<>();
 
-    public ConfigHandler(FileConfiguration config, CratesPlus cratesPlus) {
+    public ConfigHandler(FileConfiguration config, FileConfiguration cratesConfig, CratesPlus cratesPlus) {
         this.cratesPlus = cratesPlus;
 
         // Register config versions
@@ -65,9 +65,9 @@ public class ConfigHandler {
             setDefaultCooldown(config.getInt("Default Cooldown"));
 
         // Register Crates
-        if (config.isSet("Crates")) {
-            for (String crate : config.getConfigurationSection("Crates").getKeys(false)) {
-                registerCrate(cratesPlus, config, crate);
+        if (cratesConfig.isSet("Crates")) {
+            for (String crate : cratesConfig.getConfigurationSection("Crates").getKeys(false)) {
+                registerCrate(cratesPlus, cratesConfig, crate);
             }
         }
 
@@ -96,8 +96,8 @@ public class ConfigHandler {
 
         for (String crateLowerName : crates.keySet()) {
             Crate crate = crates.get(crateLowerName);
-            List<String> crateSpecificHologram = config.getStringList("Crates." + crate.getName() + ".Hologram Text");
-            holograms.put(crate.getName().toLowerCase(), (config.isSet("Crates." + crate.getName() + ".Hologram Text")) ? crateSpecificHologram : defaultHologramText);
+            List<String> crateSpecificHologram = cratesConfig.getStringList("Crates." + crate.getName() + ".Hologram Text");
+            holograms.put(crate.getName().toLowerCase(), (cratesConfig.isSet("Crates." + crate.getName() + ".Hologram Text")) ? crateSpecificHologram : defaultHologramText);
         }
     }
 

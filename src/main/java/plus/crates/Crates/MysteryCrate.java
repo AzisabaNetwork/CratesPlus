@@ -28,14 +28,14 @@ public class MysteryCrate extends Crate {
 
     protected void loadCrate() {
         CratesPlus cratesPlus = getCratesPlus();
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".GUI Title"))
-            this.guiTitle = ComponentUtil.legacyString(cratesPlus.getConfig().getString("Crates." + name + ".GUI Title"));
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".GUI Title"))
+            this.guiTitle = ComponentUtil.legacyString(cratesPlus.getCratesConfig().getString("Crates." + name + ".GUI Title"));
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Item Title"))
-            this.itemTitle = ComponentUtil.legacyString(cratesPlus.getConfig().getString("Crates." + name + ".Item Title"));
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Item Title"))
+            this.itemTitle = ComponentUtil.legacyString(cratesPlus.getCratesConfig().getString("Crates." + name + ".Item Title"));
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Lore"))
-            this.lore = cratesPlus.getConfig().getStringList("Crates." + name + ".Lore");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Lore"))
+            this.lore = cratesPlus.getCratesConfig().getStringList("Crates." + name + ".Lore");
     }
 
     public boolean give(OfflinePlayer offlinePlayer, Integer amount) {

@@ -39,20 +39,20 @@ public class DropCrate extends SupplyCrate implements Listener {
 
     private void loadCrateMore() {
         CratesPlus cratesPlus = getCratesPlus();
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Worlds"))
-            this.worlds = cratesPlus.getConfig().getStringList("Crates." + name + ".Worlds");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Worlds"))
+            this.worlds = cratesPlus.getCratesConfig().getStringList("Crates." + name + ".Worlds");
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Min Spawn Interval"))
-            this.minSpawnInterval = cratesPlus.getConfig().getInt("Crates." + name + ".Min Spawn Interval", this.minSpawnInterval);
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Min Spawn Interval"))
+            this.minSpawnInterval = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Min Spawn Interval", this.minSpawnInterval);
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Max Spawn Interval"))
-            this.maxSpawnInterval = cratesPlus.getConfig().getInt("Crates." + name + ".Max Spawn Interval", this.maxSpawnInterval);
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Max Spawn Interval"))
+            this.maxSpawnInterval = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Max Spawn Interval", this.maxSpawnInterval);
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Min Players"))
-            this.minPlayers = cratesPlus.getConfig().getInt("Crates." + name + ".Min Players", this.minPlayers);
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Min Players"))
+            this.minPlayers = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Min Players", this.minPlayers);
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Despawn Timer"))
-            this.despawnTimer = cratesPlus.getConfig().getInt("Crates." + name + ".Despawn Timer", this.despawnTimer);
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Despawn Timer"))
+            this.despawnTimer = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Despawn Timer", this.despawnTimer);
     }
 
     private void startTimer() {

@@ -45,7 +45,7 @@ public class Winning {
             cratesPlus.getLogger().info("Loading data for \"" + path + "\"");
         }
 
-        FileConfiguration config = cratesPlus.getConfig();
+        FileConfiguration config = cratesPlus.getCratesConfig();
         if (!config.isSet(path))
             return;
 
@@ -276,7 +276,22 @@ public class Winning {
     }
 
     private void applyCustomModelData(Object value, ItemMeta itemMeta) {
-        if (!(value instanceof Number number)) {
+        Number number = value instanceof Number direct ? direct : null;
+        if (number == null && value instanceof ConfigurationSection section) {
+            value = section.getValues(false);
+        }
+        if (number == null && value instanceof Map<?, ?> values) {
+            Object floats = values.get("floats");
+            if (floats instanceof Iterable<?> iterable) {
+                for (Object entry : iterable) {
+                    if (entry instanceof Number floatValue) {
+                        number = floatValue;
+                        break;
+                    }
+                }
+            }
+        }
+        if (number == null) {
             return;
         }
         CustomModelDataComponent customModelData = itemMeta.getCustomModelDataComponent();

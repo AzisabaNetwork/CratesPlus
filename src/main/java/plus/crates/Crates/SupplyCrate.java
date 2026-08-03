@@ -30,21 +30,21 @@ public class SupplyCrate extends Crate {
     protected void loadCrate() {
         CratesPlus cratesPlus = getCratesPlus();
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Lore"))
-            this.lore = cratesPlus.getConfig().getStringList("Crates." + name + ".Lore");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Lore"))
+            this.lore = cratesPlus.getCratesConfig().getStringList("Crates." + name + ".Lore");
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Minimum"))
-            this.minimum = cratesPlus.getConfig().getInt("Crates." + name + ".Minimum");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Minimum"))
+            this.minimum = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Minimum");
         else
             this.minimum = 1;
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Maximum"))
-            this.maximum = cratesPlus.getConfig().getInt("Crates." + name + ".Maximum");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Maximum"))
+            this.maximum = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Maximum");
         else
             this.maximum = 1;
 
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Destroy Block"))
-            this.destroyBlock = cratesPlus.getConfig().getBoolean("Crates." + name + ".Destroy Block", false);
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Destroy Block"))
+            this.destroyBlock = cratesPlus.getCratesConfig().getBoolean("Crates." + name + ".Destroy Block", false);
 
         if (this.maximum > this.getWinningsExcludeAlways().size())
             this.maximum = this.getWinningsExcludeAlways().size();

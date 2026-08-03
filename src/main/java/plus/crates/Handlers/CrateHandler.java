@@ -145,7 +145,7 @@ public class CrateHandler {
     }
 
     public void giveCrateKey(OfflinePlayer offlinePlayer) {
-        Set<String> crates = cratesPlus.getConfig().getConfigurationSection("Crates").getKeys(false);
+        Set<String> crates = cratesPlus.getCratesConfig().getConfigurationSection("Crates").getKeys(false);
         Integer random = randInt(0, crates.size() - 1);
         String crateType = "";
         Integer i = 0;

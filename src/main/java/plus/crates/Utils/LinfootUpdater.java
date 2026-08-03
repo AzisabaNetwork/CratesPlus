@@ -5,11 +5,11 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import plus.crates.CratesPlus;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class LinfootUpdater {
     private final CratesPlus cratesPlus;
@@ -33,16 +33,15 @@ public class LinfootUpdater {
     }
 
     private void doCheck() {
-        String data = null;
-        String url = "http://api.connorlinfoot.com/v2/resource/" + branch + "/cratesplus/";
+        String url = "https://api.connorlinfoot.com/v2/resource/" + branch + "/cratesplus/";
+        String data;
         try {
             data = doCurl(url);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        JSONParser jsonParser = new JSONParser();
-        try {
-            JSONObject obj = (JSONObject) jsonParser.parse(data);
+            Object parsed = new JSONParser().parse(data);
+            if (!(parsed instanceof JSONObject obj)) {
+                cratesPlus.getLogger().warning("Update service returned an unexpected response.");
+                return;
+            }
             if (obj.get("version") != null) {
                 String newestVersion = obj.get("version") + "." + obj.get("snapshot");
                 String currentVersion = cratesPlus.getDescription().getVersion().replaceAll("-SNAPSHOT-", "."); // Changes 4.0.0-SNAPSHOT-4 to 4.0.0.4
@@ -58,8 +57,8 @@ public class LinfootUpdater {
                     result = UpdateResult.NO_UPDATE;
                 }
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } catch (IOException | ParseException | NumberFormatException exception) {
+            cratesPlus.getLogger().warning("Unable to check for updates: " + exception.getMessage());
         }
     }
 
@@ -74,20 +73,26 @@ public class LinfootUpdater {
     public String doCurl(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("POST");
+        con.setRequestMethod("GET");
         con.setInstanceFollowRedirects(true);
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        DataOutputStream output = new DataOutputStream(con.getOutputStream());
-        output.close();
-        DataInputStream input = new DataInputStream(con.getInputStream());
-        int c;
-        StringBuilder resultBuf = new StringBuilder();
-        while ((c = input.read()) != -1) {
-            resultBuf.append((char) c);
+        con.setConnectTimeout(10_000);
+        con.setReadTimeout(10_000);
+        con.setRequestProperty("Accept", "application/json");
+        con.setRequestProperty("User-Agent", "CratesPlus update checker");
+
+        int status = con.getResponseCode();
+        if (status < 200 || status >= 300) {
+            throw new IOException("update service returned HTTP " + status);
         }
-        input.close();
-        return resultBuf.toString();
+        String contentType = con.getContentType();
+        if (contentType == null || !contentType.toLowerCase().contains("application/json")) {
+            throw new IOException("update service returned " + (contentType == null ? "an unknown content type" : contentType));
+        }
+        try (InputStream input = con.getInputStream()) {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        } finally {
+            con.disconnect();
+        }
     }
 
 }

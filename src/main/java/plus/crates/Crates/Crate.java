@@ -53,38 +53,38 @@ public abstract class Crate {
 
     private void loadCrateBase() {
         CratesPlus cratesPlus = configHandler.getCratesPlus();
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Hide Percentages"))
-            this.hidePercentages = cratesPlus.getConfig().getBoolean("Crates." + name + ".Hide Percentages");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Color")) {
-            NamedTextColor parsedColor = NamedTextColor.NAMES.value(cratesPlus.getConfig().getString("Crates." + name + ".Color").toLowerCase());
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Hide Percentages"))
+            this.hidePercentages = cratesPlus.getCratesConfig().getBoolean("Crates." + name + ".Hide Percentages");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Color")) {
+            NamedTextColor parsedColor = NamedTextColor.NAMES.value(cratesPlus.getCratesConfig().getString("Crates." + name + ".Color").toLowerCase());
             if (parsedColor == null) {
                 cratesPlus.getLogger().warning("Invalid crate color for " + name + "; using white.");
             } else {
                 this.color = parsedColor;
             }
         }
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Block"))
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Block"))
             this.block = MaterialResolver.resolve(cratesPlus,
-                    cratesPlus.getConfig().getString("Crates." + name + ".Block"), Material.CHEST,
+                    cratesPlus.getCratesConfig().getString("Crates." + name + ".Block"), Material.CHEST,
                     "Crates." + name + ".Block");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Block Data"))
-            this.blockData = cratesPlus.getConfig().getInt("Crates." + name + ".Block Data", 0);
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Permission"))
-            this.permission = cratesPlus.getConfig().getString("Crates." + name + ".Permission");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Firework"))
-            this.firework = cratesPlus.getConfig().getBoolean("Crates." + name + ".Firework");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Broadcast"))
-            this.broadcast = cratesPlus.getConfig().getBoolean("Crates." + name + ".Broadcast");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Opener"))
-            this.opener = cratesPlus.getConfig().getString("Crates." + name + ".Opener");
-        if (cratesPlus.getConfig().isSet("Crates." + name + ".Cooldown"))
-            this.cooldown = cratesPlus.getConfig().getInt("Crates." + name + ".Cooldown");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Block Data"))
+            this.blockData = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Block Data", 0);
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Permission"))
+            this.permission = cratesPlus.getCratesConfig().getString("Crates." + name + ".Permission");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Firework"))
+            this.firework = cratesPlus.getCratesConfig().getBoolean("Crates." + name + ".Firework");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Broadcast"))
+            this.broadcast = cratesPlus.getCratesConfig().getBoolean("Crates." + name + ".Broadcast");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Opener"))
+            this.opener = cratesPlus.getCratesConfig().getString("Crates." + name + ".Opener");
+        if (cratesPlus.getCratesConfig().isSet("Crates." + name + ".Cooldown"))
+            this.cooldown = cratesPlus.getCratesConfig().getInt("Crates." + name + ".Cooldown");
 
-        if (!cratesPlus.getConfig().isSet("Crates." + name + ".Winnings"))
+        if (!cratesPlus.getCratesConfig().isSet("Crates." + name + ".Winnings"))
             return;
 
-        if (cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings") != null) {
-            for (String id : cratesPlus.getConfig().getConfigurationSection("Crates." + name + ".Winnings").getKeys(false)) {
+        if (cratesPlus.getCratesConfig().getConfigurationSection("Crates." + name + ".Winnings") != null) {
+            for (String id : cratesPlus.getCratesConfig().getConfigurationSection("Crates." + name + ".Winnings").getKeys(false)) {
                 String path = "Crates." + name + ".Winnings." + id;
                 Winning winning = new Winning(this, path, cratesPlus, null);
                 if (!winning.isValid()) {
@@ -101,11 +101,11 @@ public abstract class Crate {
 
     private void loadPity(CratesPlus cratesPlus) {
         String path = "Crates." + name + ".Pity";
-        if (!cratesPlus.getConfig().isConfigurationSection(path)) {
+        if (!cratesPlus.getCratesConfig().isConfigurationSection(path)) {
             return;
         }
 
-        pityLimit = cratesPlus.getConfig().getInt(path + ".Limit", 0);
+        pityLimit = cratesPlus.getCratesConfig().getInt(path + ".Limit", 0);
         if (pityLimit < 1) {
             if (pityLimit != 0) {
                 cratesPlus.getLogger().warning("Pity.Limit for crate '" + name + "' must be at least 1; pity is disabled.");
@@ -162,8 +162,8 @@ public abstract class Crate {
     public void setColor(NamedTextColor color) {
         this.color = color;
         String path = "Crates." + name + ".Color";
-        getCratesPlus().getConfig().set(path, NamedTextColor.NAMES.key(color));
-        getCratesPlus().saveConfig();
+        getCratesPlus().getCratesConfig().set(path, NamedTextColor.NAMES.key(color));
+        getCratesPlus().saveCratesConfig();
         getCratesPlus().reloadPlugin();
     }
 

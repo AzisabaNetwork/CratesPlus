@@ -292,8 +292,8 @@ public class SettingsHandler implements Listener {
             @Override
             public void doClick(Player player, GUI gui) {
                 player.closeInventory();
-                cratesPlus.getConfig().set("Crates." + crate.getName(false), null);
-                cratesPlus.saveConfig();
+                cratesPlus.getCratesConfig().set("Crates." + crate.getName(false), null);
+                cratesPlus.saveCratesConfig();
                 cratesPlus.reloadPlugin();
                 MessageHandler.sendLegacy(player, "&aDeleted crate " + crate.getName(false) + ".");
             }
