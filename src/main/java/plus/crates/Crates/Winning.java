@@ -89,7 +89,7 @@ public class Winning {
                     return;
                 }
             } else {
-                itemType = configuredItemType == null ? null : Material.matchMaterial(configuredItemType, true);
+                itemType = configuredItemType == null ? null : Material.matchMaterial(configuredItemType);
                 if (itemType == null || itemType.isLegacy()) {
                     cratesPlus.getLogger().warning("Invalid or legacy item type '" + configuredItemType + "' for " + path);
                     return;
@@ -112,7 +112,7 @@ public class Winning {
 
             Material itemType = Material.PAPER;
             if (config.isSet(path + ".Item Type"))
-                itemType = Material.matchMaterial(config.getString(path + ".Item Type"), true);
+                itemType = Material.matchMaterial(config.getString(path + ".Item Type"));
 
             if (itemType == null || itemType.isLegacy())
                 return;
